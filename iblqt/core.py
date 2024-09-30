@@ -38,7 +38,9 @@ class DataFrameTableModel(QAbstractTableModel):
 
         Parameters
         ----------
-        dataFrame : DataFrame
+        parent : QObject, optional
+            The parent object.
+        dataFrame : DataFrame, optional
             The Pandas DataFrame to be represented by the model.
         *args : tuple
             Positional arguments passed to the parent class.
@@ -212,7 +214,9 @@ class ColoredDataFrameTableModel(DataFrameTableModel):
 
         Parameters
         ----------
-        dataFrame : DataFrame
+        parent : QObject, optional
+            The parent object.
+        dataFrame : DataFrame, optional
             The Pandas DataFrame to be represented by the model.
         colormap : str
             The colormap to be used. Can be the name of a valid colormap from matplotlib or colorcet.
