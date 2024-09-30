@@ -17,8 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Set up PDM
-        uses: pdm-project/setup-pdm@v4
+      - uses: pdm-project/setup-pdm@v4
         with:
           cache: true
           python-version: '3.10'
@@ -26,8 +25,7 @@ jobs:
         run: pdm sync -dG doc -dG qt5
       - name: Sphinx build
         run: pdm run sphinx-build docs/source docs/build
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
+      - uses: peaceiris/actions-gh-pages@v4
         with:
           publish_branch: gh-pages
           github_token: ${{ secrets.GITHUB_TOKEN }}

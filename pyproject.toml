@@ -32,6 +32,7 @@ doc = [
     "sphinx-autodoc-typehints>=2.3.0",
     "sphinx-qt-documentation>=0.4.1",
     "sphinx-rtd-theme>=2.0.0",
+    "graphviz>=0.20.3",
 ]
 lint = [
     "ruff>=0.6.2",
