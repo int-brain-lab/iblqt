@@ -46,12 +46,7 @@ typing = [
 ]
 qt5 = [
     "PyQt5>=5.15.11",
-]
-qt6 = [
-    "PyQt6>=6.7.1",
-]
-pyside6 = [
-    "PySide6>=6.7.3",
+    "PyQt5-stubs>=5.15.6.0",
 ]
 
 [tool.ruff]
@@ -64,7 +59,7 @@ quote-style = "single"
 extend-select = ["D"]
 
 [tool.ruff.lint.per-file-ignores]
-"src/*.py" = ["D"]
+"tests/**/*.py" = ["D"] # pydocstyle
 
 [tool.ruff.lint.pydocstyle]
 convention = "numpy"

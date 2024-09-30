@@ -59,7 +59,7 @@ html_theme_options = {
 
 # -- Settings for automatic API generation -----------------------------------
 autodoc_mock_imports = ["PySpin"]
-autodoc_class_signature = 'mixed'  # 'mixed', 'separated'
+autodoc_class_signature = 'separated'  # 'mixed', 'separated'
 autodoc_member_order = 'groupwise'  # 'alphabetical', 'groupwise', 'bysource'
 autodoc_inherit_docstrings = False
 autodoc_typehints = 'description'  # 'description', 'signature', 'none', 'both'
@@ -73,7 +73,7 @@ napoleon_google_docstring = False
 napoleon_numpy_docstring = True
 napoleon_include_init_with_doc = False
 napoleon_include_private_with_doc = False
-napoleon_include_special_with_doc = False
+napoleon_include_special_with_doc = True
 napoleon_use_admonition_for_examples = True
 napoleon_use_admonition_for_notes = True
 napoleon_use_admonition_for_references = True

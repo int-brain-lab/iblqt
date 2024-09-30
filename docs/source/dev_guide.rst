@@ -39,7 +39,7 @@ Checking and formatting of code
 
    pdm run ruff format
    pdm run ruff check --fix
-   pdm run mypy
+   pdm run mypy --package iblqt $(qtpy mypy-args)
 
 
 Building the documentation

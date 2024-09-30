@@ -1,3 +1,5 @@
+"""Non-GUI functionality, including event handling, data types, and data management."""
+
 import logging
 
 from pyqtgraph import ColorMap, colormap  # type: ignore
@@ -16,6 +18,7 @@ from qtpy.QtGui import QColor
 import pandas as pd
 from pandas import DataFrame
 import numpy as np
+import numpy.typing as npt
 
 log = logging.getLogger(__name__)
 
@@ -45,7 +48,18 @@ class DataFrameTableModel(QAbstractTableModel):
         super().__init__(parent, *args, **kwargs)
         self._dataFrame: DataFrame = DataFrame() if dataFrame is None else dataFrame
 
-    def setDataFrame(self, dataFrame: DataFrame) -> None:
+    def getDataFrame(self) -> DataFrame:
+        """
+        Get the underlying DataFrame.
+
+        Returns
+        -------
+        DataFrame
+            The DataFrame represented by the model.
+        """
+        return self._dataFrame
+
+    def setDataFrame(self, dataFrame: DataFrame):
         """
         Set a new DataFrame.
 
@@ -58,18 +72,8 @@ class DataFrameTableModel(QAbstractTableModel):
         self._dataFrame = dataFrame.copy()
         self.endResetModel()
 
-    def dataFrame(self) -> DataFrame:
-        """
-        Get the underlying DataFrame.
-
-        Returns
-        -------
-        DataFrame
-            The DataFrame represented by the model.
-        """
-        return self._dataFrame
-
-    dataFrame = Property(DataFrame, fget=dataFrame, fset=setDataFrame)
+    dataFrame = Property(DataFrame, fget=getDataFrame, fset=setDataFrame)  # type: Property
+    """The DataFrame containing the models data."""
 
     def headerData(
         self,
@@ -182,11 +186,17 @@ class DataFrameTableModel(QAbstractTableModel):
 
 
 class ColoredDataFrameTableModel(DataFrameTableModel):
-    colormapChanged = Signal(str)
-    alphaChanged = Signal(int)
+    """Extension of DataFrameTableModel providing color-mapped numerical data."""
+
+    colormapChanged = Signal(str)  # type: Signal
+    """Emitted when the colormap has been changed."""
+
+    alphaChanged = Signal(int)  # type: Signal
+    """Emitted when the alpha value has been changed."""
+
     _normData = DataFrame()
-    _background: np.ndarray
-    _foreground: np.ndarray
+    _background: npt.NDArray[np.int_]
+    _foreground: npt.NDArray[np.int_]
     _cmap: ColorMap
     _alpha: int
 
@@ -218,8 +228,19 @@ class ColoredDataFrameTableModel(DataFrameTableModel):
         self.modelReset.connect(self._normalizeData)
         self.dataChanged.connect(self._normalizeData)
         self.colormapChanged.connect(self._defineColors)
-        self.setColormap(colormap)
-        self.setAlpha(alpha)
+        self.setProperty('colormap', colormap)
+        self.setProperty('alpha', alpha)
+
+    def getColormap(self) -> str:
+        """
+        Return the name of the current colormap.
+
+        Returns
+        -------
+        str
+            The name of the current colormap
+        """
+        return self._cmap.name
 
     @Slot(str)
     def setColormap(self, name: str):
@@ -238,11 +259,19 @@ class ColoredDataFrameTableModel(DataFrameTableModel):
                 return
         log.warning(f'No such colormap: "{name}"')
 
-    def colormap(self) -> str:
-        """Return the name of the current colormap."""
-        return self._cmap.name
+    colormap = Property(str, fget=getColormap, fset=setColormap, notify=colormapChanged)  # type: Property
+    """The name of the colormap."""
 
-    colormap = Property(str, fget=colormap, fset=setColormap)
+    def getAlpha(self) -> int:
+        """
+        Return the alpha value of the colormap.
+
+        Returns
+        -------
+        int
+            The alpha value of the colormap.
+        """
+        return self._alpha
 
     @Slot(int)
     def setAlpha(self, alpha: int = 255):
@@ -258,11 +287,8 @@ class ColoredDataFrameTableModel(DataFrameTableModel):
         self.alphaChanged.emit(self._alpha)
         self.layoutChanged.emit()
 
-    def alpha(self) -> int:
-        """Return the alpha value of the colormap."""
-        return self._alpha
-
-    alpha = Property(int, fget=alpha, fset=setAlpha)
+    alpha = Property(int, fget=getAlpha, fset=setAlpha, notify=alphaChanged)  # type: Property
+    """The alpha value of the colormap."""
 
     def _normalizeData(self) -> None:
         """Normalize the Data for mapping to a colormap."""
@@ -334,9 +360,10 @@ class ColoredDataFrameTableModel(DataFrameTableModel):
             row = self._dataFrame.index[index.row()]
             col = index.column()
             if role == Qt.BackgroundRole:
-                val = self._background[row][col]
-                return QColor.fromRgb(*val, self._alpha)
+                rgb = self._background[row][col]
+                return QVariant(QColor.fromRgb(*rgb, self._alpha))
             if role == Qt.ForegroundRole:
-                val = self._foreground[row][col]
-                return QColor('black' if (val * self._alpha) < 32512 else 'white')
+                lum: int = self._foreground[row][col]
+                color = QColor('black' if (lum * self._alpha) < 32512 else 'white')
+                return QVariant(color)
         return super().data(index, role)
