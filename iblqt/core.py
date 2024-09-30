@@ -360,10 +360,10 @@ class ColoredDataFrameTableModel(DataFrameTableModel):
             row = self._dataFrame.index[index.row()]
             col = index.column()
             if role == Qt.BackgroundRole:
-                rgb = self._background[row][col]
-                return QVariant(QColor.fromRgb(*rgb, self._alpha))
+                r, g, b = self._background[row][col]
+                return QVariant(QColor.fromRgb(r, g, b, self._alpha))
             if role == Qt.ForegroundRole:
-                lum: int = self._foreground[row][col]
+                lum = self._foreground[row][col]
                 color = QColor('black' if (lum * self._alpha) < 32512 else 'white')
                 return QVariant(color)
         return super().data(index, role)
