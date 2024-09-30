@@ -22,7 +22,7 @@ jobs:
           cache: true
           python-version: '3.10'
       - name: Install dependencies
-        run: pdm sync -dG doc
+        run: pdm sync -dG doc -dG qt5
       - name: Sphinx build
         run: pdm run sphinx-build docs/source docs/build
       - name: Deploy to GitHub Pages

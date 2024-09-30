@@ -44,6 +44,9 @@ typing = [
     "mypy>=1.11.2",
     "pandas-stubs>=2.2.2.240807",
 ]
+qt5 = [
+    "PyQt5>=5.15.11",
+]
 
 [tool.ruff]
 include = ["pyproject.toml", "iblqt/**/*.py", "tests/**/*.py"]
