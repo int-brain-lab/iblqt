@@ -23,6 +23,8 @@ jobs:
           python-version: '3.10'
       - name: Install dependencies
         run: pdm sync -dG doc -dG qt5
+      - name: Install GraphViz
+        run: sudo apt-get install -y graphviz
       - name: Sphinx build
         run: pdm run sphinx-build docs/source docs/build
       - uses: peaceiris/actions-gh-pages@v4
