@@ -47,7 +47,7 @@ class StatefulButton(QPushButton):
         self.clicked.connect(self._onClick)
 
     @Property(bool)
-    def isActive(self) -> bool:
+    def active(self) -> bool:
         """Get the active state of the button.
 
         Returns

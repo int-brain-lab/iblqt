@@ -39,7 +39,8 @@ intersphinx_mapping = {
     'numpy': ('https://numpy.org/doc/stable/', None),
     'pandas': ('https://pandas.pydata.org/docs/', None),
     'scipy': ('https://docs.scipy.org/doc/scipy/', None),
-    'one:': ('https://int-brain-lab.github.io/ONE/', None),
+    'one': ('https://int-brain-lab.github.io/ONE/', None),
+    'iblrig': ('https://int-brain-lab.github.io/iblrig/', None),
 }
 
 
@@ -58,7 +59,7 @@ html_theme_options = {
 
 # -- Settings for automatic API generation -----------------------------------
 autodoc_mock_imports = ["PySpin"]
-autodoc_class_signature = 'separated'  # 'mixed', 'separated'
+autodoc_class_signature = 'mixed'  # 'mixed', 'separated'
 autodoc_member_order = 'groupwise'  # 'alphabetical', 'groupwise', 'bysource'
 autodoc_inherit_docstrings = False
 autodoc_typehints = 'description'  # 'description', 'signature', 'none', 'both'
@@ -70,16 +71,16 @@ autosummary_imported_members = False
 
 napoleon_google_docstring = False
 napoleon_numpy_docstring = True
-napoleon_include_init_with_doc = True
+napoleon_include_init_with_doc = False
 napoleon_include_private_with_doc = False
 napoleon_include_special_with_doc = False
 napoleon_use_admonition_for_examples = True
 napoleon_use_admonition_for_notes = True
 napoleon_use_admonition_for_references = True
-napoleon_use_ivar = False
-napoleon_use_param = False
+napoleon_use_ivar = True
+napoleon_use_param = True
 napoleon_use_rtype = True
 napoleon_use_keyword = True
 napoleon_preprocess_types = True
 napoleon_type_aliases = None
-napoleon_attr_annotations = False
+napoleon_attr_annotations = True
