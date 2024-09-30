@@ -5,9 +5,8 @@
    :caption: Contents
    :hidden:
 
-   api/index
-   api_test
    dev_guide
+   api
    changelog
 
 .. toctree::

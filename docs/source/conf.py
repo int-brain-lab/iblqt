@@ -19,12 +19,14 @@ release = version
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = [
+    'sphinx.ext.autosectionlabel',
     'sphinx.ext.intersphinx',
     'sphinx.ext.napoleon',
     'sphinx.ext.autodoc',
-    'sphinx.ext.linkcode',
+    'sphinx.ext.autosummary',
+    'sphinx.ext.inheritance_diagram',
+    'sphinx.ext.viewcode',
     'sphinx_qt_documentation',
-    # 'autoapi.extension',
     'myst_parser',
 ]
 source_suffix = ['.rst', '.md']
@@ -39,13 +41,6 @@ intersphinx_mapping = {
     'scipy': ('https://docs.scipy.org/doc/scipy/', None),
     'one:': ('https://int-brain-lab.github.io/ONE/', None),
 }
-autodoc_typehints = 'none'
-autoapi_dirs = ['../../iblqt']
-autoapi_options = ['members', 'undoc-members', "show-module-summary", "special-members"]
-autoapi_add_toctree_entry = True
-autoapi_root = 'api'
-# autoapi_own_page_level = 'class'
-qt_documentation = 'Qt5'
 
 
 # -- Options for HTML output -------------------------------------------------
@@ -61,26 +56,30 @@ html_theme_options = {
     'titles_only': False
 }
 
-# -- Napoleon Settings -------------------------------------------------------
+# -- Settings for automatic API generation -----------------------------------
+autodoc_mock_imports = ["PySpin"]
+autodoc_class_signature = 'separated'  # 'mixed', 'separated'
+autodoc_member_order = 'groupwise'  # 'alphabetical', 'groupwise', 'bysource'
+autodoc_inherit_docstrings = False
+autodoc_typehints = 'description'  # 'description', 'signature', 'none', 'both'
+autodoc_typehints_description_target = 'all'  # 'all', 'documented', 'documented_params'
+autodoc_typehints_format = 'short'  # 'fully-qualified', 'short'
+
+autosummary_generate = True
+autosummary_imported_members = False
+
 napoleon_google_docstring = False
 napoleon_numpy_docstring = True
-napoleon_include_special_with_doc = True
-napoleon_use_admonition_for_examples = False
-napoleon_use_admonition_for_notes = False
-napoleon_use_admonition_for_references = False
-napoleon_use_ivar = True
+napoleon_include_init_with_doc = True
+napoleon_include_private_with_doc = False
+napoleon_include_special_with_doc = False
+napoleon_use_admonition_for_examples = True
+napoleon_use_admonition_for_notes = True
+napoleon_use_admonition_for_references = True
+napoleon_use_ivar = False
 napoleon_use_param = False
-napoleon_use_rtype = False
+napoleon_use_rtype = True
+napoleon_use_keyword = True
 napoleon_preprocess_types = True
 napoleon_type_aliases = None
-napoleon_attr_annotations = True
-
-
-# -- linkcode Settings -------------------------------------------------------
-def linkcode_resolve(domain, info):
-    if domain != 'py':
-        return None
-    if not info['module']:
-        return None
-    filename = info['module'].replace('.', '/')
-    return "https://github.com/int-brain-lab/iblqt/blob/main/%s.py" % filename
+napoleon_attr_annotations = False
