@@ -56,7 +56,7 @@ class DataFrameTableModel(QAbstractTableModel):
             Keyword arguments passed to the parent class.
         """
         super().__init__(parent, *args, **kwargs)
-        self._dataFrame: DataFrame = DataFrame() if dataFrame is None else dataFrame
+        self.dataFrame = DataFrame() if dataFrame is None else dataFrame.copy()
 
     def getDataFrame(self) -> DataFrame:
         """
@@ -108,10 +108,14 @@ class DataFrameTableModel(QAbstractTableModel):
         QVariant
             The header data.
         """
-        if role in (Qt.ItemDataRole.DisplayRole, Qt.ItemDataRole.ToolTipRole):
-            if orientation == Qt.Orientation.Horizontal:
+        if role == Qt.ItemDataRole.DisplayRole:
+            if orientation == Qt.Orientation.Horizontal and 0 <= section <= (
+                self.columnCount() - 1
+            ):
                 return QVariant(self._dataFrame.columns[section])
-            else:
+            elif orientation == Qt.Orientation.Vertical and 0 <= section <= (
+                self.rowCount() - 1
+            ):
                 return QVariant(str(self._dataFrame.index[section]))
         return QVariant()
 
@@ -231,7 +235,7 @@ class ColoredDataFrameTableModel(DataFrameTableModel):
     _normData = DataFrame()
     _background: npt.NDArray[np.int_]
     _foreground: npt.NDArray[np.int_]
-    _cmap: ColorMap
+    _cmap: ColorMap = colormap.get('plasma')
     _alpha: int
 
     def __init__(
@@ -294,6 +298,7 @@ class ColoredDataFrameTableModel(DataFrameTableModel):
                 self.colormapChanged.emit(name)
                 return
         log.warning(f'No such colormap: "{name}"')
+
 
     colormap = Property(str, fget=getColormap, fset=setColormap, notify=colormapChanged)  # type: Property
     """The name of the colormap."""
