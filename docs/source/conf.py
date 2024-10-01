@@ -24,7 +24,6 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
-    'sphinx.ext.inheritance_diagram',
     'sphinx.ext.viewcode',
     'sphinx_qt_documentation',
     'myst_parser',

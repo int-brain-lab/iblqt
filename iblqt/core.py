@@ -24,7 +24,14 @@ log = logging.getLogger(__name__)
 
 
 class DataFrameTableModel(QAbstractTableModel):
-    """A Qt TableModel for Pandas DataFrames."""
+    """
+    A Qt TableModel for Pandas DataFrames.
+
+    Attributes
+    ----------
+    dataFrame : Property
+        The DataFrame containing the models data.
+    """
 
     def __init__(
         self,

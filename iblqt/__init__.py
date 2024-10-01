@@ -1,3 +1,3 @@
-"""A collection of extensions and enhancements to the Qt framework."""
+"""A collection of extensions to the Qt framework."""
 
 __version__ = '0.1.0'

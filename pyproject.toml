@@ -4,23 +4,35 @@ build-backend = "pdm.backend"
 
 [project]
 name = "iblqt"
-version = "0.1.0"
-description = "The International Brain Laboratory's Qt tools"
+description = "A collection of extensions to the Qt framework."
 dependencies = [
     "qtpy>=2.4.1",
     "pandas>2.0",
     "numpy",
     "pyqtgraph>=0.13.7",
 ]
+keywords = ["pyqt", "qt", "pyside", "qtpy"]
 requires-python = ">=3.10"
 readme = "README.md"
 license = {text = "MIT"}
 authors = [
     {name = "Florian Rau", email = "bimac@users.noreply.github.com"},
 ]
+dynamic = ["version"]
+
+[project.urls]
+Homepage = "https://github.com/int-brain-lab/iblqt/"
+Documentation = "https://int-brain-lab.github.io/iblqt/"
+Repository = "https://github.com/int-brain-lab/iblqt.git"
+Issues = "https://github.com/int-brain-lab/iblqt/issues"
+Changelog = "https://github.com/int-brain-lab/iblqt/blob/main/CHANGELOG.md"
 
 [tool.pdm]
 distribution = true
+
+[tool.pdm.version]
+source = "file"
+path = "iblqt/__init__.py"
 
 [tool.pdm.dev-dependencies]
 dev = [
