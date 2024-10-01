@@ -172,8 +172,8 @@ class DataFrameTableModel(QAbstractTableModel):
         if index.isValid() and role == Qt.ItemDataRole.DisplayRole:
             data = self._dataFrame.iloc[index.row(), index.column()]
             if isinstance(data, np.generic):
-                return data.item()
-            return QVariant(str(data))
+                return QVariant(data.item())
+            return QVariant(data)
         return QVariant()
 
     def setData(
