@@ -1,6 +1,7 @@
 """Non-GUI functionality, including event handling, data types, and data management."""
 
 import logging
+from typing import Any
 
 from pyqtgraph import ColorMap, colormap  # type: ignore
 from qtpy.QtCore import (
@@ -174,6 +175,25 @@ class DataFrameTableModel(QAbstractTableModel):
                 return data.item()
             return QVariant(str(data))
         return QVariant()
+
+    def setData(
+        self, index: QModelIndex, value: Any, role: int = Qt.ItemDataRole.DisplayRole
+    ):
+        """
+        Set data at the specified index with the given value.
+
+        Parameters
+        ----------
+        index : QModelIndex
+            The index where the data will be set.
+        value : Any
+            The new value to be set at the specified index.
+        role : int, optional
+            The role of the data.
+        """
+        if index.isValid():
+            self._dataFrame.iloc[index.row(), index.column()] = value
+            self.dataChanged.emit(index, index, [role])
 
     def sort(self, column: int, order: Qt.SortOrder = Qt.SortOrder.AscendingOrder):
         """
@@ -367,13 +387,13 @@ class ColoredDataFrameTableModel(DataFrameTableModel):
         """
         if not index.isValid():
             return QVariant()
-        if role in (Qt.BackgroundRole, Qt.ForegroundRole):
+        if role in (Qt.ItemDataRole.BackgroundRole, Qt.ItemDataRole.ForegroundRole):
             row = self._dataFrame.index[index.row()]
             col = index.column()
-            if role == Qt.BackgroundRole:
+            if role == Qt.ItemDataRole.BackgroundRole:
                 r, g, b = self._background[row][col]
                 return QVariant(QColor.fromRgb(r, g, b, self._alpha))
-            if role == Qt.ForegroundRole:
+            if role == Qt.ItemDataRole.ForegroundRole:
                 lum = self._foreground[row][col]
                 color = QColor('black' if (lum * self._alpha) < 32512 else 'white')
                 return QVariant(color)
