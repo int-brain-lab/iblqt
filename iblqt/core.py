@@ -151,9 +151,7 @@ class DataFrameTableModel(QAbstractTableModel):
             return 0
         return self._dataFrame.columns.size
 
-    def data(
-        self, index: QModelIndex, role: int = Qt.ItemDataRole.DisplayRole
-    ) -> QVariant:
+    def data(self, index: QModelIndex, role: int = Qt.ItemDataRole.DisplayRole) -> Any:
         """
         Get the data for the specified index.
 
@@ -166,19 +164,19 @@ class DataFrameTableModel(QAbstractTableModel):
 
         Returns
         -------
-        QVariant
+        Any
             The data for the specified index.
         """
         if index.isValid() and role == Qt.ItemDataRole.DisplayRole:
             data = self._dataFrame.iloc[index.row(), index.column()]
             if isinstance(data, np.generic):
-                return QVariant(data.item())
-            return QVariant(data)
+                return data.item()
+            return data
         return QVariant()
 
     def setData(
         self, index: QModelIndex, value: Any, role: int = Qt.ItemDataRole.DisplayRole
-    ):
+    ) -> bool:
         """
         Set data at the specified index with the given value.
 
@@ -189,11 +187,18 @@ class DataFrameTableModel(QAbstractTableModel):
         value : Any
             The new value to be set at the specified index.
         role : int, optional
-            The role of the data.
+            The role of the data. Only DisplayRole is supported at this time.
+
+        Returns
+        -------
+        bool
+            Returns true if successful; otherwise returns false.
         """
-        if index.isValid():
+        if index.isValid() and role == Qt.ItemDataRole.DisplayRole:
             self._dataFrame.iloc[index.row(), index.column()] = value
             self.dataChanged.emit(index, index, [role])
+            return True
+        return False
 
     def sort(self, column: int, order: Qt.SortOrder = Qt.SortOrder.AscendingOrder):
         """
@@ -367,9 +372,7 @@ class ColoredDataFrameTableModel(DataFrameTableModel):
             ).sum(axis=2).astype(int)
         self.layoutChanged.emit()
 
-    def data(
-        self, index: QModelIndex, role: int = Qt.ItemDataRole.DisplayRole
-    ) -> QVariant:
+    def data(self, index: QModelIndex, role: int = Qt.ItemDataRole.DisplayRole) -> Any:
         """
         Get the data for the specified index.
 
@@ -382,19 +385,19 @@ class ColoredDataFrameTableModel(DataFrameTableModel):
 
         Returns
         -------
-        QVariant
+        Any
             The data for the specified index.
         """
-        if not index.isValid():
-            return QVariant()
-        if role in (Qt.ItemDataRole.BackgroundRole, Qt.ItemDataRole.ForegroundRole):
+        if (
+            role in (Qt.ItemDataRole.BackgroundRole, Qt.ItemDataRole.ForegroundRole)
+            and index.isValid()
+        ):
             row = self._dataFrame.index[index.row()]
             col = index.column()
             if role == Qt.ItemDataRole.BackgroundRole:
                 r, g, b = self._background[row][col]
-                return QVariant(QColor.fromRgb(r, g, b, self._alpha))
+                return QColor.fromRgb(r, g, b, self._alpha)
             if role == Qt.ItemDataRole.ForegroundRole:
                 lum = self._foreground[row][col]
-                color = QColor('black' if (lum * self._alpha) < 32512 else 'white')
-                return QVariant(color)
+                return QColor('black' if (lum * self._alpha) < 32512 else 'white')
         return super().data(index, role)
