@@ -7,27 +7,12 @@ on:
 
 jobs:
   build:
-    name: Build release packages
+    name: Build and upload release to PyPi
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pdm-project/setup-pdm@v4
-      - name: Build distribution packages
-        run: pdm build
-      - uses: actions/upload-artifact@v4
-        with:
-          path: dist/*.*
-          retention-days: 1
-  publish:
-    name: Upload to PyPI
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: pypi
-      url: https://pypi.org/p/iblqt
     permissions:
       id-token: write
     steps:
-      - uses: actions/download-artifact@v4
-      - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
+      - uses: actions/checkout@v4
+      - uses: pdm-project/setup-pdm@v4
+      - name: Publish package
+        run: pdm publish
