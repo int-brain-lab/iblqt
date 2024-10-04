@@ -9,8 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [unreleased]
 
+### Added
+
 - start adding unit tests
+
+### Changed
+
 - core.DataFrameTableModel: stop using QVariant
+- core.DataFrameTableModel.headerData() defaults to Horizontal orientation
 
 ## [0.1.2] - 2024-10-01
 

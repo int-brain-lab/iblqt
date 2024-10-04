@@ -87,7 +87,7 @@ class DataFrameTableModel(QAbstractTableModel):
     def headerData(
         self,
         section: int,
-        orientation: Qt.Orientation,
+        orientation: Qt.Orientation = Qt.Orientation.Horizontal,
         role: int = Qt.ItemDataRole.DisplayRole,
     ) -> str | None:
         """
@@ -97,8 +97,8 @@ class DataFrameTableModel(QAbstractTableModel):
         ----------
         section : int
             The section index.
-        orientation : Qt.Orientation
-            The orientation of the header.
+        orientation : Qt.Orientation, optional
+            The orientation of the header. Defaults to Horizontal.
         role : int, optional
             The role of the header data. Only DisplayRole is supported at this time.
 
