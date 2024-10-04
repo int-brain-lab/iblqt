@@ -10,7 +10,6 @@ from qtpy.QtCore import (
     QModelIndex,
     QObject,
     Property,
-    QVariant,
     Signal,
     Slot,
 )
@@ -90,7 +89,7 @@ class DataFrameTableModel(QAbstractTableModel):
         section: int,
         orientation: Qt.Orientation,
         role: int = Qt.ItemDataRole.DisplayRole,
-    ) -> QVariant:
+    ) -> str | None:
         """
         Get the header data for the specified section.
 
@@ -101,23 +100,23 @@ class DataFrameTableModel(QAbstractTableModel):
         orientation : Qt.Orientation
             The orientation of the header.
         role : int, optional
-            The role of the header data.
+            The role of the header data. Only DisplayRole is supported at this time.
 
         Returns
         -------
-        QVariant
+        str | None
             The header data.
         """
         if role == Qt.ItemDataRole.DisplayRole:
             if orientation == Qt.Orientation.Horizontal and 0 <= section <= (
                 self.columnCount() - 1
             ):
-                return QVariant(self._dataFrame.columns[section])
+                return str(self._dataFrame.columns[section])
             elif orientation == Qt.Orientation.Vertical and 0 <= section <= (
                 self.rowCount() - 1
             ):
-                return QVariant(str(self._dataFrame.index[section]))
-        return QVariant()
+                return str(self._dataFrame.index[section])
+        return None
 
     def rowCount(self, parent: QModelIndex | None = None) -> int:
         """
@@ -176,7 +175,7 @@ class DataFrameTableModel(QAbstractTableModel):
             if isinstance(data, np.generic):
                 return data.item()
             return data
-        return QVariant()
+        return None
 
     def setData(
         self, index: QModelIndex, value: Any, role: int = Qt.ItemDataRole.DisplayRole
