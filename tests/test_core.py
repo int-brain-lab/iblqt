@@ -1,5 +1,4 @@
 from qtpy.QtCore import Qt, QModelIndex, QVariant
-from qtpy.QtGui import QColor
 from iblqt import core
 
 import pandas as pd

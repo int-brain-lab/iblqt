@@ -298,7 +298,6 @@ class ColoredDataFrameTableModel(DataFrameTableModel):
                 return
         log.warning(f'No such colormap: "{name}"')
 
-
     colormap = Property(str, fget=getColormap, fset=setColormap, notify=colormapChanged)  # type: Property
     """The name of the colormap."""
 
