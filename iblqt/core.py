@@ -265,12 +265,14 @@ class ColoredDataFrameTableModel(DataFrameTableModel):
             Keyword arguments passed to the parent class.
 
         """
-        super().__init__(parent=parent, dataFrame=dataFrame)
+        super().__init__(parent=parent)
         self.modelReset.connect(self._normalizeData)
         self.dataChanged.connect(self._normalizeData)
         self.colormapChanged.connect(self._defineColors)
         self.setProperty('colormap', colormap)
         self.setProperty('alpha', alpha)
+        if dataFrame is not None:
+            self.setDataFrame(dataFrame)
 
     def getColormap(self) -> str:
         """
