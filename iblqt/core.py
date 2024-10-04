@@ -104,7 +104,7 @@ class DataFrameTableModel(QAbstractTableModel):
 
         Returns
         -------
-        str | None
+        str or None
             The header data.
         """
         if role == Qt.ItemDataRole.DisplayRole:
@@ -154,7 +154,9 @@ class DataFrameTableModel(QAbstractTableModel):
             return 0
         return self._dataFrame.columns.size
 
-    def data(self, index: QModelIndex, role: int = Qt.ItemDataRole.DisplayRole) -> Any:
+    def data(
+        self, index: QModelIndex, role: int = Qt.ItemDataRole.DisplayRole
+    ) -> Any | None:
         """
         Get the data for the specified index.
 
@@ -167,7 +169,7 @@ class DataFrameTableModel(QAbstractTableModel):
 
         Returns
         -------
-        Any
+        Any or None
             The data for the specified index.
         """
         if index.isValid() and role == Qt.ItemDataRole.DisplayRole:
