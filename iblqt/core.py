@@ -55,7 +55,7 @@ class DataFrameTableModel(QAbstractTableModel):
             Keyword arguments passed to the parent class.
         """
         super().__init__(parent, *args, **kwargs)
-        self.dataFrame = DataFrame() if dataFrame is None else dataFrame.copy()
+        self._dataFrame = DataFrame() if dataFrame is None else dataFrame.copy()
 
     def getDataFrame(self) -> DataFrame:
         """
@@ -89,7 +89,7 @@ class DataFrameTableModel(QAbstractTableModel):
         section: int,
         orientation: Qt.Orientation = Qt.Orientation.Horizontal,
         role: int = Qt.ItemDataRole.DisplayRole,
-    ) -> str | None:
+    ) -> Any | None:
         """
         Get the header data for the specified section.
 
@@ -104,18 +104,20 @@ class DataFrameTableModel(QAbstractTableModel):
 
         Returns
         -------
-        str or None
+        Any or None
             The header data.
         """
         if role == Qt.ItemDataRole.DisplayRole:
-            if orientation == Qt.Orientation.Horizontal and 0 <= section <= (
-                self.columnCount() - 1
+            if (
+                orientation == Qt.Orientation.Horizontal
+                and 0 <= section < self.columnCount()
             ):
-                return str(self._dataFrame.columns[section])
-            elif orientation == Qt.Orientation.Vertical and 0 <= section <= (
-                self.rowCount() - 1
+                return self._dataFrame.columns[section]
+            elif (
+                orientation == Qt.Orientation.Vertical
+                and 0 <= section < self.rowCount()
             ):
-                return str(self._dataFrame.index[section])
+                return self._dataFrame.index[section]
         return None
 
     def rowCount(self, parent: QModelIndex | None = None) -> int:
@@ -214,7 +216,7 @@ class DataFrameTableModel(QAbstractTableModel):
         column : int
             The column index to sort by.
         order : Qt.SortOrder, optional
-            The sort order.
+            The sort order. Defaults to Ascending order.
         """
         if self.columnCount() == 0:
             return

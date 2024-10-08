@@ -51,6 +51,7 @@ lint = [
 test = [
     "pytest>=8.3.2",
     "pytest-cov>=5.0.0",
+    "pytest-qt>=4.4.0",
 ]
 typing = [
     "mypy>=1.11.2",
@@ -83,3 +84,4 @@ files = ["iblqt/**/*.py", "tests/**/*.py"]
 addopts    = "--cov=iblqt --cov-report=html --cov-report=xml"
 minversion = "6.0"
 testpaths  = [ "tests" ]
+qt_api     = 'pyqt5'
