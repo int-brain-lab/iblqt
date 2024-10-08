@@ -1,0 +1,15 @@
+iblqt.core
+==========
+
+.. automodule:: iblqt.core
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :nosignatures:
+      :toctree:
+      :template: custom-class-template.rst
+   
+      ColoredDataFrameTableModel
+      DataFrameTableModel
+   
