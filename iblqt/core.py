@@ -10,7 +10,6 @@ from qtpy.QtCore import (
     QModelIndex,
     QObject,
     Property,
-    QVariant,
     Signal,
     Slot,
 )
@@ -56,7 +55,7 @@ class DataFrameTableModel(QAbstractTableModel):
             Keyword arguments passed to the parent class.
         """
         super().__init__(parent, *args, **kwargs)
-        self._dataFrame: DataFrame = DataFrame() if dataFrame is None else dataFrame
+        self._dataFrame = DataFrame() if dataFrame is None else dataFrame.copy()
 
     def getDataFrame(self) -> DataFrame:
         """
@@ -88,9 +87,9 @@ class DataFrameTableModel(QAbstractTableModel):
     def headerData(
         self,
         section: int,
-        orientation: Qt.Orientation,
+        orientation: Qt.Orientation = Qt.Orientation.Horizontal,
         role: int = Qt.ItemDataRole.DisplayRole,
-    ) -> QVariant:
+    ) -> Any | None:
         """
         Get the header data for the specified section.
 
@@ -98,22 +97,28 @@ class DataFrameTableModel(QAbstractTableModel):
         ----------
         section : int
             The section index.
-        orientation : Qt.Orientation
-            The orientation of the header.
+        orientation : Qt.Orientation, optional
+            The orientation of the header. Defaults to Horizontal.
         role : int, optional
-            The role of the header data.
+            The role of the header data. Only DisplayRole is supported at this time.
 
         Returns
         -------
-        QVariant
+        Any or None
             The header data.
         """
-        if role in (Qt.ItemDataRole.DisplayRole, Qt.ItemDataRole.ToolTipRole):
-            if orientation == Qt.Orientation.Horizontal:
-                return QVariant(self._dataFrame.columns[section])
-            else:
-                return QVariant(str(self._dataFrame.index[section]))
-        return QVariant()
+        if role == Qt.ItemDataRole.DisplayRole:
+            if (
+                orientation == Qt.Orientation.Horizontal
+                and 0 <= section < self.columnCount()
+            ):
+                return self._dataFrame.columns[section]
+            elif (
+                orientation == Qt.Orientation.Vertical
+                and 0 <= section < self.rowCount()
+            ):
+                return self._dataFrame.index[section]
+        return None
 
     def rowCount(self, parent: QModelIndex | None = None) -> int:
         """
@@ -151,7 +156,9 @@ class DataFrameTableModel(QAbstractTableModel):
             return 0
         return self._dataFrame.columns.size
 
-    def data(self, index: QModelIndex, role: int = Qt.ItemDataRole.DisplayRole) -> Any:
+    def data(
+        self, index: QModelIndex, role: int = Qt.ItemDataRole.DisplayRole
+    ) -> Any | None:
         """
         Get the data for the specified index.
 
@@ -164,7 +171,7 @@ class DataFrameTableModel(QAbstractTableModel):
 
         Returns
         -------
-        Any
+        Any or None
             The data for the specified index.
         """
         if index.isValid() and role == Qt.ItemDataRole.DisplayRole:
@@ -172,7 +179,7 @@ class DataFrameTableModel(QAbstractTableModel):
             if isinstance(data, np.generic):
                 return data.item()
             return data
-        return QVariant()
+        return None
 
     def setData(
         self, index: QModelIndex, value: Any, role: int = Qt.ItemDataRole.DisplayRole
@@ -209,7 +216,7 @@ class DataFrameTableModel(QAbstractTableModel):
         column : int
             The column index to sort by.
         order : Qt.SortOrder, optional
-            The sort order.
+            The sort order. Defaults to Ascending order.
         """
         if self.columnCount() == 0:
             return
@@ -231,7 +238,7 @@ class ColoredDataFrameTableModel(DataFrameTableModel):
     _normData = DataFrame()
     _background: npt.NDArray[np.int_]
     _foreground: npt.NDArray[np.int_]
-    _cmap: ColorMap
+    _cmap: ColorMap = colormap.get('plasma')
     _alpha: int
 
     def __init__(
@@ -260,12 +267,14 @@ class ColoredDataFrameTableModel(DataFrameTableModel):
             Keyword arguments passed to the parent class.
 
         """
-        super().__init__(parent=parent, dataFrame=dataFrame)
+        super().__init__(parent=parent)
         self.modelReset.connect(self._normalizeData)
         self.dataChanged.connect(self._normalizeData)
         self.colormapChanged.connect(self._defineColors)
         self.setProperty('colormap', colormap)
         self.setProperty('alpha', alpha)
+        if dataFrame is not None:
+            self.setDataFrame(dataFrame)
 
     def getColormap(self) -> str:
         """
