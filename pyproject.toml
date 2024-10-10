@@ -84,4 +84,3 @@ files = ["iblqt/**/*.py", "tests/**/*.py"]
 addopts    = "--cov=iblqt --cov-report=html --cov-report=xml"
 minversion = "6.0"
 testpaths  = [ "tests" ]
-qt_api     = 'pyqt5'
