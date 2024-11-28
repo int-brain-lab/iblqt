@@ -1,13 +1,16 @@
 """Non-GUI functionality, including event handling, data types, and data management."""
 
 import logging
+from pathlib import Path
 from typing import Any
 
 from pyqtgraph import ColorMap, colormap  # type: ignore
 from qtpy.QtCore import (
     QAbstractTableModel,
+    QFileSystemWatcher,
     Qt,
     QModelIndex,
+    QReadWriteLock,
     QObject,
     Property,
     Signal,
@@ -410,3 +413,48 @@ class ColoredDataFrameTableModel(DataFrameTableModel):
                 lum = self._foreground[row][col]
                 return QColor('black' if (lum * self._alpha) < 32512 else 'white')
         return super().data(index, role)
+
+
+class FileWatcher(QObject):
+    """Watch a file for changes."""
+
+    fileChanged = Signal()  # type: Signal
+    """Emitted when the file's content has changed."""
+
+    fileSizeChanged = Signal(int)  # type: Signal
+    """Emitted when the file's size has changed. The signal carries the new size."""
+
+    def __init__(self, parent: QObject, file: Path | str):
+        """Initialize the FileWatcher.
+
+        Parameters
+        ----------
+        parent : QObject
+            The parent object.
+        file : Path or str
+            The path to the file to watch.
+        """
+        super().__init__(parent=parent)
+        self._file = Path(file)
+        if not self._file.exists():
+            raise FileNotFoundError(self._file)
+        if self._file.is_dir():
+            raise IsADirectoryError(self._file)
+
+        self._size = self._file.stat().st_size
+        self._lock = QReadWriteLock()
+        self._fileWatcher = QFileSystemWatcher([str(file)], parent)
+        self._fileWatcher.fileChanged.connect(self._onFileChanged)
+
+    @Slot(str)
+    def _onFileChanged(self, _):
+        self.fileChanged.emit()
+        new_size = self._file.stat().st_size
+
+        self._lock.lockForWrite()
+        try:
+            if new_size != self._size:
+                self.fileSizeChanged.emit(new_size)
+                self._size = new_size
+        finally:
+            self._lock.unlock()

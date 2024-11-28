@@ -1,5 +1,9 @@
+from pathlib import Path
+
+import pytest
 from qtpy.QtCore import Qt, QModelIndex
 from iblqt import core
+import tempfile
 
 import pandas as pd
 
@@ -72,3 +76,27 @@ def test_dataframe_model(qtbot):
     assert model.alpha == 128
     assert model.data(model.index(0, 0), Qt.ItemDataRole.BackgroundRole).alpha() == 128
     assert model.data(model.index(2, 0), Qt.ItemDataRole.BackgroundRole).alpha() == 128
+
+
+def test_fileWatcher(qtbot):
+    with tempfile.NamedTemporaryFile() as file:
+        parent = core.QObject()
+        path = Path(file.name)
+
+        w = core.FileWatcher(parent=parent, file=path)
+
+        # Modify the file to trigger the watcher
+        with qtbot.waitSignal(w.fileChanged):
+            with qtbot.waitSignal(w.fileSizeChanged) as blocker:
+                with open(path, 'a') as f:
+                    f.write('Hello, World!')
+        assert blocker.args[0] == path.stat().st_size
+
+        # Modify the file (without changing its size)
+        with qtbot.waitSignal(w.fileChanged):
+            with qtbot.assertNotEmitted(w.fileSizeChanged, wait=100):
+                with open(path, 'w') as f:
+                    f.write('Hello, World?')
+
+    with pytest.raises(FileNotFoundError):
+        core.FileWatcher(parent=parent, file='non-existent file')
