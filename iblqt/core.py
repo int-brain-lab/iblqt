@@ -225,7 +225,9 @@ class DataFrameTableModel(QAbstractTableModel):
             return
         columnName = self._dataFrame.columns[column]
         self.layoutAboutToBeChanged.emit()
-        self._dataFrame.sort_values(by=columnName, ascending=not order, inplace=True)
+        self._dataFrame.sort_values(
+            by=columnName, ascending=order == Qt.SortOrder.AscendingOrder, inplace=True
+        )
         self.layoutChanged.emit()
 
 

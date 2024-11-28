@@ -10,14 +10,14 @@ import pandas as pd
 
 def test_dataframe_model(qtbot):
     # instantiation / setting of dataframe
-    df1 = pd.DataFrame({'X': [0, 1, 2], 'Y': ['A', 'B', 'C']})
+    df = pd.DataFrame({'X': [0, 1, 2], 'Y': ['A', 'B', 'C']})
     model = core.ColoredDataFrameTableModel()
     assert model.dataFrame.empty
-    model = core.ColoredDataFrameTableModel(dataFrame=df1)
-    assert model.dataFrame is not df1
-    assert model.dataFrame.equals(df1)
+    model = core.ColoredDataFrameTableModel(dataFrame=df)
+    assert model.dataFrame is not df
+    assert model.dataFrame.equals(df)
     with qtbot.waitSignal(model.modelReset, timeout=100):
-        model.dataFrame = df1
+        model.dataFrame = df
 
     # header data
     assert model.headerData(-1, Qt.Orientation.Horizontal) is None
