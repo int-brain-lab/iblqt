@@ -1,0 +1,65 @@
+name: CI
+on:
+  push:
+    paths-ignore:
+      - 'docs/**'
+      - '**/*.md'
+  pull_request:
+    paths-ignore:
+      - 'docs/**'
+      - '**/*.md'
+
+jobs:
+  Ruff:
+    name: Ruff & mypy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: chartboost/ruff-action@v1
+        name: ruff check
+        with:
+          args: 'check --output-format=github'
+      - uses: chartboost/ruff-action@v1
+        name: ruff format
+        with:
+          args: 'format --check'
+#      - name: mypy
+#        run: |
+#          pip install mypy
+#          mypy --package mypackage $(qtpy mypy-args)
+
+  Testing:
+    needs: [Ruff]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        python-version: ['3.10', '3.11', '3.12']
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up PDM
+        uses: pdm-project/setup-pdm@v4
+        with:
+          cache: true
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: pdm sync -dG test
+      - name: Run Tests
+        run: pdm run -v pytest tests
+      - name: coveralls.io
+        uses: coverallsapp/github-action@v2
+        with:
+          flag-name: ${{ matrix.python-version }}, ${{ matrix.os }}
+          parallel: true
+          file: coverage.xml
+          compare-ref: main
+
+  Finish:
+    needs: [Testing]
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    steps:
+    - name: Coveralls Finished
+      uses: coverallsapp/github-action@v2
+      with:
+        parallel-finished: true
