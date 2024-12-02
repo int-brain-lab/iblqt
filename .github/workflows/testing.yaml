@@ -33,7 +33,6 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        python-version: ['3.10', '3.11', '3.12']
         os: [ubuntu-latest, macos-latest, windows-latest]
     steps:
       - uses: actions/checkout@v4
@@ -41,15 +40,15 @@ jobs:
         uses: pdm-project/setup-pdm@v4
         with:
           cache: true
-          python-version: ${{ matrix.python-version }}
+          python-version: 3.10
       - name: Install dependencies
         run: pdm install -dG test
       - name: Run Tests
-        run: pdm run -v pytest tests
+        run: pdm run tox
       - name: coveralls.io
         uses: coverallsapp/github-action@v2
         with:
-          flag-name: ${{ matrix.python-version }}, ${{ matrix.os }}
+          flag-name: ${{ matrix.os }}
           parallel: true
           file: coverage.xml
           compare-ref: main
