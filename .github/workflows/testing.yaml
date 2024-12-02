@@ -43,7 +43,7 @@ jobs:
           cache: true
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
-        run: pdm sync -dG test
+        run: pdm install -dG test
       - name: Run Tests
         run: pdm run -v pytest tests
       - name: coveralls.io
