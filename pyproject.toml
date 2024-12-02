@@ -107,6 +107,7 @@ legacy_tox_ini = """
 env_list = clean,py{310}-{pyqt5,pyqt6,pyside2,pyside6}
 
 [testenv]
+groups = test
 commands = pytest tests/ --cov --cov-append
 setenv=
     pyqt5: PYTEST_QT_API=pyqt5
@@ -120,19 +121,18 @@ passenv=
     COLUMNS
 
 [testenv:clean]
-groups = test
 skip_install = true
 commands = coverage erase
 
 [testenv:py{310}-pyqt5]
-groups = test, pyqt5
+deps = PyQt5
 
 [testenv:py{310}-pyqt6]
-groups = test, pyqt6
+deps = PyQt6
 
 [testenv:py{310}-pyside2]
-groups = test, pyside2
+deps = PySide2
 
 [testenv:py{310}-pyside6]
-groups = test, pyside6
+deps = PySide6
 """
