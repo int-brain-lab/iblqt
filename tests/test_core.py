@@ -79,7 +79,7 @@ def test_dataframe_model(qtbot):
 
 
 def test_fileWatcher(qtbot):
-    with tempfile.NamedTemporaryFile() as file:
+    with tempfile.NamedTemporaryFile(delete=False) as file:
         parent = core.QObject()
         path = Path(file.name)
 
@@ -97,6 +97,7 @@ def test_fileWatcher(qtbot):
             with qtbot.assertNotEmitted(w.fileSizeChanged, wait=100):
                 with open(path, 'w') as f:
                     f.write('Hello, World?')
+    path.unlink()
 
     with pytest.raises(FileNotFoundError):
         core.FileWatcher(parent=parent, file='non-existent file')
