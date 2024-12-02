@@ -540,8 +540,8 @@ class PathWatcher(QObject):
         """
         Add each path in paths to the PathWatcher.
 
-        Paths are not added if they not exist, or if they are already being monitored by
-        the PathWatcher.
+        Paths are not added if they do not exist, or if they are already being monitored
+        by the PathWatcher.
 
         If a path specifies a directory, the directoryChanged() signal will be emitted
         when the path is modified or removed from disk; otherwise the fileChanged()
