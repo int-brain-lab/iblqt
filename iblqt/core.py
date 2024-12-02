@@ -10,7 +10,6 @@ from qtpy.QtCore import (
     QFileSystemWatcher,
     Qt,
     QModelIndex,
-    QReadWriteLock,
     QObject,
     Property,
     Signal,
@@ -417,46 +416,202 @@ class ColoredDataFrameTableModel(DataFrameTableModel):
         return super().data(index, role)
 
 
-class FileWatcher(QObject):
-    """Watch a file for changes."""
+class PathWatcher(QObject):
+    """Watch paths for changes.
 
-    fileChanged = Signal()  # type: Signal
-    """Emitted when the file's content has changed."""
+    Identical to :class:`~PyQt5.QtCore.QFileSystemWatcher` but using
+    :class:`~pathlib.Path` instead of :class:`str` for arguments and signals.
 
-    fileSizeChanged = Signal(int)  # type: Signal
-    """Emitted when the file's size has changed. The signal carries the new size."""
+    Call :meth:`~iblqt.core.PathWatcher.addPath` to watch a particular file or
+    directory. Multiple paths can be added using the
+    :meth:`~iblqt.core.PathWatcher.addPaths` function. Existing paths can be removed by
+    using the :meth:`~iblqt.core.PathWatcher.removePath` and
+    :meth:`~iblqt.core.PathWatcher.removePaths` functions.
 
-    def __init__(self, parent: QObject, file: Path | str):
-        """Initialize the FileWatcher.
+    PathWatcher examines each path added to it. Files that have been added to the
+    PathWatcher can be accessed using the :meth:`~iblqt.core.PathWatcher.files`
+    function, and directories using the :meth:`~iblqt.core.PathWatcher.directories`
+    function.
+
+    The :meth:`~iblqt.core.PathWatcher.fileChanged` signal is emitted when a file has
+    been modified, renamed or removed from disk. Similarly, the
+    :meth:`~iblqt.core.PathWatcher.directoryChanged` signal is emitted when a
+    directory or its contents is modified or removed. Note that PathWatcher stops
+    monitoring files once they have been renamed or removed from disk, and directories
+    once they have been removed from disk.
+
+    Notes
+    -----
+    - On systems running a Linux kernel without inotify support, file systems that
+      contain watched paths cannot be unmounted.
+    - The act of monitoring files and directories for modifications consumes system
+      resources. This implies there is a limit to the number of files and directories
+      your process can monitor simultaneously. On all BSD variants, for example,
+      an open file descriptor is required for each monitored file. Some system limits
+      the number of open file descriptors to 256 by default. This means that
+      :meth:`~iblqt.core.PathWatcher.addPath` and
+      :meth:`~iblqt.core.PathWatcher.addPaths` will fail if your process tries to add
+      more than 256 files or directories to the PathWatcher. Also note that your
+      process may have other file descriptors open in addition to the ones for files
+      being monitored, and these other open descriptors also count in the total. macOS
+      uses a different backend and does not suffer from this issue.
+    """
+
+    fileChanged = Signal(Path)  # type: Signal
+    """Emitted when a file has been modified, renamed or removed from disk."""
+
+    directoryChanged = Signal(Path)  # type: Signal
+    """Emitted when a directory or its contents is modified or removed."""
+
+    def __init__(self, parent: QObject, paths: list[Path] | list[str]):
+        """Initialize the PathWatcher.
 
         Parameters
         ----------
         parent : QObject
             The parent object.
-        file : Path or str
-            The path to the file to watch.
+        paths : list[Path] or list[str]
+            Paths or directories to be watched.
         """
-        super().__init__(parent=parent)
-        self._file = Path(file)
-        if not self._file.exists():
-            raise FileNotFoundError(self._file)
-        if self._file.is_dir():
-            raise IsADirectoryError(self._file)
+        super().__init__(parent)
+        self._watcher = QFileSystemWatcher([], parent=self)
+        self.addPaths(paths)
+        self._watcher.fileChanged.connect(lambda f: self.fileChanged.emit(Path(f)))
+        self._watcher.directoryChanged.connect(
+            lambda d: self.directoryChanged.emit(Path(d))
+        )
 
-        self._size = self._file.stat().st_size
-        self._lock = QReadWriteLock()
-        self._fileWatcher = QFileSystemWatcher([str(file)], parent)
-        self._fileWatcher.fileChanged.connect(self._onFileChanged)
+    def files(self) -> list[Path]:
+        """Return a list of paths to files that are being watched.
 
-    @Slot(str)
-    def _onFileChanged(self, _):
-        self.fileChanged.emit()
-        new_size = self._file.stat().st_size
+        Returns
+        -------
+        list[Path]
+            List of paths to files that are being watched.
+        """
+        return [Path(f) for f in self._watcher.files()]
 
-        self._lock.lockForWrite()
-        try:
-            if new_size != self._size:
-                self.fileSizeChanged.emit(new_size)
-                self._size = new_size
-        finally:
-            self._lock.unlock()
+    def directories(self) -> list[Path]:
+        """Return a list of paths to directories that are being watched.
+
+        Returns
+        -------
+        list[Path]
+            List of paths to directories that are being watched.
+        """
+        return [Path(f) for f in self._watcher.directories()]
+
+    def addPath(self, path: Path | str) -> bool:
+        """
+        Add path to the PathWatcher.
+
+        The path is not added if it does not exist, or if it is already being monitored
+        by the PathWatcher.
+
+        If path specifies a directory, the directoryChanged() signal will be emitted
+        when path is modified or removed from disk; otherwise the fileChanged() signal
+        is emitted when path is modified, renamed or removed.
+
+        If the watch was successful, true is returned.
+
+        Reasons for a watch failure are generally system-dependent, but may include the
+        resource not existing, access failures, or the total watch count limit, if the
+        platform has one.
+
+        Note
+        ----
+        There may be a system dependent limit to the number of files and directories
+        that can be monitored simultaneously. If this limit is been reached, path will
+        not be monitored, and false is returned.
+
+        Parameters
+        ----------
+        path : Path or str
+            Path or directory to be watched.
+
+        Returns
+        -------
+        bool
+            True if the watch was successful, otherwise False.
+        """
+        return self._watcher.addPath(str(path))
+
+    def addPaths(self, paths: list[Path] | list[str]) -> list[Path]:
+        """
+        Add each path in paths to the PathWatcher.
+
+        Paths are not added if they not exist, or if they are already being monitored by
+        the PathWatcher.
+
+        If a path specifies a directory, the directoryChanged() signal will be emitted
+        when the path is modified or removed from disk; otherwise the fileChanged()
+        signal is emitted when the path is modified, renamed, or removed.
+
+        The return value is a list of paths that could not be watched.
+
+        Reasons for a watch failure are generally system-dependent, but may include the
+        resource not existing, access failures, or the total watch count limit, if the
+        platform has one.
+
+        Note
+        ----
+        There may be a system dependent limit to the number of files and directories
+        that can be monitored simultaneously. If this limit has been reached, the excess
+        paths will not be monitored, and they will be added to the returned list.
+
+        Parameters
+        ----------
+        paths : list[Path] or list[str]
+            Paths or directories to be watched.
+
+        Returns
+        -------
+        list[Path]
+            List of paths that could not be watched.
+        """
+        out = self._watcher.addPaths([str(p) for p in paths])
+        return [Path(x) for x in out]
+
+    def removePath(self, path: Path | str) -> bool:
+        """
+        Remove the specified path from the PathWatcher.
+
+        If the watch is successfully removed, true is returned.
+
+        Reasons for watch removal failing are generally system-dependent, but may be due
+        to the path having already been deleted, for example.
+
+        Parameters
+        ----------
+        path : list[Path] or list[str]
+            Path or directory to be removed from the PathWatcher.
+
+        Returns
+        -------
+        bool
+            True if the watch was successful, otherwise False.
+        """
+        return self._watcher.removePath(str(path))
+
+    def removePaths(self, paths: list[Path | str]) -> list[Path]:
+        """
+        Remove the specified paths from the PathWatcher.
+
+        The return value is a list of paths which were not able to be unwatched
+        successfully.
+
+        Reasons for watch removal failing are generally system-dependent, but may be due
+        to the path having already been deleted, for example.
+
+        Parameters
+        ----------
+        paths : list[Path] or list[str]
+            Paths or directories to be unwatched.
+
+        Returns
+        -------
+        list[Path]
+            List of paths which were not able to be unwatched successfully.
+        """
+        out = self._watcher.removePaths([str(p) for p in paths])
+        return [Path(x) for x in out]
