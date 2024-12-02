@@ -7,6 +7,7 @@ import pytest
 
 import pandas as pd
 
+
 def test_dataframe_model(qtbot):
     # instantiation / setting of dataframe
     df = pd.DataFrame({'X': [0, 1, 2], 'Y': ['A', 'B', 'C']})
@@ -76,7 +77,8 @@ def test_dataframe_model(qtbot):
     assert model.data(model.index(0, 0), Qt.ItemDataRole.BackgroundRole).alpha() == 128
     assert model.data(model.index(2, 0), Qt.ItemDataRole.BackgroundRole).alpha() == 128
 
-@pytest.mark.xfail(reason="This fails with the GitHub Windows runner for some reason.")
+
+@pytest.mark.xfail(reason='This fails with the GitHub Windows runner for some reason.')
 def test_path_watcher(qtbot):
     parent = core.QObject()
     w = core.PathWatcher(parent=parent, paths=[])
