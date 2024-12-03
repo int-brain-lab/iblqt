@@ -474,8 +474,7 @@ class PathWatcher(QObject):
             Paths or directories to be watched.
         """
         super().__init__(parent)
-        self._watcher = QFileSystemWatcher([], parent=self)
-        self.addPaths(paths)
+        self._watcher = QFileSystemWatcher([str(p) for p in paths], parent=self)
         self._watcher.fileChanged.connect(lambda f: self.fileChanged.emit(Path(f)))
         self._watcher.directoryChanged.connect(
             lambda d: self.directoryChanged.emit(Path(d))
