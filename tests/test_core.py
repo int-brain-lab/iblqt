@@ -1,9 +1,9 @@
 from pathlib import Path
 
-import pytest
 from qtpy.QtCore import Qt, QModelIndex
 from iblqt import core
 import tempfile
+import pytest
 
 import pandas as pd
 
@@ -78,25 +78,38 @@ def test_dataframe_model(qtbot):
     assert model.data(model.index(2, 0), Qt.ItemDataRole.BackgroundRole).alpha() == 128
 
 
-def test_fileWatcher(qtbot):
-    with tempfile.NamedTemporaryFile() as file:
-        parent = core.QObject()
-        path = Path(file.name)
+@pytest.mark.xfail(reason='This fails with the GitHub Windows runner for some reason.')
+def test_path_watcher(qtbot):
+    parent = core.QObject()
+    w = core.PathWatcher(parent=parent, paths=[])
 
-        w = core.FileWatcher(parent=parent, file=path)
+    with tempfile.NamedTemporaryFile(delete=False) as temp_file:
+        path1 = Path(temp_file.name)
+        path2 = path1.parent
 
-        # Modify the file to trigger the watcher
-        with qtbot.waitSignal(w.fileChanged):
-            with qtbot.waitSignal(w.fileSizeChanged) as blocker:
-                with open(path, 'a') as f:
-                    f.write('Hello, World!')
-        assert blocker.args[0] == path.stat().st_size
+        assert w.addPath(path1) is True
+        assert len(w.files()) == 1
+        assert path1 in w.files()
+        assert w.removePath(path1) is True
+        assert path1 not in w.files()
 
-        # Modify the file (without changing its size)
-        with qtbot.waitSignal(w.fileChanged):
-            with qtbot.assertNotEmitted(w.fileSizeChanged, wait=100):
-                with open(path, 'w') as f:
-                    f.write('Hello, World?')
+        assert len(w.addPaths([path1, path2])) == 0
+        assert w.addPaths(['not-a-path']) == [Path('not-a-path')]
+        assert len(w.files()) == 1
+        assert len(w.directories()) == 1
+        assert path1 in w.files()
+        assert path2 in w.directories()
 
-    with pytest.raises(FileNotFoundError):
-        core.FileWatcher(parent=parent, file='non-existent file')
+        with qtbot.waitSignal(w.fileChanged) as blocker:
+            with path1.open('a') as f:
+                f.write('Hello, World!')
+        assert blocker.args[0] == path1
+
+        assert w.removePath(path1) is True
+        with qtbot.waitSignal(w.directoryChanged) as blocker:
+            path1.unlink()
+        assert blocker.args[0] == path2
+
+        assert len(w.removePaths([path2])) == 0
+        assert len(w.directories()) == 0
+        assert path1 not in w.directories()

@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.3.1] - 2024-10-08
 
+### Changed
+
+- core.FileWatcher: simplified and renamed to core.PathWatcher
+
 ### Fixed
 
 - core.DataFrameTableModel: fixed issue with sorting

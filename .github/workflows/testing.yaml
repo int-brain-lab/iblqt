@@ -1,0 +1,64 @@
+name: CI
+on:
+  workflow_dispatch:
+  pull_request:
+    paths-ignore:
+      - 'docs/**'
+      - '**/*.md'
+
+jobs:
+  Ruff:
+    name: Ruff & mypy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: chartboost/ruff-action@v1
+        name: ruff check
+        with:
+          args: 'check --output-format=github'
+      - uses: chartboost/ruff-action@v1
+        name: ruff format
+        with:
+          args: 'format --check'
+#      - name: mypy
+#        run: |
+#          pip install mypy
+#          mypy --package mypackage $(qtpy mypy-args)
+
+  Testing:
+    needs: [Ruff]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up PDM
+        uses: pdm-project/setup-pdm@v4
+        with:
+          cache: true
+          python-version: "3.10"
+      - name: Install dependencies
+        run: pdm install -dG test
+      - name: Install libegl1 (Ubuntu only)
+        if: matrix.os == 'ubuntu-latest'
+        run: sudo apt-get install -y libegl1
+      - name: Run Tests
+        run: pdm run tox
+      - name: coveralls.io
+        uses: coverallsapp/github-action@v2
+        with:
+          flag-name: ${{ matrix.os }}
+          parallel: true
+          file: coverage.xml
+          compare-ref: main
+
+  Finish:
+    needs: [Testing]
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    steps:
+    - name: Coveralls Finished
+      uses: coverallsapp/github-action@v2
+      with:
+        parallel-finished: true
