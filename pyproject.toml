@@ -131,7 +131,7 @@ deps = PyQt5
 deps = PyQt6
 
 [testenv:py{310}-pyside2]
-platform = '^((?!darwin).)*$'
+platform = ^((?!darwin).)*$
 deps = PySide2
 
 [testenv:py{310}-pyside6]
