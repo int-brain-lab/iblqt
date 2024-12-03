@@ -1,0 +1,9 @@
+iblqt.core.ColoredDataFrameTableModel
+=====================================
+
+.. currentmodule:: iblqt.core
+
+.. autoclass:: ColoredDataFrameTableModel
+   :members:
+   :undoc-members:
+   :show-inheritance:
