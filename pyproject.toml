@@ -104,7 +104,7 @@ relative_files = true
 [tool.tox]
 legacy_tox_ini = """
 [tox]
-env_list = clean,py{310}-{pyqt5,pyqt6,pyside2,pyside6}
+env_list = typing,clean,py{310}-{pyqt5,pyqt6,pyside2,pyside6}
 
 [testenv]
 groups = test
@@ -119,6 +119,11 @@ passenv=
     DISPLAY
     XAUTHORITY
     COLUMNS
+
+[testenv:typing]
+skip_install = true
+groups = pyqt5, typing
+commands = mypy -p iblqt --always-true=PYQT5 --always-false=PYSIDE2 --always-false=PYQT6 --always-false=PYSIDE6
 
 [testenv:clean]
 skip_install = true
