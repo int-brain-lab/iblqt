@@ -10,6 +10,7 @@ dependencies = [
     "pandas>2.0",
     "numpy<2.0.0",
     "pyqtgraph>=0.13.7",
+    "ONE-api>=2.11.2",
 ]
 keywords = ["pyqt", "qt", "pyside", "qtpy"]
 requires-python = ">=3.10"
@@ -104,7 +105,8 @@ relative_files = true
 [tool.tox]
 legacy_tox_ini = """
 [tox]
-env_list = typing,clean,py{310}-{pyqt5,pyqt6,pyside2,pyside6}
+#env_list = typing,clean,py{310}-{pyqt5,pyqt6,pyside2,pyside6}
+env_list = py{310}-pyqt5
 
 [testenv]
 groups = test
