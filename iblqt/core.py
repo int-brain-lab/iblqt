@@ -1,26 +1,30 @@
 """Non-GUI functionality, including event handling, data types, and data management."""
 
 import logging
+import warnings
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
+import numpy as np
+import numpy.typing as npt
+import pandas as pd
+from pandas import DataFrame
 from pyqtgraph import ColorMap, colormap  # type: ignore
 from qtpy.QtCore import (
+    Property,
     QAbstractTableModel,
     QFileSystemWatcher,
-    Qt,
     QModelIndex,
     QObject,
-    Property,
+    Qt,
     Signal,
     Slot,
 )
 from qtpy.QtGui import QColor
+from qtpy.QtWidgets import QMessageBox, QWidget
+from requests import HTTPError
 
-import pandas as pd
-from pandas import DataFrame
-import numpy as np
-import numpy.typing as npt
+from one.webclient import AlyxClient  # type: ignore
 
 log = logging.getLogger(__name__)
 
@@ -614,3 +618,95 @@ class PathWatcher(QObject):
         """
         out = self._watcher.removePaths([str(p) for p in paths])
         return [Path(x) for x in out]
+
+
+class QAlyx(QObject):
+    """A Qt wrapper for :class:`one.webclient.AlyxClient`."""
+
+    tokenMissing = Signal(str)
+    authenticationFailed = Signal(str)
+    connectionFailed = Signal(str)
+    loggedIn = Signal(str)
+    loggedOut = Signal()
+    statusChanged = Signal(bool)
+
+    def __init__(self, base_url: str, parent: QObject | None = None):
+        super().__init__(parent)
+        self._client = AlyxClient(base_url=base_url, silent=True)
+
+    @property
+    def client(self) -> AlyxClient:
+        """Get the wrapped :class:`AlyxClient`."""
+        return self._client
+
+    def login(
+        self, username: str, password: str | None = None, cache_token: bool = False
+    ) -> None:
+        """
+        Try to log into Alyx.
+
+        Parameters
+        ----------
+        username : str
+            Alyx username.
+        password : str, optional
+            Alyx password.
+        cache_token : bool
+            If true, the token is cached for subsequent auto-logins. Default: False.
+        """
+        if self._client.is_logged_in and self._client.user == username:
+            return
+
+        # try to authenticate. upgrade warnings to exceptions so we can catch them.
+        try:
+            with warnings.catch_warnings():
+                warnings.simplefilter('error')
+                self._client.authenticate(
+                    username=username,
+                    password=password,
+                    cache_token=cache_token,
+                    force=password is not None,
+                )
+
+        # catch missing password / token
+        except UserWarning as e:
+            if 'No password or cached token' in e.args[0]:
+                self.tokenMissing.emit(username)
+                return
+
+        # catch connection issues: display a message box
+        except ConnectionError as e:
+            parent = (
+                cast(QWidget, self.parent())
+                if isinstance(self.parent(), QWidget)
+                else None
+            )
+            QMessageBox.critical(
+                parent,
+                'Connection Error',
+                str(e),
+            )
+            self.connectionFailed.emit(e.args[0])
+            return
+
+        # catch authentication errors
+        except HTTPError as e:
+            if e.errno == 400:
+                print('auth')
+                self.authenticationFailed.emit(username)
+                return
+            else:
+                raise e
+
+        # emit signals
+        if self._client.is_logged_in and self._client.user == username:
+            self.statusChanged.emit(True)
+            self.loggedIn.emit(username)
+
+    def logout(self):
+        """Log out of Alyx."""
+        if not self._client.is_logged_in:
+            return
+        self._client.logout()
+        self.statusChanged.emit(False)
+        self.loggedOut.emit()

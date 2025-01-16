@@ -4,40 +4,40 @@ from enum import IntEnum
 from typing import Any
 
 from PyQt5.QtWidgets import QLayout
+from qtpy.QtCore import (
+    Property,
+    QAbstractItemModel,
+    QEvent,
+    QModelIndex,
+    QRect,
+    Qt,
+    Signal,
+    Slot,
+)
+from qtpy.QtGui import QIcon, QMouseEvent, QPainter
 from qtpy.QtWidgets import (
-    QDialogButtonBox,
-    QPushButton,
-    QStyledItemDelegate,
-    QStyleOptionButton,
+    QApplication,
     QCheckBox,
+    QDialog,
+    QDialogButtonBox,
+    QFormLayout,
+    QHBoxLayout,
     QLabel,
     QLineEdit,
     QMessageBox,
-    QStyle,
-    QApplication,
-    QStyleOptionViewItem,
-    QDialog,
-    QWidget,
-    QVBoxLayout,
-    QHBoxLayout,
-    QFormLayout,
+    QPushButton,
     QSizePolicy,
     QSpacerItem,
+    QStyle,
+    QStyledItemDelegate,
+    QStyleOptionButton,
+    QStyleOptionViewItem,
+    QVBoxLayout,
+    QWidget,
 )
-from qtpy.QtCore import (
-    Signal,
-    Slot,
-    Property,
-    QRect,
-    QEvent,
-    QModelIndex,
-    QAbstractItemModel,
-    Qt,
-)
-from qtpy.QtGui import QPainter, QMouseEvent, QIcon
 
-from iblqt.util import QAlyx
 from iblqt import resources  # noqa: F401
+from iblqt.core import QAlyx
 
 
 class CheckBoxDelegate(QStyledItemDelegate):
@@ -158,10 +158,10 @@ class StatefulButton(QPushButton):
         parent : QWidget
             The parent widget.
         """
-        super().__init__(textActive if active else textInactive, parent)
         self._isActive = active
         self._textActive = textActive or ''
         self._textInactive = textInactive or ''
+        super().__init__(self._textActive if active else self._textInactive, parent)
 
         self.clicked.connect(self._onClick)
         self.stateChanged.connect(
@@ -287,6 +287,7 @@ class AlyxUserEdit(QLineEdit):
         self.alyx.tokenMissing.connect(self._onTokenMissing)
 
     def login(self):
+        """Attempt to log into Alyx with the given username."""
         if len(self.text()) == 0:
             return
         self.alyx.login(username=self.text())
@@ -386,7 +387,7 @@ class AlyxLoginDialog(QDialog):
             self._cache = False
 
         form_widget = QWidget(self)
-        self.userEdit = QLineEdit(username, form_widget)
+        self.userEdit = QLineEdit(username or '', form_widget)
         self.passEdit = QLineEdit(form_widget)
         self.userEdit.textChanged.connect(self._onTextChanged)
         self.passEdit.setFocus()
