@@ -10,10 +10,6 @@ content_hash = "sha256:9ac74fc0398363f255d736a07412ef038af1d4e87d8976d3a8ece3f75
 [[metadata.targets]]
 requires_python = ">=3.10"
 
-[[metadata.targets]]
-requires_python = ">=3.10"
-platform = "windows_amd64"
-
 [[package]]
 name = "alabaster"
 version = "1.0.0"
@@ -968,15 +964,6 @@ files = [
     {file = "PyQt5_Qt5-5.15.16-py3-none-macosx_10_13_x86_64.whl", hash = "sha256:18b6fec012de60921fcb131cf2a21368171dc29050d43e4b81a64be407a36105"},
     {file = "PyQt5_Qt5-5.15.16-py3-none-macosx_11_0_arm64.whl", hash = "sha256:e1a0e7ae35a7615c74a293705204579650930486a89af23082462f429dae504a"},
     {file = "PyQt5_Qt5-5.15.16-py3-none-manylinux2014_x86_64.whl", hash = "sha256:5ee1754a6460849cba76c0f0c490c0ccc3b514abc780b141cf772db22b76b54b"},
-]
-
-[[package]]
-name = "pyqt5-qt5"
-version = "5.15.2"
-summary = "The subset of a Qt installation needed by PyQt5."
-groups = ["pyqt5"]
-files = [
-    {file = "PyQt5_Qt5-5.15.2-py3-none-win_amd64.whl", hash = "sha256:750b78e4dba6bdf1607febedc08738e318ea09e9b10aea9ff0d73073f11f6962"},
 ]
 
 [[package]]
