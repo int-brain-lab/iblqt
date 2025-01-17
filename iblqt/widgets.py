@@ -262,11 +262,16 @@ class StatefulButton(QPushButton):
 
 
 class UseTokenCache(IntEnum):
-    """Enumeration that defines the strategy for using the token cache."""
+    """Enumeration that defines the strategy for caching the login token."""
 
     NEVER = -1
+    """Never store the login token."""
+
     ASK = 0
+    """Ask the user whether they the login token should be stored."""
+
     ALWAYS = 1
+    """Always store the login token."""
 
 
 class AlyxUserEdit(QLineEdit):
