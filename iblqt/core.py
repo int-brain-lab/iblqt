@@ -629,7 +629,7 @@ class QAlyx(QObject):
     authenticationFailed = Signal(str)
     """Emitted when a login attempt failed due to incorrect credentials."""
 
-    connectionFailed = Signal(str)
+    connectionFailed = Signal(Exception)
     """Emitted when a login attempt failed due to connection issues."""
 
     loggedIn = Signal(str)
@@ -644,10 +644,20 @@ class QAlyx(QObject):
     def __init__(self, base_url: str, parent: QObject | None = None):
         super().__init__(parent)
         self._client = AlyxClient(base_url=base_url, silent=True)
+        self._parentWidget = (
+            cast(QWidget, self.parent()) if isinstance(self.parent(), QWidget) else None
+        )
+        self.connectionFailed.connect(self._onConnectionFailed)
 
     @property
     def client(self) -> AlyxClient:
-        """Get the wrapped :class:`AlyxClient`."""
+        """Get the wrapped client.
+
+        Returns
+        -------
+        :class:`~one.webclient.AlyxClient`
+        The wrapped client.
+        """
         return self._client
 
     def login(
@@ -687,17 +697,7 @@ class QAlyx(QObject):
 
         # catch connection issues: display a message box
         except ConnectionError as e:
-            parent = (
-                cast(QWidget, self.parent())
-                if isinstance(self.parent(), QWidget)
-                else None
-            )
-            QMessageBox.critical(
-                parent,
-                'Connection Error',
-                str(e),
-            )
-            self.connectionFailed.emit(e.args[0])
+            self.connectionFailed.emit(e)
             return
 
         # catch authentication errors
@@ -712,6 +712,50 @@ class QAlyx(QObject):
         if self._client.is_logged_in and self._client.user == username:
             self.statusChanged.emit(True)
             self.loggedIn.emit(username)
+
+    def rest(self, *args, **kwargs) -> Any:
+        """Query Alyx rest API.
+
+        A wrapper for :meth:`one.webclient.AlyxClient.rest`.
+
+        Parameters
+        ----------
+        *args : Any
+            Positional arguments passed to :meth:`AlyxClient.rest() <one.webclient.AlyxClient.rest>`.
+        **args : Any
+            Keyword arguments passed to :meth:`AlyxClient.rest() <one.webclient.AlyxClient.rest>`.
+
+        Returns
+        -------
+        Any
+            The response received from Alyx.
+        """
+        if not self._client.is_logged_in:
+            QMessageBox.critical(
+                self._parentWidget,
+                'Authentication Error',
+                'Cannot complete query without authentication.\nPlease log in to Alyx and try again.',
+            )
+        try:
+            return self._client.rest(*args, **kwargs)
+        except HTTPError as e:
+            self.connectionFailed.emit(e)
+
+    def _onConnectionFailed(self, e: Exception) -> None:
+        if (isinstance(e, ConnectionError) and "Can't connect" in e.args[0]) or (
+            isinstance(e, HTTPError) and e.errno not in (404, 400)
+        ):
+            pass
+            QMessageBox.critical(
+                self._parentWidget,
+                'Connection Error',
+                f"Can't connect to {self._client.base_url}.\n"
+                f'Check your internet connection and availability of the Alyx instance.',
+            )
+        elif isinstance(e, HTTPError) and e.errno == 400:
+            self.authenticationFailed.emit(self._client.user)
+        else:
+            raise e
 
     def logout(self):
         """Log out of Alyx."""
