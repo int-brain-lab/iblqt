@@ -265,17 +265,21 @@ class UseTokenCache(IntEnum):
     """Enumeration that defines the strategy for caching the login token."""
 
     NEVER = -1
-    """Never store the login token."""
+    """Indicates that the login token should never be stored."""
 
     ASK = 0
-    """Ask the user whether they the login token should be stored."""
+    """Indicates that the user should be prompted whether to store the login token."""
 
     ALWAYS = 1
-    """Always store the login token."""
+    """Indicates that the login token should always be stored."""
 
 
 class AlyxUserEdit(QLineEdit):
-    """A :class:`QLineEdit` for logging into Alyx."""
+    """A specialized :class:`QLineEdit` for logging into Alyx.
+
+    This widget allows users to enter their username and handles login actions,
+    including displaying login status.
+    """
 
     def __init__(
         self, alyx: QAlyx, parent: QWidget, cache: UseTokenCache = UseTokenCache.ASK
@@ -289,7 +293,7 @@ class AlyxUserEdit(QLineEdit):
         parent : QWidget
             The parent widget.
         cache : UseTokenCache
-            Strategy for handling the token cache. Defaults to ASK.
+            Strategy for handling the token cache. Defaults to UseTokenCache.ASK.
         """
         super().__init__(parent)
         self.alyx = alyx
@@ -303,18 +307,29 @@ class AlyxUserEdit(QLineEdit):
         self.alyx.tokenMissing.connect(self._onTokenMissing)
 
     def login(self):
-        """Attempt to log into Alyx with the given username."""
+        """Attempt to log into Alyx with the entered username.
+
+        If the username field is empty, the login attempt is ignored.
+        """
         if len(self.text()) == 0:
             return
         self.alyx.login(username=self.text())
 
     def _onLoggedIn(self, username: str):
+        """Handle successful login by updating the UI.
+
+        Parameters
+        ----------
+        username : str
+            The username of the logged-in user.
+        """
         self.addAction(self._checkIcon, self.ActionPosition.TrailingPosition)
         self.setText(username)
         self.setReadOnly(True)
         self.setStyleSheet('background-color: rgb(246, 245, 244);')
 
     def _onLoggedOut(self):
+        """Handle logout by resetting the UI elements."""
         for action in self.actions():
             self.removeAction(action)
         self.setText('')
@@ -322,14 +337,21 @@ class AlyxUserEdit(QLineEdit):
         self.setStyleSheet('')
 
     def _onTokenMissing(self, username: str):
+        """Prompt the user for password when the authentication token is missing.
+
+        Parameters
+        ----------
+        username : str
+            The username for which the token is missing.
+        """
         AlyxLoginDialog(self.alyx, username, self, self._cache).exec()
 
 
 class AlyxWidget(QWidget):
     """A widget for logging into Alyx.
 
-    It consists of a :class:`AlyxUserEdit` for entering a username and a
-    :class:`StatefulButton` for logging, both, in and out.
+    This widget contains an AlyxUserEdit for entering a username and a
+    StatefulButton for logging in and out.
     """
 
     def __init__(
@@ -342,12 +364,12 @@ class AlyxWidget(QWidget):
 
         Parameters
         ----------
-        alyx : QAlyx
-            The alyx instance.
+        alyx : QAlyx | str
+            The Alyx instance or the base URL for the Alyx API.
         parent : QWidget
             The parent widget.
         cache : UseTokenCache
-            Strategy for handling the token cache. Defaults to ASK.
+            Strategy for handling the token cache. Defaults to UseTokenCache.ASK.
         """
         super().__init__(parent)
 
