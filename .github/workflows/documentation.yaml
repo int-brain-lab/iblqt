@@ -24,9 +24,7 @@ jobs:
       - name: Install dependencies
         run: pdm sync -dG doc
       - name: Install PyQt5
-        run: pip install PyQt5
-      - name: Install GraphViz
-        run: sudo apt-get install -y graphviz
+        run: pdm run pip install PyQt5
       - name: Sphinx build
         run: pdm run sphinx-build docs/source docs/build
       - uses: peaceiris/actions-gh-pages@v4
