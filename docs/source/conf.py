@@ -48,7 +48,6 @@ intersphinx_mapping = {
 
 html_theme = 'sphinx_rtd_theme'
 html_theme_options = {
-    'display_version': True,
     'collapse_navigation': True,
     'sticky_navigation': True,
     'navigation_depth': 4,

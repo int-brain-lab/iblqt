@@ -275,10 +275,11 @@ class UseTokenCache(IntEnum):
 
 
 class AlyxUserEdit(QLineEdit):
-    """A specialized :class:`QLineEdit` for logging into Alyx.
+    """A specialized :class:`QLineEdit` for logging in to Alyx.
 
-    This widget allows users to enter their username and handles login actions,
-    including displaying login status.
+    A one-line text editor for entering a username. The widget handles login
+    actions, including displaying the login status. A :class:`AlyxLoginDialog`
+    is triggered when no authentication token is available.
     """
 
     def __init__(
@@ -307,7 +308,7 @@ class AlyxUserEdit(QLineEdit):
         self.alyx.tokenMissing.connect(self._onTokenMissing)
 
     def login(self):
-        """Attempt to log into Alyx with the entered username.
+        """Attempt to log in to Alyx with the entered username.
 
         If the username field is empty, the login attempt is ignored.
         """
@@ -347,11 +348,11 @@ class AlyxUserEdit(QLineEdit):
         AlyxLoginDialog(self.alyx, username, self, self._cache).exec()
 
 
-class AlyxWidget(QWidget):
-    """A widget for logging into Alyx.
+class AlyxLoginWidget(QWidget):
+    """A widget used for managing the connection to Alyx.
 
-    This widget contains an AlyxUserEdit for entering a username and a
-    StatefulButton for logging in and out.
+    This widget contains an :class:`AlyxUserEdit` for entering a username and a
+    :class:`StatefulButton` for logging in and out.
     """
 
     def __init__(
@@ -403,7 +404,7 @@ class AlyxWidget(QWidget):
 
 
 class AlyxLoginDialog(QDialog):
-    """A password dialog used for logging into Alyx."""
+    """A password dialog window used for authenticating with Alyx."""
 
     def __init__(
         self,
