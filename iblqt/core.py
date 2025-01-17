@@ -1,26 +1,30 @@
 """Non-GUI functionality, including event handling, data types, and data management."""
 
 import logging
+import warnings
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
+import numpy as np
+import numpy.typing as npt
+import pandas as pd
+from pandas import DataFrame
 from pyqtgraph import ColorMap, colormap  # type: ignore
 from qtpy.QtCore import (
+    Property,
     QAbstractTableModel,
     QFileSystemWatcher,
-    Qt,
     QModelIndex,
     QObject,
-    Property,
+    Qt,
     Signal,
     Slot,
 )
 from qtpy.QtGui import QColor
+from qtpy.QtWidgets import QMessageBox, QWidget
+from requests import HTTPError
 
-import pandas as pd
-from pandas import DataFrame
-import numpy as np
-import numpy.typing as npt
+from one.webclient import AlyxClient  # type: ignore
 
 log = logging.getLogger(__name__)
 
@@ -614,3 +618,149 @@ class PathWatcher(QObject):
         """
         out = self._watcher.removePaths([str(p) for p in paths])
         return [Path(x) for x in out]
+
+
+class QAlyx(QObject):
+    """A Qt wrapper for :class:`one.webclient.AlyxClient`."""
+
+    tokenMissing = Signal(str)
+    """Emitted when a login attempt failed due to a missing cache token."""
+
+    authenticationFailed = Signal(str)
+    """Emitted when a login attempt failed due to incorrect credentials."""
+
+    connectionFailed = Signal(Exception)
+    """Emitted when a login attempt failed due to connection issues."""
+
+    loggedIn = Signal(str)
+    """Emitted when successfully logged in."""
+
+    loggedOut = Signal()
+    """Emitted when logged out."""
+
+    statusChanged = Signal(bool)
+    """Emitted when the login status has changed."""
+
+    def __init__(self, base_url: str, parent: QObject | None = None):
+        super().__init__(parent)
+        self._client = AlyxClient(base_url=base_url, silent=True)
+        self._parentWidget = (
+            cast(QWidget, self.parent()) if isinstance(self.parent(), QWidget) else None
+        )
+        self.connectionFailed.connect(self._onConnectionFailed)
+
+    @property
+    def client(self) -> AlyxClient:
+        """Get the wrapped client.
+
+        Returns
+        -------
+        :class:`~one.webclient.AlyxClient`
+        The wrapped client.
+        """
+        return self._client
+
+    def login(
+        self, username: str, password: str | None = None, cache_token: bool = False
+    ) -> None:
+        """
+        Try to log into Alyx.
+
+        Parameters
+        ----------
+        username : str
+            Alyx username.
+        password : str, optional
+            Alyx password.
+        cache_token : bool
+            If true, the token is cached for subsequent auto-logins. Default: False.
+        """
+        if self._client.is_logged_in and self._client.user == username:
+            return
+
+        # try to authenticate. upgrade warnings to exceptions so we can catch them.
+        try:
+            with warnings.catch_warnings():
+                warnings.simplefilter('error')
+                self._client.authenticate(
+                    username=username,
+                    password=password,
+                    cache_token=cache_token,
+                    force=password is not None,
+                )
+
+        # catch missing password / token
+        except UserWarning as e:
+            if 'No password or cached token' in e.args[0]:
+                self.tokenMissing.emit(username)
+                return
+
+        # catch connection issues: display a message box
+        except ConnectionError as e:
+            self.connectionFailed.emit(e)
+            return
+
+        # catch authentication errors
+        except HTTPError as e:
+            if e.errno == 400:
+                self.authenticationFailed.emit(username)
+                return
+            else:
+                raise e
+
+        # emit signals
+        if self._client.is_logged_in and self._client.user == username:
+            self.statusChanged.emit(True)
+            self.loggedIn.emit(username)
+
+    def rest(self, *args, **kwargs) -> Any:
+        """Query Alyx rest API.
+
+        A wrapper for :meth:`one.webclient.AlyxClient.rest`.
+
+        Parameters
+        ----------
+        *args : Any
+            Positional arguments passed to :meth:`AlyxClient.rest() <one.webclient.AlyxClient.rest>`.
+        **args : Any
+            Keyword arguments passed to :meth:`AlyxClient.rest() <one.webclient.AlyxClient.rest>`.
+
+        Returns
+        -------
+        Any
+            The response received from Alyx.
+        """
+        if not self._client.is_logged_in:
+            QMessageBox.critical(
+                self._parentWidget,
+                'Authentication Error',
+                'Cannot complete query without authentication.\nPlease log in to Alyx and try again.',
+            )
+        try:
+            return self._client.rest(*args, **kwargs)
+        except HTTPError as e:
+            self.connectionFailed.emit(e)
+
+    def _onConnectionFailed(self, e: Exception) -> None:
+        if (isinstance(e, ConnectionError) and "Can't connect" in e.args[0]) or (
+            isinstance(e, HTTPError) and e.errno not in (404, 400)
+        ):
+            pass
+            QMessageBox.critical(
+                self._parentWidget,
+                'Connection Error',
+                f"Can't connect to {self._client.base_url}.\n"
+                f'Check your internet connection and availability of the Alyx instance.',
+            )
+        elif isinstance(e, HTTPError) and e.errno == 400:
+            self.authenticationFailed.emit(self._client.user)
+        else:
+            raise e
+
+    def logout(self):
+        """Log out of Alyx."""
+        if not self._client.is_logged_in:
+            return
+        self._client.logout()
+        self.statusChanged.emit(False)
+        self.loggedOut.emit()
