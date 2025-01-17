@@ -61,13 +61,7 @@ typing = [
     "mypy>=1.11.2",
     "pandas-stubs>=2.2.2.240807",
     "types-requests>=2.32.0.20241016",
-]
-pyqt5 = [
-    "PyQt5>=5.15.11",
     "PyQt5-stubs>=5.15.6.0",
-]
-pyqt6 = [
-    "PyQt6>=6.7.1",
 ]
 
 [tool.ruff]
@@ -122,7 +116,8 @@ passenv=
 
 [testenv:typing]
 skip_install = true
-groups = pyqt5, typing
+groups = typing
+deps = PyQt5
 commands = mypy -p iblqt --always-true=PYQT5 --always-false=PYSIDE2 --always-false=PYQT6 --always-false=PYSIDE6
 
 [testenv:clean]
