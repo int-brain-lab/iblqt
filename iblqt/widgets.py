@@ -3,7 +3,6 @@
 from enum import IntEnum
 from typing import Any
 
-from PyQt5.QtWidgets import QLayout
 from qtpy.QtCore import (
     Property,
     QAbstractItemModel,
@@ -23,6 +22,7 @@ from qtpy.QtWidgets import (
     QFormLayout,
     QHBoxLayout,
     QLabel,
+    QLayout,
     QLineEdit,
     QMessageBox,
     QPushButton,
