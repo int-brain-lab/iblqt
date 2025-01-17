@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - core.QAlyx: wrapper for one.webclient.AlyxClient
-- widgets.AlyxWidget: widget for logging into Alyx
+- widgets.AlyxWidget: widget for logging in to Alyx
 
 ### Changed
 
