@@ -1,11 +1,11 @@
+import tempfile
 from pathlib import Path
 
-from qtpy.QtCore import Qt, QModelIndex
-from iblqt import core
-import tempfile
-import pytest
-
 import pandas as pd
+import pytest
+from qtpy.QtCore import QModelIndex, Qt
+
+from iblqt import core
 
 
 def test_dataframe_model(qtbot):

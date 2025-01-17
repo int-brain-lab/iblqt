@@ -10,6 +10,7 @@ dependencies = [
     "pandas>2.0",
     "numpy<2.0.0",
     "pyqtgraph>=0.13.7",
+    "ONE-api>=2.11.2",
 ]
 keywords = ["pyqt", "qt", "pyside", "qtpy"]
 requires-python = ">=3.10"
@@ -29,16 +30,16 @@ Changelog = "https://github.com/int-brain-lab/iblqt/blob/main/CHANGELOG.md"
 
 [tool.pdm]
 distribution = true
-#ignore_package_warnings = ["PySide*", "shiboken2"]
+
+[tool.pdm.build]
+package-dir = "iblqt"
+source-includes = [ "iblqt/", "tests/", "resources/", "docs/source" ]
 
 [tool.pdm.version]
 source = "file"
 path = "iblqt/__init__.py"
 
-[tool.pdm.dev-dependencies]
-dev = [
-    "iblqt[doc, lint, test, typing]",
-]
+[dependency-groups]
 doc = [
     "sphinx>=7.0.0",
     "myst-parser>=4.0.0",
@@ -59,35 +60,28 @@ test = [
 typing = [
     "mypy>=1.11.2",
     "pandas-stubs>=2.2.2.240807",
-]
-pyqt5 = [
-    "PyQt5>=5.15.11",
+    "types-requests>=2.32.0.20241016",
     "PyQt5-stubs>=5.15.6.0",
-]
-pyqt6 = [
-    "PyQt6>=6.7.1",
-]
-pyside2 = [
-    "PySide2>=5.15.2.1; python_version < '3.11'",
-]
-pyside6 = [
-    "PySide6>=6.8.1; python_version < '3.14'",
 ]
 
 [tool.ruff]
 include = ["pyproject.toml", "iblqt/**/*.py", "tests/**/*.py"]
+exclude = ["iblqt/resources.py"]
 
 [tool.ruff.format]
 quote-style = "single"
 
 [tool.ruff.lint]
-extend-select = ["D"]
+extend-select = ["D", "I"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = ["D"] # pydocstyle
 
 [tool.ruff.lint.pydocstyle]
 convention = "numpy"
+
+[tool.ruff.lint.isort]
+known-first-party = [ "ibl*", "one*" ]
 
 [tool.mypy]
 files = ["iblqt/**/*.py", "tests/**/*.py"]
@@ -104,7 +98,7 @@ relative_files = true
 [tool.tox]
 legacy_tox_ini = """
 [tox]
-env_list = clean,py{310}-{pyqt5,pyqt6,pyside2,pyside6}
+env_list = typing,clean,py{310}-{pyqt5,pyqt6,pyside2,pyside6}
 
 [testenv]
 groups = test
@@ -119,6 +113,12 @@ passenv=
     DISPLAY
     XAUTHORITY
     COLUMNS
+
+[testenv:typing]
+skip_install = true
+groups = typing
+deps = PyQt5
+commands = mypy -p iblqt --always-true=PYQT5 --always-false=PYSIDE2 --always-false=PYQT6 --always-false=PYSIDE6
 
 [testenv:clean]
 skip_install = true
