@@ -730,22 +730,25 @@ class QAlyx(QObject):
         Any
             The response received from Alyx.
         """
-        if not self._client.is_logged_in:
-            QMessageBox.critical(
-                self._parentWidget,
-                'Authentication Error',
-                'Cannot complete query without authentication.\nPlease log in to Alyx and try again.',
-            )
         try:
-            return self._client.rest(*args, **kwargs)
+            with warnings.catch_warnings():
+                warnings.simplefilter('ignore')
+                return self._client.rest(*args, **kwargs)
         except HTTPError as e:
-            self.connectionFailed.emit(e)
+            if e.errno == 400:
+                QMessageBox.critical(
+                    self._parentWidget,
+                    'Error',
+                    'Cannot perform query without authentication.\n'
+                    'Please log in to Alyx and try again.',
+                )
+            else:
+                self.connectionFailed.emit(e)
 
     def _onConnectionFailed(self, e: Exception) -> None:
         if (isinstance(e, ConnectionError) and "Can't connect" in e.args[0]) or (
             isinstance(e, HTTPError) and e.errno not in (404, 400)
         ):
-            pass
             QMessageBox.critical(
                 self._parentWidget,
                 'Connection Error',
