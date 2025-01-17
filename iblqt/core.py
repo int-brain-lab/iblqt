@@ -703,7 +703,6 @@ class QAlyx(QObject):
         # catch authentication errors
         except HTTPError as e:
             if e.errno == 400:
-                print('auth')
                 self.authenticationFailed.emit(username)
                 return
             else:

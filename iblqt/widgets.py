@@ -444,7 +444,6 @@ class AlyxLoginDialog(QDialog):
         self.passEdit.setFocus()
         self.passEdit.setEchoMode(QLineEdit.Password)
         self.passEdit.textChanged.connect(self._onTextChanged)
-
         form_layout = QFormLayout(form_widget)
         form_layout.addRow('Server', QLabel(self._alyx.client.base_url, form_widget))
         form_layout.addRow('Username', self.userEdit)
@@ -459,7 +458,6 @@ class AlyxLoginDialog(QDialog):
         self.buttonBox.button(QDialogButtonBox.Ok).setEnabled(False)
         self.buttonBox.button(QDialogButtonBox.Ok).clicked.connect(self.accept)
         self.buttonBox.button(QDialogButtonBox.Cancel).clicked.connect(self.reject)
-
         control_layout = QHBoxLayout(control_widget)
         if cache == UseTokenCache.ASK:
             check_cache = QCheckBox('Remember me', control_widget)
