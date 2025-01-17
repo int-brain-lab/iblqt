@@ -624,11 +624,22 @@ class QAlyx(QObject):
     """A Qt wrapper for :class:`one.webclient.AlyxClient`."""
 
     tokenMissing = Signal(str)
+    """Emitted when a login attempt failed due to a missing cache token."""
+
     authenticationFailed = Signal(str)
+    """Emitted when a login attempt failed due to incorrect credentials."""
+
     connectionFailed = Signal(str)
+    """Emitted when a login attempt failed due to connection issues."""
+
     loggedIn = Signal(str)
+    """Emitted when successfully logged in."""
+
     loggedOut = Signal()
+    """Emitted when logged out."""
+
     statusChanged = Signal(bool)
+    """Emitted when the login status has changed."""
 
     def __init__(self, base_url: str, parent: QObject | None = None):
         super().__init__(parent)

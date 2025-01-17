@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - core.QAlyx: wrapper for one.webclient.AlyxClient
 - widgets.AlyxWidget: widget for logging into Alyx
+
+### Changed
+
 - widgets.StatefulButton: keep track of different labels for active and 
   inactive states
 
