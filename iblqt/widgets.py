@@ -280,6 +280,17 @@ class AlyxUserEdit(QLineEdit):
     def __init__(
         self, alyx: QAlyx, parent: QWidget, cache: UseTokenCache = UseTokenCache.ASK
     ) -> None:
+        """Initialize the widget.
+
+        Parameters
+        ----------
+        alyx : QAlyx
+            The alyx instance.
+        parent : QWidget
+            The parent widget.
+        cache : UseTokenCache
+            Strategy for handling the token cache. Defaults to ASK.
+        """
         super().__init__(parent)
         self.alyx = alyx
         self._cache = cache
@@ -379,6 +390,19 @@ class AlyxLoginDialog(QDialog):
         parent: QWidget | None = None,
         cache: UseTokenCache = UseTokenCache.ASK,
     ) -> None:
+        """Initialize the widget.
+
+        Parameters
+        ----------
+        alyx : QAlyx
+            The alyx instance.
+        username : str
+            The username.
+        parent : QWidget
+            The parent widget.
+        cache : UseTokenCache
+            Strategy for handling the token cache. Defaults to ASK.
+        """
         super().__init__(parent)
         self.setWindowTitle('Login')
 
