@@ -33,7 +33,7 @@ distribution = true
 
 [tool.pdm.build]
 excludes = [ "docs/source/api" ]
-source-includes = [ "tests/", "resources/", "docs/source" ]
+source-includes = [ "tests/", "resources/", "docs/source/" ]
 
 [tool.pdm.version]
 source = "file"
