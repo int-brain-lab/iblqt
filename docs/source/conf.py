@@ -40,8 +40,9 @@ intersphinx_mapping = {
     'scipy': ('https://docs.scipy.org/doc/scipy/', None),
     'one': ('https://int-brain-lab.github.io/ONE/', None),
     'iblrig': ('https://int-brain-lab.github.io/iblrig/', None),
+    'PyQt5': ('https://www.riverbankcomputing.com/static/Docs/PyQt5', None)
 }
-
+qt_documentation = 'Qt5'
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
