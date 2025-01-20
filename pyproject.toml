@@ -32,7 +32,7 @@ Changelog = "https://github.com/int-brain-lab/iblqt/blob/main/CHANGELOG.md"
 distribution = true
 
 [tool.pdm.build]
-package-dir = "iblqt"
+includes = [ "iblqt/*" ]
 source-includes = [ "iblqt/", "tests/", "resources/", "docs/source" ]
 
 [tool.pdm.version]
