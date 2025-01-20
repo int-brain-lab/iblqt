@@ -39,6 +39,9 @@ source-includes = [ "iblqt/", "tests/", "resources/", "docs/source" ]
 source = "file"
 path = "iblqt/__init__.py"
 
+[tool.pdm.scripts]
+docs = "sphinx-build ./docs/source ./docs/build"
+
 [dependency-groups]
 doc = [
     "sphinx>=7.0.0",

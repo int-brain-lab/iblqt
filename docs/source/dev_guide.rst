@@ -83,7 +83,7 @@ API reference. To build the documentation, run the following command:
 
 .. code-block:: bash
 
-   pdm run sphinx-build ./docs/source ./docs/build
+   pdm run docs
 
 After running this command, you can view the generated documentation in your
 web browser by opening ``docs/build/index.html`.
