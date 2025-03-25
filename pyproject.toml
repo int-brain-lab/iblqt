@@ -99,7 +99,11 @@ source_pkgs = [ "iblqt" ]
 relative_files = true
 
 [tool.coverage.paths]
-source = [ "iblqt/", ".tox/py*/lib/py*/site-packages/iblqt/" ]
+source = [
+    "iblqt/",
+    ".tox/py*/lib/py*/site-packages/iblqt/",
+    ".tox/py*/Lib/site-packages/iblqt"
+]
 
 [tool.tox]
 legacy_tox_ini = """
