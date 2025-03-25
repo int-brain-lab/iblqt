@@ -102,7 +102,7 @@ relative_files = true
 source = [
     "iblqt/",
     ".tox/py*/lib/py*/site-packages/iblqt/",
-    ".tox/py*/Lib/site-packages/iblqt"
+    ".tox/py*/Lib/site-packages/iblqt/"
 ]
 
 [tool.tox]
