@@ -1,9 +1,11 @@
 import tempfile
 from pathlib import Path
+from unittest.mock import PropertyMock, patch
 
 import pandas as pd
 import pytest
 from qtpy.QtCore import QModelIndex, Qt
+from requests import HTTPError
 
 from iblqt import core
 
@@ -113,3 +115,99 @@ def test_path_watcher(qtbot):
         assert len(w.removePaths([path2])) == 0
         assert len(w.directories()) == 0
         assert path1 not in w.directories()
+
+
+@pytest.fixture
+def mock_alyx_client():
+    """Mock the AlyxClient to avoid real network calls."""
+    with patch('iblqt.core.AlyxClient', autospec=True) as MockAlyxClient:
+        yield MockAlyxClient
+
+
+def test_login_success(qtbot, mock_alyx_client):
+    """Test successful login."""
+    mock_client = mock_alyx_client.return_value
+    mock_client.user = 'test_user'
+    type(mock_client).is_logged_in = PropertyMock(side_effect=[False, True])
+
+    q_alyx = core.QAlyx(base_url='http://example.com')
+
+    with (
+        qtbot.waitSignal(q_alyx.loggedIn) as s1,
+        qtbot.waitSignal(q_alyx.statusChanged) as s2,
+    ):
+        q_alyx.login(username='test_user', password='correct_password')
+        assert s1.args[0] == 'test_user'
+        assert s2.args[0] is True
+
+
+def test_login_failure(qtbot, mock_alyx_client):
+    """Test successful login."""
+    mock_client = mock_alyx_client.return_value
+    mock_client.base_url = 'http://example.com'
+    mock_client.user = 'test_user'
+    mock_client.is_logged_in = False
+
+    q_alyx = core.QAlyx(base_url='http://example.com')
+
+    mock_client.authenticate.side_effect = UserWarning('No password or cached token')
+    with qtbot.waitSignal(q_alyx.tokenMissing) as s1:
+        q_alyx.login(username='test_user', password='some_password')
+        assert s1.args[0] == 'test_user'
+
+    mock_client.authenticate.side_effect = ConnectionError("Can't connect")
+    with (
+        qtbot.waitSignal(q_alyx.connectionFailed),
+        patch('iblqt.core.QMessageBox.critical') as mock,
+    ):
+        q_alyx.login(username='test_user', password='some_password')
+        mock.assert_called_once()
+
+    mock_client.authenticate.side_effect = HTTPError(400, 'Blah')
+    with qtbot.waitSignal(q_alyx.authenticationFailed) as s1:
+        q_alyx.login(username='test_user', password='some_password')
+        assert s1.args[0] == 'test_user'
+
+    mock_client.authenticate.side_effect = HTTPError(401, 'Blah')
+    with pytest.raises(HTTPError):
+        q_alyx.login(username='test_user', password='some_password')
+
+
+def test_logout(qtbot, mock_alyx_client):
+    """Test logout functionality."""
+    mock_client = mock_alyx_client.return_value
+
+    q_alyx = core.QAlyx(base_url='http://example.com')
+
+    mock_client.is_logged_in = False
+    with qtbot.assertNotEmitted(q_alyx.loggedOut):
+        q_alyx.logout()
+
+    mock_client.is_logged_in = True
+    with (
+        qtbot.waitSignal(q_alyx.statusChanged) as s1,
+        qtbot.waitSignal(q_alyx.loggedOut),
+    ):
+        q_alyx.logout()
+        assert s1.args[0] is False
+
+
+def test_rest(qtbot, mock_alyx_client):
+    """Test rest functionality."""
+    mock_client = mock_alyx_client.return_value
+
+    q_alyx = core.QAlyx(base_url='http://example.com')
+    q_alyx.rest('some_arg', some_kwarg=True)
+    mock_client.rest.assert_called_once_with('some_arg', some_kwarg=True)
+
+    mock_client.rest.side_effect = HTTPError(400, 'Blah')
+    with patch('iblqt.core.QMessageBox.critical'):
+        q_alyx.rest('some_arg', some_kwarg=True)
+
+    mock_client.rest.side_effect = HTTPError(401, 'Blah')
+    with (
+        qtbot.waitSignal(q_alyx.connectionFailed),
+        patch('iblqt.core.QMessageBox.critical') as mock,
+    ):
+        q_alyx.rest('some_arg', some_kwarg=True)
+        mock.assert_called_once()
