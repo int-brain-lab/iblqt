@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.4.3] - 20525-03-25
 
+### Added
+- unit tests for core.QAlyx
+
 ### Changed
 - removed version pin for Numpy requirement
 
