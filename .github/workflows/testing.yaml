@@ -48,6 +48,7 @@ jobs:
           parallel: true
           file: coverage.xml
           compare-ref: main
+          base-path: '/'
 
   Finish:
     needs: [Testing]
@@ -58,3 +59,4 @@ jobs:
       uses: coverallsapp/github-action@v2
       with:
         parallel-finished: true
+        base-path: '/'
