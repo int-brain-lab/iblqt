@@ -146,7 +146,7 @@ class TestQAlyx:
         mock_client.user = 'test_user'
         type(mock_client).is_logged_in = PropertyMock(side_effect=[False, True])
 
-        q_alyx = core.QAlyx(base_url='http://example.com')
+        q_alyx = core.QAlyx(base_url='https://example.com')
 
         with (
             qtbot.waitSignal(q_alyx.loggedIn) as s1,
@@ -159,11 +159,11 @@ class TestQAlyx:
     def test_login_failure(self, qtbot, mock_alyx_client):
         """Test successful login."""
         mock_client = mock_alyx_client.return_value
-        mock_client.base_url = 'http://example.com'
+        mock_client.base_url = 'https://example.com'
         mock_client.user = 'test_user'
         mock_client.is_logged_in = False
 
-        q_alyx = core.QAlyx(base_url='http://example.com')
+        q_alyx = core.QAlyx(base_url='https://example.com')
 
         mock_client.authenticate.side_effect = UserWarning(
             'No password or cached token'
@@ -193,7 +193,7 @@ class TestQAlyx:
         """Test logout functionality."""
         mock_client = mock_alyx_client.return_value
 
-        q_alyx = core.QAlyx(base_url='http://example.com')
+        q_alyx = core.QAlyx(base_url='https://example.com')
 
         mock_client.is_logged_in = False
         with qtbot.assertNotEmitted(q_alyx.loggedOut):
@@ -211,13 +211,14 @@ class TestQAlyx:
         """Test rest functionality."""
         mock_client = mock_alyx_client.return_value
 
-        q_alyx = core.QAlyx(base_url='http://example.com')
+        q_alyx = core.QAlyx(base_url='https://example.com')
         q_alyx.rest('some_arg', some_kwarg=True)
         mock_client.rest.assert_called_once_with('some_arg', some_kwarg=True)
 
         mock_client.rest.side_effect = HTTPError(400, 'Blah')
-        with patch('iblqt.core.QMessageBox.critical'):
+        with patch('iblqt.core.QMessageBox.critical') as mock:
             q_alyx.rest('some_arg', some_kwarg=True)
+            mock.assert_called_once()
 
         mock_client.rest.side_effect = HTTPError(401, 'Blah')
         with (
