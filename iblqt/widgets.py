@@ -345,7 +345,7 @@ class AlyxUserEdit(QLineEdit):
         username : str
             The username for which the token is missing.
         """
-        AlyxLoginDialog(self.alyx, username, self, self._cache).exec()
+        AlyxLoginDialog(self.alyx, username, self, self._cache).exec_()
 
 
 class AlyxLoginWidget(QWidget):
@@ -480,7 +480,7 @@ class AlyxLoginDialog(QDialog):
         self.layout().setSizeConstraint(QLayout.SetFixedSize)
 
     def _setCache(self, do_cache: int) -> None:
-        self._cache = do_cache > 0
+        self._cache = do_cache == Qt.CheckState.Checked
 
     def accept(self):
         """Hide the dialog and set the result code to Accepted."""
