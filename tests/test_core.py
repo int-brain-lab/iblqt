@@ -2,6 +2,7 @@ import tempfile
 from pathlib import Path
 from unittest.mock import PropertyMock, patch
 
+import numpy as np
 import pandas as pd
 import pytest
 from qtpy.QtCore import QModelIndex, Qt
@@ -11,18 +12,24 @@ from iblqt import core
 
 
 class TestDataFrameTableModel:
-    def test_dataframe_model(self, qtbot, caplog):
-        # instantiation / setting of dataframe
-        df = pd.DataFrame({'X': [0, 1, 2], 'Y': ['A', 'B', 'C']})
+    @pytest.fixture
+    def data_frame(self):
+        yield pd.DataFrame({'X': [0, 1, 2], 'Y': ['A', 'B', 'C']})
+
+    @pytest.fixture
+    def model(self, data_frame, qtbot):
+        yield core.ColoredDataFrameTableModel(dataFrame=data_frame)
+
+    def test_instantiation(self, qtbot, data_frame):
         model = core.ColoredDataFrameTableModel()
         assert model.dataFrame.empty
-        model = core.ColoredDataFrameTableModel(dataFrame=df)
-        assert model.dataFrame is not df
-        assert model.dataFrame.equals(df)
+        model = core.ColoredDataFrameTableModel(dataFrame=data_frame)
+        assert model.dataFrame is not data_frame
+        assert model.dataFrame.equals(data_frame)
         with qtbot.waitSignal(model.modelReset, timeout=100):
-            model.dataFrame = df
+            model.dataFrame = data_frame
 
-        # header data
+    def test_header_data(self, qtbot, model):
         assert model.headerData(-1, Qt.Orientation.Horizontal) is None
         assert model.headerData(1, Qt.Orientation.Horizontal) == 'Y'
         assert model.headerData(2, Qt.Orientation.Horizontal) is None
@@ -31,26 +38,27 @@ class TestDataFrameTableModel:
         assert model.headerData(3, Qt.Orientation.Vertical) is None
         assert model.headerData(0, 3) is None
 
-        # index
+    def test_index(self, qtbot, model):
         assert model.index(1, 0).row() == 1
         assert model.index(1, 0).column() == 0
         assert model.index(1, 0).isValid()
         assert not model.index(5, 5).isValid()
         assert model.index(5, 5) == QModelIndex()
 
-        # writing data
+    def test_write_read(self, qtbot, model):
         with qtbot.waitSignal(model.dataChanged, timeout=100):
             assert model.setData(model.index(0, 0), -1)
         assert model.dataFrame.iloc[0, 0] == -1
+        assert model.setData(model.index(2, 0), np.nan)
         assert not model.setData(model.index(5, 5), 9)
         assert not model.setData(model.index(0, 0), 9, 6)
-
-        # reading data
         assert model.data(model.index(0, 1)) == 'A'
         assert model.data(model.index(5, 5)) is None
         assert model.data(model.index(0, 1), 6) is None
+        assert np.isnan(model.data(model.index(2, 0)))
+        assert not isinstance(model.data(model.index(0, 2)), np.generic)
 
-        # sorting
+    def test_sort(self, qtbot, model):
         with qtbot.waitSignal(model.layoutChanged, timeout=100):
             model.sort(1, Qt.SortOrder.DescendingOrder)
         assert model.data(model.index(0, 1)) == 'C'
@@ -62,29 +70,33 @@ class TestDataFrameTableModel:
         assert model.data(model.index(0, 1)) == 'A'
         assert model.data(model.index(2, 1)) == 'D'
         assert model.headerData(0, Qt.Orientation.Vertical) == 0
+        model.setDataFrame(pd.DataFrame())
+        with qtbot.assertNotEmitted(model.layoutChanged):
+            model.sort(1, Qt.SortOrder.AscendingOrder)
+            model.sort(1, Qt.SortOrder.DescendingOrder)
 
-        # colormap
+    def test_colormap(self, qtbot, caplog, model):
         with qtbot.waitSignal(model.colormapChanged, timeout=100):
             model.colormap = 'CET-L1'
         assert model.getColormap() == 'CET-L1'
         model.sort(1, Qt.SortOrder.AscendingOrder)
         assert (
-            model.data(model.index(0, 0), Qt.ItemDataRole.BackgroundRole).redF() == 1.0
+            model.data(model.index(0, 0), Qt.ItemDataRole.BackgroundRole).redF() == 0.0
         )
         assert (
-            model.data(model.index(2, 0), Qt.ItemDataRole.BackgroundRole).redF() == 0.0
+            model.data(model.index(2, 0), Qt.ItemDataRole.BackgroundRole).redF() == 1.0
         )
         assert (
-            model.data(model.index(0, 0), Qt.ItemDataRole.ForegroundRole).redF() == 0.0
+            model.data(model.index(0, 0), Qt.ItemDataRole.ForegroundRole).redF() == 1.0
         )
         assert (
-            model.data(model.index(2, 0), Qt.ItemDataRole.ForegroundRole).redF() == 1.0
+            model.data(model.index(2, 0), Qt.ItemDataRole.ForegroundRole).redF() == 0.0
         )
         caplog.clear()
         model.setColormap('non-existant')
         assert caplog.records[0].levelname == 'WARNING'
 
-        # alpha
+    def test_alpha(self, qtbot, model):
         with qtbot.waitSignal(model.alphaChanged, timeout=100):
             model.alpha = 128
         assert model.alpha == 128
@@ -94,6 +106,13 @@ class TestDataFrameTableModel:
         assert (
             model.data(model.index(2, 0), Qt.ItemDataRole.BackgroundRole).alpha() == 128
         )
+
+    def test_counts(self, qtbot, model):
+        assert model.rowCount() == 3
+        assert model.columnCount() == 2
+        parent_index = model.createIndex(0, 0)
+        assert model.rowCount(parent_index) == 0
+        assert model.columnCount(parent_index) == 0
 
 
 class TestPathWatcher:
@@ -168,7 +187,7 @@ class TestQAlyx:
             assert s2.args[0] is True
 
     def test_login_failure(self, qtbot, mock_client):
-        """Test successful login."""
+        """Test login failure."""
         mock_client.base_url = 'https://example.com'
         mock_client.user = 'test_user'
         mock_client.is_logged_in = False
