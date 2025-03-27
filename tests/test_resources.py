@@ -43,15 +43,24 @@ class TestResources:
             mock_unregister.assert_called_once()
 
     def test_resources(self, qtbot):
+        if 'iblqt.resources' in sys.modules:
+            del sys.modules['iblqt.resources']
+        importlib.import_module('iblqt.resources')
         qrc_file = resources_path.joinpath('resources.qrc')
         assert qrc_file.exists()
         tree = ET.parse(qrc_file)
         root = tree.getroot()
+        resource_names = []
         for resource in root.findall('qresource'):
             prefix = resource.get('prefix')
             for file in resource.findall('file'):
                 resource_path = resources_path.joinpath(file.text)
+                alias = file.get('alias')
                 assert resource_path.exists()
-                resource_name = f':{prefix}/{resource_path.stem}'
+                resource_name = f':/{prefix}/{alias or resource_path.stem}'
                 icon = QIcon(resource_name)
                 assert len(icon.availableSizes()) > 0
+                resource_names.append(resource_name)
+        expected_resources = [':/icon/check']
+        for expected_resource in expected_resources:
+            assert expected_resource in resource_names
