@@ -11,7 +11,7 @@ from iblqt import core
 
 
 class TestDataFrameTableModel:
-    def test_dataframe_model(self, qtbot):
+    def test_dataframe_model(self, qtbot, caplog):
         # instantiation / setting of dataframe
         df = pd.DataFrame({'X': [0, 1, 2], 'Y': ['A', 'B', 'C']})
         model = core.ColoredDataFrameTableModel()
@@ -80,6 +80,9 @@ class TestDataFrameTableModel:
         assert (
             model.data(model.index(2, 0), Qt.ItemDataRole.ForegroundRole).redF() == 1.0
         )
+        caplog.clear()
+        model.setColormap('non-existant')
+        assert caplog.records[0].levelname == 'WARNING'
 
         # alpha
         with qtbot.waitSignal(model.alphaChanged, timeout=100):
@@ -135,19 +138,27 @@ class TestPathWatcher:
 
 class TestQAlyx:
     @pytest.fixture
-    def mock_alyx_client(self):
+    def mock_client(self):
         """Mock the AlyxClient to avoid real network calls."""
         with patch('iblqt.core.AlyxClient', autospec=True) as MockAlyxClient:
-            yield MockAlyxClient
+            yield MockAlyxClient.return_value
 
-    def test_login_success(self, qtbot, mock_alyx_client):
+    def test_client(self, qtbot, mock_client):
+        q_alyx = core.QAlyx(base_url='https://example.com')
+        assert q_alyx.client is mock_client
+
+    def test_login_success(self, qtbot, mock_client):
         """Test successful login."""
-        mock_client = mock_alyx_client.return_value
         mock_client.user = 'test_user'
-        type(mock_client).is_logged_in = PropertyMock(side_effect=[False, True])
+        type(mock_client).is_logged_in = PropertyMock(side_effect=[True, False, True])
 
         q_alyx = core.QAlyx(base_url='https://example.com')
 
+        # user already logged in
+        with qtbot.assertNotEmitted(q_alyx.loggedIn):
+            q_alyx.login(username='test_user', password='correct_password')
+
+        # user not yet logged in
         with (
             qtbot.waitSignal(q_alyx.loggedIn) as s1,
             qtbot.waitSignal(q_alyx.statusChanged) as s2,
@@ -156,9 +167,8 @@ class TestQAlyx:
             assert s1.args[0] == 'test_user'
             assert s2.args[0] is True
 
-    def test_login_failure(self, qtbot, mock_alyx_client):
+    def test_login_failure(self, qtbot, mock_client):
         """Test successful login."""
-        mock_client = mock_alyx_client.return_value
         mock_client.base_url = 'https://example.com'
         mock_client.user = 'test_user'
         mock_client.is_logged_in = False
@@ -189,10 +199,8 @@ class TestQAlyx:
         with pytest.raises(HTTPError):
             q_alyx.login(username='test_user', password='some_password')
 
-    def test_logout(self, qtbot, mock_alyx_client):
+    def test_logout(self, qtbot, mock_client):
         """Test logout functionality."""
-        mock_client = mock_alyx_client.return_value
-
         q_alyx = core.QAlyx(base_url='https://example.com')
 
         mock_client.is_logged_in = False
@@ -207,10 +215,8 @@ class TestQAlyx:
             q_alyx.logout()
             assert s1.args[0] is False
 
-    def test_rest(self, qtbot, mock_alyx_client):
+    def test_rest(self, qtbot, mock_client):
         """Test rest functionality."""
-        mock_client = mock_alyx_client.return_value
-
         q_alyx = core.QAlyx(base_url='https://example.com')
         q_alyx.rest('some_arg', some_kwarg=True)
         mock_client.rest.assert_called_once_with('some_arg', some_kwarg=True)
@@ -227,3 +233,12 @@ class TestQAlyx:
         ):
             q_alyx.rest('some_arg', some_kwarg=True)
             mock.assert_called_once()
+
+    def test_connection_failed(self, qtbot, mock_client):
+        mock_client.user = 'test_user'
+        q_alyx = core.QAlyx(base_url='https://example.com')
+        with qtbot.waitSignal(q_alyx.authenticationFailed) as s:
+            q_alyx._onConnectionFailed(HTTPError(400, 'Blah'))
+            assert s.args == ['test_user']
+        with pytest.raises(ValueError):
+            q_alyx._onConnectionFailed(ValueError('test'))
