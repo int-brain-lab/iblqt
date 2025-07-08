@@ -1,13 +1,10 @@
 """Miscellaneous tools that don't fit the other categories."""
 
-import logging
 import sys
 from functools import wraps
-from typing import Callable, Sequence, TypeVar, cast
+from typing import Callable, TypeVar, cast
 
 from qtpy.QtWidgets import QApplication, QMainWindow
-
-logger = logging.getLogger(__name__)
 
 F = TypeVar('F', bound=Callable)
 
@@ -36,7 +33,7 @@ def get_app() -> QApplication:
     return app
 
 
-def get_or_create_app(argv: Sequence[str] | None = None) -> QApplication:
+def get_or_create_app(argv: list[str] | None = None) -> QApplication:
     """
     Return the existing QApplication instance or create a new one.
 
@@ -47,7 +44,7 @@ def get_or_create_app(argv: Sequence[str] | None = None) -> QApplication:
 
     Parameters
     ----------
-    argv : Sequence of str, optional
+    argv : list of str, optional
         Command-line arguments to pass to QApplication. If `None`, `sys.argv` is used.
 
     Returns
@@ -87,8 +84,12 @@ def require_qt(func: F) -> F:
 
     @wraps(func)
     def wrapped(*args, **kwargs):
-        if not isinstance(QApplication.instance(), QApplication):
-            raise RuntimeError(f"'{func.__name__}' requires a running QApplication.")
+        try:
+            get_app()
+        except RuntimeError as e:
+            raise RuntimeError(
+                f"'{func.__name__}' requires a running QApplication."
+            ) from e
         return func(*args, **kwargs)
 
     return cast(F, wrapped)
