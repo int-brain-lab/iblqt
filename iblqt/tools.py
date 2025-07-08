@@ -3,13 +3,40 @@
 import logging
 import sys
 from functools import wraps
+from typing import Callable, Sequence, TypeVar, cast
 
 from qtpy.QtWidgets import QApplication, QMainWindow
 
 logger = logging.getLogger(__name__)
 
+F = TypeVar('F', bound=Callable)
 
-def get_or_create_app(argv: list[str] | None = None) -> QApplication:
+
+def get_app() -> QApplication:
+    """
+    Get the current QApplication instance.
+
+    This function retrieves the existing QApplication instance. If no such instance
+    exists or the instance is not of type QApplication (e.g., it's a QCoreApplication),
+    a RuntimeError is raised.
+
+    Returns
+    -------
+    QApplication
+        The currently running QApplication instance.
+
+    Raises
+    ------
+    RuntimeError
+        If there is no running QApplication instance or if it is not a QApplication.
+    """
+    app = QApplication.instance()
+    if not isinstance(app, QApplication):
+        raise RuntimeError('No QApplication instance is currently running.')
+    return app
+
+
+def get_or_create_app(argv: Sequence[str] | None = None) -> QApplication:
     """
     Return the existing QApplication instance or create a new one.
 
@@ -20,7 +47,7 @@ def get_or_create_app(argv: list[str] | None = None) -> QApplication:
 
     Parameters
     ----------
-    argv : list of str, optional
+    argv : Sequence of str, optional
         Command-line arguments to pass to QApplication. If `None`, `sys.argv` is used.
 
     Returns
@@ -28,13 +55,13 @@ def get_or_create_app(argv: list[str] | None = None) -> QApplication:
     QApplication
         The existing or newly created QApplication instance.
     """
-    app = QApplication.instance()
-    if app is None:
-        app = QApplication(argv or sys.argv)
-    return app
+    try:
+        return get_app()
+    except RuntimeError:
+        return QApplication(argv or sys.argv)
 
 
-def require_qt(func):
+def require_qt(func: F) -> F:
     """
     Specify that a function requires a running Qt application.
 
@@ -44,13 +71,13 @@ def require_qt(func):
 
     Parameters
     ----------
-    func : callable
+    func : Callable
         The function that requires a Qt application.
 
     Returns
     -------
-    callable
-        A wrapped function that checks for an active QApplication before execution.
+    Callable
+        The wrapped function with Qt application requirement enforcement.
 
     Raises
     ------
@@ -60,11 +87,11 @@ def require_qt(func):
 
     @wraps(func)
     def wrapped(*args, **kwargs):
-        if QApplication.instance() is None:
-            raise RuntimeError('This function requires a running Qt application.')
+        if not isinstance(QApplication.instance(), QApplication):
+            raise RuntimeError(f"'{func.__name__}' requires a running QApplication.")
         return func(*args, **kwargs)
 
-    return wrapped
+    return cast(F, wrapped)
 
 
 def run_app(argv: list[str] | None = None) -> int:
@@ -107,7 +134,7 @@ def get_main_window() -> QMainWindow:
     RuntimeError
         If no QApplication is running or no QMainWindow is found.
     """
-    app = QApplication.instance()
+    app = get_app()
     for widget in app.topLevelWidgets():
         if isinstance(widget, QMainWindow):
             return widget

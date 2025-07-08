@@ -4,6 +4,15 @@ from qtpy.QtWidgets import QApplication, QMainWindow, QWidget
 from iblqt import tools
 
 
+class TestGetApp:
+    def test_get_app_returns_qapplication(self, qtbot):
+        """Test that get_app returns the QApplication instance when one exists."""
+        app = QApplication.instance()
+        assert app is not None
+        assert isinstance(app, QApplication)
+        assert tools.get_app() is app
+
+
 class TestGetOrCreateApp:
     def test_returns_qapplication_instance(self):
         app = tools.get_or_create_app([])
@@ -25,7 +34,7 @@ class TestRequireQtDecorator:
 
     def test_raises_runtime_error_when_no_qt(self, monkeypatch):
         monkeypatch.setattr('qtpy.QtWidgets.QApplication.instance', lambda: None)
-        with pytest.raises(RuntimeError, match='requires a running Qt application.'):
+        with pytest.raises(RuntimeError, match='requires a running QApplication.'):
             self.func()
 
 
