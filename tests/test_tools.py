@@ -25,8 +25,9 @@ class TestGetOrCreateApp:
 
 
 class TestRequireQtDecorator:
+    @staticmethod
     @tools.require_qt
-    def func(self):
+    def func():
         return 42
 
     def test_runs_function_when_qt_running(self, qtbot):
@@ -46,8 +47,6 @@ class TestGetMainWindow:
 
         assert tools.get_main_window() is main_win
 
-        main_win.close()
-
     def test_raises_if_no_main_window_found(self, qtbot):
         widget = QWidget()
         widget.show()
@@ -55,8 +54,6 @@ class TestGetMainWindow:
 
         with pytest.raises(RuntimeError, match='No QMainWindow instance found'):
             tools.get_main_window()
-
-        widget.close()
 
 
 class TestRunApp:
