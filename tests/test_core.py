@@ -1,11 +1,12 @@
 import tempfile
+import time
 from pathlib import Path
 from unittest.mock import PropertyMock, patch
 
 import numpy as np
 import pandas as pd
 import pytest
-from qtpy.QtCore import QModelIndex, Qt
+from qtpy.QtCore import QModelIndex, Qt, QThreadPool
 from requests import HTTPError
 
 from iblqt import core
@@ -261,3 +262,112 @@ class TestQAlyx:
             assert s.args == ['test_user']
         with pytest.raises(ValueError):
             q_alyx._onConnectionFailed(ValueError('test'))
+
+
+class TestWorker:
+    def test_success_signal_threaded(self, qtbot):
+        """Threaded: result and finished signals emitted on success."""
+
+        def successful_task(x, y):
+            return x + y
+
+        worker = core.Worker(successful_task, 2, 3)
+
+        with (
+            qtbot.waitSignal(worker.signals.result, timeout=1000) as result_signal,
+            qtbot.waitSignal(worker.signals.finished, timeout=1000),
+        ):
+            QThreadPool.globalInstance().start(worker)
+
+        assert result_signal.args == [5]
+
+    def test_error_signal_threaded(self, qtbot):
+        """Threaded: error and finished signals emitted on failure."""
+
+        def failing_task():
+            raise ValueError('Intentional failure')
+
+        worker = core.Worker(failing_task)
+
+        with (
+            qtbot.waitSignal(worker.signals.error, timeout=1000) as error_signal,
+            qtbot.waitSignal(worker.signals.finished, timeout=1000),
+        ):
+            QThreadPool.globalInstance().start(worker)
+
+        exctype, value, tb_str = error_signal.args[0]
+        assert exctype is ValueError
+        assert str(value) == 'Intentional failure'
+        assert 'ValueError' in tb_str
+
+    def test_progress_signal_threaded(self, qtbot):
+        """Threaded: emits progress signals during execution."""
+
+        def task_with_progress(progress_callback):
+            for i in range(3):
+                time.sleep(0.05)
+                progress_callback.emit(i * 25)
+            return 'done'
+
+        worker = core.Worker(task_with_progress)
+        progress_values = []
+        worker.signals.progress.connect(progress_values.append)
+
+        with (
+            qtbot.waitSignal(worker.signals.result, timeout=2000) as result_signal,
+            qtbot.waitSignal(worker.signals.finished, timeout=1000),
+        ):
+            QThreadPool.globalInstance().start(worker)
+
+        assert result_signal.args == ['done']
+        assert progress_values == [0, 25, 50]
+
+    def test_worker_run_success_direct(self, qtbot):
+        """Direct: run() emits correct signals on success."""
+
+        def task(x):
+            return x * 2
+
+        worker = core.Worker(task, 21)
+
+        result_emitted = []
+        finished_emitted = []
+
+        worker.signals.result.connect(result_emitted.append)
+        worker.signals.finished.connect(lambda: finished_emitted.append(True))
+
+        worker.run()
+
+        assert result_emitted == [42]
+        assert finished_emitted == [True]
+
+    def test_worker_run_error_direct(self, qtbot):
+        """Direct: run() emits error and finished signals on exception."""
+
+        def failing():
+            raise RuntimeError('failure')
+
+        worker = core.Worker(failing)
+
+        error_emitted = []
+        finished_emitted = []
+
+        worker.signals.error.connect(error_emitted.append)
+        worker.signals.finished.connect(lambda: finished_emitted.append(True))
+
+        worker.run()
+
+        assert len(error_emitted) == 1
+        exctype, value, tb_str = error_emitted[0]
+        assert exctype is RuntimeError
+        assert str(value) == 'failure'
+        assert 'RuntimeError' in tb_str
+        assert finished_emitted == [True]
+
+    def test_worker_signals_attributes(self):
+        """Test that WorkerSignals defines the correct signal attributes."""
+        signals = core.WorkerSignals()
+        assert hasattr(signals, 'finished')
+        assert hasattr(signals, 'error')
+        assert hasattr(signals, 'result')
+        assert hasattr(signals, 'progress')
