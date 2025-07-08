@@ -58,7 +58,7 @@ class TestRunApp:
             called['executed'] = True
             return 123
 
-        monkeypatch.setattr(tools.QApplication, "exec_", fake_exec_)
+        monkeypatch.setattr(tools.QApplication, 'exec_', fake_exec_)
 
         exit_code = tools.run_app()
         assert exit_code == 123
