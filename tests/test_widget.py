@@ -320,6 +320,7 @@ class TestThresholdProgressBar:
             50, QColor('orange'), QColor('green'), value=30
         )
         qtbot.addWidget(bar)
+        assert bar.threshold() == 50
 
         assert bar.palette().color(QPalette.Highlight) == QColor('green')
         bar.setValue(60)
@@ -328,6 +329,7 @@ class TestThresholdProgressBar:
         assert bar.palette().color(QPalette.Highlight) == QColor('green')
         bar.setThreshold(30)
         assert bar.palette().color(QPalette.Highlight) == QColor('orange')
+        assert bar.threshold() == 30
 
     def test_signals(self, qtbot):
         bar = widgets.ThresholdProgressBar(threshold=50, value=40)
