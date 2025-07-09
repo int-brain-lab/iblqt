@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - core.Worker: a generic worker class for executing functions concurrently in a
   separate thread
+- widgets.ThresholdProgressBar: a progress bar that changes color based on a threshold value
+- widgets.DiskSpaceIndicator: A progress bar widget that indicates the disk space usage of a directory
+- tools: a collection of small Qt tools, adapted from `ibllib.misc.qt`
+- .editorconfig: for consistent coding style
 
 ## [0.4.4] - 2025-03-26
 
