@@ -6,13 +6,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0]
+
+### Added
+- core.Worker: a generic worker class for executing functions concurrently in a
+  separate thread
+
 ## [0.4.4] - 2025-03-26
 
 ### Fixed
-- compatibility issues with PySide in widgets.AlyxUserEdit and widgets.AlyxLoginWidget
+- compatibility issues with PySide in widgets.AlyxUserEdit and
+  widgets.AlyxLoginWidget
 
 ### Changed
-- increased coverage of unit-tests 
+- increased coverage of unit-tests
 
 ## [0.4.3] - 2025-03-25
 
@@ -41,7 +48,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- widgets.StatefulButton: keep track of different labels for active and 
+- widgets.StatefulButton: keep track of different labels for active and
   inactive states
 
 ## [0.3.2] - 2024-12-03
@@ -72,7 +79,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - core.DataFrameTableModel: stop use of QVariant
-- core.DataFrameTableModel: set dataFrame _after_ connecting signals in 
+- core.DataFrameTableModel: set dataFrame _after_ connecting signals in
   initialization
 - core.DataFrameTableModel: default to horizontal orientation
 
@@ -81,7 +88,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - core.DataFrameTableModel: reverted data() to return Any instead of QVariant
-- core.DataFrameTableModel: setData() returns bool indicating the outcome of 
+- core.DataFrameTableModel: setData() returns bool indicating the outcome of
   the operation
 
 ## [0.1.1] - 2024-10-01
@@ -103,10 +110,13 @@ _First release._
 ### Added
 
 - core.DataFrameTableModel: A Qt TableModel for Pandas DataFrames.
-- core.ColoredDataFrameTableModel: An extension of DataFrameTableModel 
+- core.ColoredDataFrameTableModel: An extension of DataFrameTableModel
   providing color-mapped numerical data.
 - widgets.StatefulButton: A QPushButton that maintains an active/inactive state.
 
+[0.5.0]: https://github.com/int-brain-lab/iblqt/releases/tag/v0.5.0
+[0.4.4]: https://github.com/int-brain-lab/iblqt/releases/tag/v0.4.4
+[0.4.3]: https://github.com/int-brain-lab/iblqt/releases/tag/v0.4.3
 [0.4.2]: https://github.com/int-brain-lab/iblqt/releases/tag/v0.4.2
 [0.4.1]: https://github.com/int-brain-lab/iblqt/releases/tag/v0.4.1
 [0.4.0]: https://github.com/int-brain-lab/iblqt/releases/tag/v0.4.0
