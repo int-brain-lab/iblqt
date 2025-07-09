@@ -637,8 +637,6 @@ class DiskSpaceIndicator(ThresholdProgressBar):
 
     def updateData(self):
         """Update the disk space information."""
-        if self._directory is None:
-            return
         worker = Worker(disk_usage, self._directory.anchor)
         worker.signals.result.connect(self._on_result)
         QThreadPool.globalInstance().start(worker)
