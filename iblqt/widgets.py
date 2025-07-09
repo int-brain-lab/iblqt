@@ -598,7 +598,7 @@ class DiskSpaceIndicator(ThresholdProgressBar):
 
     def __init__(
         self, directory: Path | str | None = None, percent_threshold: int = 90, **kwargs
-    ):
+    ) -> None:
         """
         Initialize DiskSpaceIndicator.
 
@@ -618,7 +618,14 @@ class DiskSpaceIndicator(ThresholdProgressBar):
         self.setDirectory(directory or Path.cwd().anchor)
 
     def directory(self) -> str:
-        """Get the directory being monitored for disk space usage."""
+        """
+        Get the directory being monitored for disk space usage.
+
+        Returns
+        -------
+        str
+            The path of the directory being monitored.
+        """
         return str(self._directory)
 
     def setDirectory(self, directory: Path | str) -> None:
@@ -632,7 +639,7 @@ class DiskSpaceIndicator(ThresholdProgressBar):
         self._directory = Path(directory).resolve()
         self.updateData()
 
-    def updateData(self):
+    def updateData(self) -> None:
         """Update the disk space information."""
         worker = Worker(disk_usage, self._directory.anchor)
         worker.signals.result.connect(self._on_result)
