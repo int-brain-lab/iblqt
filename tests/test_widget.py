@@ -360,14 +360,12 @@ class TestDiskSpaceIndicator:
         dummy_data = _ntuple_diskusage(total=1000, used=500, free=500)
         monkeypatch.setattr('iblqt.widgets.disk_usage', lambda path: dummy_data)
 
-        indicator = widgets.DiskSpaceIndicator(directory='/', percent_threshold=90)
+        indicator = widgets.DiskSpaceIndicator(percent_threshold=90)
         qtbot.addWidget(indicator)
         indicator._on_result(dummy_data)
 
         assert indicator.value() == 50
-        assert indicator.isEnabled()
-        assert indicator.isTextVisible()
-        assert indicator.getDirectory() == Path('/').anchor
+        assert indicator.directory() == Path.cwd().anchor
 
     def test_threshold_cross_signal_emitted(self, qtbot, monkeypatch):
         dummy_data = _ntuple_diskusage(total=1000, used=950, free=50)

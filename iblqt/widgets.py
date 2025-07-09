@@ -597,15 +597,16 @@ class DiskSpaceIndicator(ThresholdProgressBar):
     _directory: Path
 
     def __init__(
-        self, directory: Path | str = '/', percent_threshold: int = 90, **kwargs
+        self, directory: Path | str | None = None, percent_threshold: int = 90, **kwargs
     ):
         """
         Initialize DiskSpaceIndicator.
 
         Parameters
         ----------
-        directory : Path, str
-            The directory to monitor for disk space usage. Default is the root directory ('/').
+        directory : Path, str, optional
+            The directory to monitor for disk space usage.
+            Default is the root of the current working directory.
         percent_threshold : int, optional
             The threshold percentage at which the progress bar changes color to red.
             Default is 90.
@@ -614,13 +615,11 @@ class DiskSpaceIndicator(ThresholdProgressBar):
         """
         super().__init__(threshold=percent_threshold, **kwargs)
         self.setRange(0, 100)
-        self.setEnabled(False)
-        self.setTextVisible(False)
-        self.setDirectory(directory)
+        self.setDirectory(directory or Path.cwd().anchor)
 
-    def getDirectory(self) -> str:
+    def directory(self) -> str:
         """Get the directory being monitored for disk space usage."""
-        return self._directory.anchor
+        return str(self._directory)
 
     def setDirectory(self, directory: Path | str) -> None:
         """Set the directory to monitor for disk space usage.
@@ -633,8 +632,6 @@ class DiskSpaceIndicator(ThresholdProgressBar):
         self._directory = Path(directory).resolve()
         self.updateData()
 
-    directory = Property(str, fget=getDirectory, fset=setDirectory)
-
     def updateData(self):
         """Update the disk space information."""
         worker = Worker(disk_usage, self._directory.anchor)
@@ -644,5 +641,3 @@ class DiskSpaceIndicator(ThresholdProgressBar):
     def _on_result(self, result: _ntuple_diskusage) -> None:
         percent = round(result.used / result.total * 100)
         self.setValue(percent)
-        self.setEnabled(True)
-        self.setTextVisible(True)
