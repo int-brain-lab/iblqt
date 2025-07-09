@@ -1,8 +1,10 @@
+from collections import namedtuple
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
 from qtpy.QtCore import Qt
-from qtpy.QtGui import QPainter, QStandardItemModel
+from qtpy.QtGui import QColor, QPainter, QPalette, QStandardItemModel
 from qtpy.QtWidgets import (
     QCheckBox,
     QDialog,
@@ -310,3 +312,68 @@ class TestAlyxLoginDialog:
         qtbot.addWidget(dialog3)
         assert not dialog3._cache
         assert dialog3.findChild(QCheckBox) is None
+
+
+class TestThresholdProgressBar:
+    def test_color_change(self, qtbot):
+        bar = widgets.ThresholdProgressBar(
+            50, QColor('orange'), QColor('green'), value=30
+        )
+        qtbot.addWidget(bar)
+
+        assert bar.palette().color(QPalette.Highlight) == QColor('green')
+        bar.setValue(60)
+        assert bar.palette().color(QPalette.Highlight) == QColor('orange')
+        bar.setValue(40)
+        assert bar.palette().color(QPalette.Highlight) == QColor('green')
+        bar.setThreshold(30)
+        assert bar.palette().color(QPalette.Highlight) == QColor('orange')
+
+    def test_signals(self, qtbot):
+        bar = widgets.ThresholdProgressBar(threshold=50, value=40)
+        qtbot.addWidget(bar)
+        assert not bar.aboveThreshold()
+
+        with qtbot.waitSignal(bar.thresholdCrossed, timeout=1) as blocker:
+            bar.setValue(60)
+            assert blocker.args[0]
+            assert bar.aboveThreshold()
+        with qtbot.waitSignal(bar.thresholdCrossed, timeout=1) as blocker:
+            bar.setValue(40)
+            assert not blocker.args[0]
+        with (
+            qtbot.waitSignal(bar.thresholdCrossed, timeout=1) as blocker1,
+            qtbot.waitSignal(bar.thresholdChanged, timeout=1) as blocker2,
+        ):
+            bar.setThreshold(30)
+            assert blocker1.args[0]
+            assert blocker2.args[0] == 30
+
+
+_ntuple_diskusage = namedtuple('_ntuple_diskusage', ['total', 'used', 'free'])
+
+
+class TestDiskSpaceIndicator:
+    def test_initialization_and_display(self, qtbot, monkeypatch):
+        dummy_data = _ntuple_diskusage(total=1000, used=500, free=500)
+        monkeypatch.setattr('iblqt.widgets.disk_usage', lambda path: dummy_data)
+
+        indicator = widgets.DiskSpaceIndicator(directory='/', percent_threshold=90)
+        qtbot.addWidget(indicator)
+        indicator._on_result(dummy_data)
+
+        assert indicator.value() == 50
+        assert indicator.isEnabled()
+        assert indicator.isTextVisible()
+        assert indicator.getDirectory() == Path('/').anchor
+
+    def test_threshold_cross_signal_emitted(self, qtbot, monkeypatch):
+        dummy_data = _ntuple_diskusage(total=1000, used=950, free=50)
+        monkeypatch.setattr('iblqt.widgets.disk_usage', lambda path: dummy_data)
+
+        indicator = widgets.DiskSpaceIndicator(directory='/', percent_threshold=90)
+        qtbot.addWidget(indicator)
+
+        with qtbot.waitSignal(indicator.thresholdCrossed, timeout=1) as blocker:
+            indicator._on_result(dummy_data)
+            assert blocker.args[0]

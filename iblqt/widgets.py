@@ -541,10 +541,22 @@ class ThresholdProgressBar(QProgressBar):
         self._color_critical = color_critical or QColor('red')
         self._color_default = color_default or self.palette().color(QPalette.Highlight)
         self._above_threshold = False
-        self.valueChanged.connect(self._check_threshold)
+        self.valueChanged.connect(self._check_value)
         self.thresholdChanged.connect(self._check_threshold)
         self.thresholdCrossed.connect(self._set_color)
         self._threshold = threshold
+        self._set_color(self.aboveThreshold())
+
+    def aboveThreshold(self) -> bool:
+        """
+        Check if the current value is above the threshold.
+
+        Returns
+        -------
+        bool
+            True if the current value is above the threshold, False otherwise.
+        """
+        return self.value() > self._threshold
 
     def threshold(self) -> int:
         """Get the current threshold value."""
@@ -556,8 +568,15 @@ class ThresholdProgressBar(QProgressBar):
         self.thresholdChanged.emit(value)
 
     @Slot(int)
-    def _check_threshold(self, threshold_value: int) -> None:
-        above_threshold = self.value() > threshold_value
+    def _check_value(self, value: int) -> None:
+        self._check(self._threshold, value)
+
+    @Slot(int)
+    def _check_threshold(self, threshold: int) -> None:
+        self._check(threshold, self.value())
+
+    def _check(self, threshold: int, value: int) -> None:
+        above_threshold = value > threshold
         if self._above_threshold ^ above_threshold:
             self.thresholdCrossed.emit(above_threshold)
             self._above_threshold = above_threshold
