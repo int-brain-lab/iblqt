@@ -338,17 +338,17 @@ class TestThresholdProgressBar:
 
         with qtbot.waitSignal(bar.thresholdCrossed, timeout=1) as blocker:
             bar.setValue(60)
-            assert blocker.args[0]
+            assert blocker.args[0] is True
             assert bar.aboveThreshold()
         with qtbot.waitSignal(bar.thresholdCrossed, timeout=1) as blocker:
             bar.setValue(40)
-            assert not blocker.args[0]
+            assert blocker.args[0] is False
         with (
             qtbot.waitSignal(bar.thresholdCrossed, timeout=1) as blocker1,
             qtbot.waitSignal(bar.thresholdChanged, timeout=1) as blocker2,
         ):
             bar.setThreshold(30)
-            assert blocker1.args[0]
+            assert blocker1.args[0] is True
             assert blocker2.args[0] == 30
 
 
@@ -376,4 +376,4 @@ class TestDiskSpaceIndicator:
 
         with qtbot.waitSignal(indicator.thresholdCrossed, timeout=1) as blocker:
             indicator._on_result(dummy_data)
-            assert blocker.args[0]
+            assert blocker.args[0] is True
