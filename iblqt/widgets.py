@@ -1,6 +1,8 @@
 """Graphical user interface components."""
 
 from enum import IntEnum
+from pathlib import Path
+from shutil import _ntuple_diskusage, disk_usage
 from typing import Any
 
 from qtpy.QtCore import (
@@ -10,10 +12,11 @@ from qtpy.QtCore import (
     QModelIndex,
     QRect,
     Qt,
+    QThreadPool,
     Signal,
     Slot,
 )
-from qtpy.QtGui import QIcon, QMouseEvent, QPainter
+from qtpy.QtGui import QColor, QIcon, QMouseEvent, QPainter, QPalette
 from qtpy.QtWidgets import (
     QApplication,
     QCheckBox,
@@ -25,6 +28,7 @@ from qtpy.QtWidgets import (
     QLayout,
     QLineEdit,
     QMessageBox,
+    QProgressBar,
     QPushButton,
     QSizePolicy,
     QSpacerItem,
@@ -37,7 +41,7 @@ from qtpy.QtWidgets import (
 )
 
 from iblqt import resources  # noqa: F401
-from iblqt.core import QAlyx
+from iblqt.core import QAlyx, Worker
 
 
 class CheckBoxDelegate(QStyledItemDelegate):
@@ -135,7 +139,7 @@ class StatefulButton(QPushButton):
     """Emitted when the button is clicked while it is in the inactive state."""
 
     stateChanged = Signal(bool)  # type: Signal
-    """Emitted when the button's state has changed. The signal carries the new state 
+    """Emitted when the button's state has changed. The signal carries the new state
     (True for active, False for inactive)."""
 
     def __init__(
@@ -504,3 +508,143 @@ class AlyxLoginDialog(QDialog):
         text_entered = all([len(x.text()) > 0 for x in (self.userEdit, self.passEdit)])
         if ok_button.isEnabled() ^ text_entered:
             ok_button.setEnabled(text_entered)
+
+
+class ThresholdProgressBar(QProgressBar):
+    """A progress bar that changes color based on a threshold value."""
+
+    thresholdChanged = Signal(int)
+    thresholdCrossed = Signal(bool)
+
+    def __init__(
+        self,
+        threshold: int,
+        color_critical: QColor | None = None,
+        color_default: QColor | None = None,
+        **kwargs,
+    ):
+        """
+        Initialize ThresholdProgressBar.
+
+        Parameters
+        ----------
+        threshold : int
+            The threshold at which the progress bar changes color.
+        color_critical : QColor, optional
+            The color to use when the threshold is crossed. Defaults to red.
+        color_default : QColor, optional
+            The default color of the progress bar when below the threshold.
+        **kwargs : dict
+            Arbitrary keyword arguments (passed to QProgressBar).
+        """
+        super().__init__(**kwargs)
+        self._color_critical = color_critical or QColor('red')
+        self._color_default = color_default or self.palette().color(QPalette.Highlight)
+        self._above_threshold = False
+        self.valueChanged.connect(self._check_value)
+        self.thresholdChanged.connect(self._check_threshold)
+        self.thresholdCrossed.connect(self._set_color)
+        self._threshold = threshold
+        self._set_color(self.aboveThreshold())
+
+    def aboveThreshold(self) -> bool:
+        """
+        Check if the current value is above the threshold.
+
+        Returns
+        -------
+        bool
+            True if the current value is above the threshold, False otherwise.
+        """
+        return self.value() > self._threshold
+
+    def threshold(self) -> int:
+        """Get the current threshold value."""
+        return self._threshold
+
+    def setThreshold(self, value: int) -> None:
+        """Set a new threshold value."""
+        self._threshold = value
+        self.thresholdChanged.emit(value)
+
+    @Slot(int)
+    def _check_value(self, value: int) -> None:
+        self._check(self._threshold, value)
+
+    @Slot(int)
+    def _check_threshold(self, threshold: int) -> None:
+        self._check(threshold, self.value())
+
+    def _check(self, threshold: int, value: int) -> None:
+        above_threshold = value > threshold
+        if self._above_threshold ^ above_threshold:
+            self.thresholdCrossed.emit(above_threshold)
+            self._above_threshold = above_threshold
+
+    @Slot(bool)
+    def _set_color(self, above_threshold: bool) -> None:
+        palette = self.palette()
+        palette.setColor(
+            QPalette.Highlight,
+            self._color_critical if above_threshold else self._color_default,
+        )
+        self.setPalette(palette)
+
+
+class DiskSpaceIndicator(ThresholdProgressBar):
+    """A progress bar widget that indicates the disk space usage of a directory."""
+
+    _directory: Path
+
+    def __init__(
+        self, directory: Path | str | None = None, percent_threshold: int = 90, **kwargs
+    ) -> None:
+        """
+        Initialize DiskSpaceIndicator.
+
+        Parameters
+        ----------
+        directory : Path, str, optional
+            The directory to monitor for disk space usage.
+            Default is the root of the current working directory.
+        percent_threshold : int, optional
+            The threshold percentage at which the progress bar changes color to red.
+            Default is 90.
+        **kwargs : dict
+            Arbitrary keyword arguments (passed to QProgressBar).
+        """
+        super().__init__(threshold=percent_threshold, **kwargs)
+        self.setRange(0, 100)
+        self.setDirectory(directory or Path.cwd().anchor)
+
+    def directory(self) -> str:
+        """
+        Get the directory being monitored for disk space usage.
+
+        Returns
+        -------
+        str
+            The path of the directory being monitored.
+        """
+        return str(self._directory)
+
+    def setDirectory(self, directory: Path | str) -> None:
+        """Set the directory to monitor for disk space usage.
+
+        Parameters
+        ----------
+        directory : Path, str
+            The directory path to monitor.
+        """
+        self._directory = Path(directory).resolve()
+        self.updateData()
+
+    def updateData(self) -> None:
+        """Update the disk space information."""
+        worker = Worker(disk_usage, self._directory.anchor)
+        worker.signals.result.connect(self._on_result)
+        QThreadPool.globalInstance().start(worker)
+
+    def _on_result(self, result: _ntuple_diskusage) -> None:
+        percent = round(result.used / result.total * 100)
+        self.setValue(percent)
