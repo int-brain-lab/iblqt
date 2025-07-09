@@ -1,0 +1,9 @@
+iblqt.core.QAlyx
+================
+
+.. currentmodule:: iblqt.core
+
+.. autoclass:: QAlyx
+   :members:
+   :undoc-members:
+   :show-inheritance:

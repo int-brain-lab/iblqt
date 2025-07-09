@@ -1,0 +1,6 @@
+iblqt.tools.get\_main\_window
+=============================
+
+.. currentmodule:: iblqt.tools
+
+.. autofunction:: get_main_window

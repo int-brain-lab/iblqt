@@ -1,0 +1,17 @@
+iblqt.tools
+===========
+
+.. automodule:: iblqt.tools
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :nosignatures:
+      :toctree:
+   
+      get_app
+      get_main_window
+      get_or_create_app
+      require_qt
+      run_as_qt_app
+   

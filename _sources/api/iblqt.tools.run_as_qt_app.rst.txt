@@ -1,0 +1,6 @@
+iblqt.tools.run\_as\_qt\_app
+============================
+
+.. currentmodule:: iblqt.tools
+
+.. autofunction:: run_as_qt_app

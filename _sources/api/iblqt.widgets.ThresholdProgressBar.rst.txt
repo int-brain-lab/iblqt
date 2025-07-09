@@ -1,0 +1,9 @@
+iblqt.widgets.ThresholdProgressBar
+==================================
+
+.. currentmodule:: iblqt.widgets
+
+.. autoclass:: ThresholdProgressBar
+   :members:
+   :undoc-members:
+   :show-inheritance:

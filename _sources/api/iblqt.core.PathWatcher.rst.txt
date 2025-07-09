@@ -1,0 +1,9 @@
+iblqt.core.PathWatcher
+======================
+
+.. currentmodule:: iblqt.core
+
+.. autoclass:: PathWatcher
+   :members:
+   :undoc-members:
+   :show-inheritance:

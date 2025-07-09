@@ -1,0 +1,9 @@
+iblqt.core.WorkerSignals
+========================
+
+.. currentmodule:: iblqt.core
+
+.. autoclass:: WorkerSignals
+   :members:
+   :undoc-members:
+   :show-inheritance:
