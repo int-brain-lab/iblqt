@@ -4,7 +4,7 @@ import sys
 from functools import wraps
 from typing import Callable, TypeVar, cast
 
-from qtpy.QtWidgets import QApplication, QMainWindow
+from qtpy.QtWidgets import QApplication, QMainWindow, QWidget
 
 F = TypeVar('F', bound=Callable)
 
@@ -95,26 +95,36 @@ def require_qt(func: F) -> F:
     return cast(F, wrapped)
 
 
-def run_app(argv: list[str] | None = None) -> int:
+def run_as_qt_app(func) -> Callable[..., int]:
     """
-    Run the Qt application event loop.
+    Run a function as a Qt application.
 
-    This function ensures a QApplication exists, starts its event loop,
-    and blocks until the application exits. This is typically called
-    at the end of a script or application entry point.
+    This decorator wraps a function that returns a QWidget (or subclass) to be
+    used as the main widget of a Qt application. It ensures a QApplication
+    instance is created (or retrieved if already existing), calls the function
+    to get the widget, and then starts the Qt event loop.
 
     Parameters
     ----------
-    argv : list of str, optional
-        Command-line arguments to pass to QApplication. If `None`, `sys.argv` is used.
+    func : Callable[..., QWidget]
+        A function that returns a QWidget instance to be shown as the main
+        widget of the Qt app.
 
     Returns
     -------
-    int
-        The exit code returned by the Qt application's event loop.
+    Callable[..., int]
+        A wrapped function that runs the Qt application event loop and returns
+        its exit code.
     """
-    app = get_or_create_app(argv)
-    return app.exec_()
+
+    @wraps(func)
+    def wrapper(*args, **kwargs) -> int:
+        app = get_or_create_app()
+        widget: QWidget = func(*args, **kwargs)  # noqa: F841
+        widget.show()
+        return app.exec_()
+
+    return wrapper
 
 
 @require_qt

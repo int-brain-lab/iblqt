@@ -1,4 +1,7 @@
+from unittest.mock import MagicMock
+
 import pytest
+from qtpy.QtCore import QTimer
 from qtpy.QtWidgets import QApplication, QMainWindow, QWidget
 
 from iblqt import tools
@@ -8,17 +11,21 @@ class TestGetApp:
     def test_get_app_returns_qapplication(self, qtbot):
         """Test that get_app returns the QApplication instance when one exists."""
         app = QApplication.instance()
-        assert app is not None
         assert isinstance(app, QApplication)
         assert tools.get_app() is app
 
 
 class TestGetOrCreateApp:
-    def test_returns_qapplication_instance(self):
-        app = tools.get_or_create_app([])
+    def test_returns_qapplication_instance(self, qtbot, monkeypatch):
+        monkeypatch.setattr(
+            tools, 'get_app', lambda: (_ for _ in ()).throw(RuntimeError())
+        )
+        fake_app = MagicMock(spec=QApplication)
+        monkeypatch.setattr(tools, 'QApplication', lambda argv: fake_app)
+        app = tools.get_or_create_app()
         assert isinstance(app, QApplication)
 
-    def test_returns_same_instance_on_multiple_calls(self):
+    def test_returns_same_instance_on_multiple_calls(self, qtbot):
         app1 = tools.get_or_create_app([])
         app2 = tools.get_or_create_app([])
         assert app1 is app2
@@ -56,16 +63,14 @@ class TestGetMainWindow:
             tools.get_main_window()
 
 
-class TestRunApp:
-    def test_executes_event_loop_and_returns_exit_code(self, monkeypatch):
-        called = {}
+def test_run_as_qt_app(qtbot, monkeypatch):
+    @tools.run_as_qt_app
+    def create_widget():
+        return QWidget()
 
-        def fake_exec_(*_):
-            called['executed'] = True
-            return 123
+    monkeypatch.setattr(QWidget, 'show', lambda self: None)
 
-        monkeypatch.setattr(tools.QApplication, 'exec_', fake_exec_)
-
-        exit_code = tools.run_app()
-        assert exit_code == 123
-        assert called.get('executed') is True
+    app = QApplication.instance()
+    QTimer.singleShot(100, app.quit)
+    exit_code = create_widget()
+    assert exit_code == 0
