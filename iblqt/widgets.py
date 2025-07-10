@@ -1,5 +1,6 @@
 """Graphical user interface components."""
 
+import webbrowser
 from enum import IntEnum
 from pathlib import Path
 from shutil import _ntuple_diskusage, disk_usage
@@ -13,10 +14,12 @@ from qtpy.QtCore import (
     QRect,
     Qt,
     QThreadPool,
+    QUrl,
     Signal,
     Slot,
 )
 from qtpy.QtGui import QColor, QIcon, QMouseEvent, QPainter, QPalette
+from qtpy.QtWebEngineWidgets import QWebEnginePage
 from qtpy.QtWidgets import (
     QApplication,
     QCheckBox,
@@ -39,6 +42,7 @@ from qtpy.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+from typing_extensions import override
 
 from iblqt import resources  # noqa: F401
 from iblqt.core import QAlyx, Worker
@@ -648,3 +652,67 @@ class DiskSpaceIndicator(ThresholdProgressBar):
     def _on_result(self, result: _ntuple_diskusage) -> None:
         percent = round(result.used / result.total * 100)
         self.setValue(percent)
+
+
+class UrlFilteredWebEnginePage(QWebEnginePage):
+    """
+    A QWebEnginePage subclass that filters navigation requests based on a URL prefix.
+
+    Links that start with the specified `internal_url_prefix` are allowed to load
+    inside the application. All other links are opened externally in the default web
+    browser.
+
+    Adapted from: https://www.pythonguis.com/faq/qwebengineview-open-links-new-window/
+    """
+
+    def __init__(
+        self, parent: QWidget | None = None, internal_url_prefix: str = '', **kwargs
+    ):
+        """
+        Initialize the UrlFilteredWebEnginePage.
+
+        Parameters
+        ----------
+        parent : QWidget, optional
+            The parent widget of this web engine page.
+        internal_url_prefix : str
+            A URL prefix that identifies trusted/internal links. Only links starting
+            with this prefix will be loaded within the web view.
+        **kwargs : dict
+            Additional keyword arguments passed to the base class constructor.
+        """
+        super().__init__(parent)
+        self._internal_url_prefix = internal_url_prefix
+
+    @override
+    def acceptNavigationRequest(
+        self,
+        url: QUrl,
+        navigationType: QWebEnginePage.NavigationType,
+        is_main_frame: bool,
+    ) -> bool:
+        """
+        Handle and filter navigation requests.
+
+        Parameters
+        ----------
+        url : QUrl
+            The target URL of the navigation request.
+        navigationType : QWebEnginePage.NavigationType
+            The type of navigation event
+        is_main_frame : bool
+            Whether the navigation occurs in the main frame.
+
+        Returns
+        -------
+        bool
+            True if the navigation should proceed in the web view;
+            False if the link is handled externally.
+        """
+        if (
+            navigationType == QWebEnginePage.NavigationTypeLinkClicked
+            and not url.url().startswith(self._internal_url_prefix)
+        ):
+            webbrowser.open(url.url())
+            return False
+        return super().acceptNavigationRequest(url, navigationType, is_main_frame)
