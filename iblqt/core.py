@@ -883,19 +883,18 @@ class Worker(QRunnable):
             self.signals.finished.emit()
 
 
-class UrlFilteredWebEnginePage(QWebEnginePage):
+class RestrictedWebEnginePage(QWebEnginePage):
     """
     A QWebEnginePage subclass that filters navigation requests based on a URL prefix.
 
-    Links that start with the specified `internal_url_prefix` are allowed to load
-    inside the application. All other links are opened externally in the default web
-    browser.
+    Links that start with the specified `trusted_url_prefix` are allowed to load inside
+    the application. All other links are opened externally in the default web browser.
 
     Adapted from: https://www.pythonguis.com/faq/qwebengineview-open-links-new-window/
     """
 
     def __init__(
-        self, parent: QWidget | None = None, internal_url_prefix: str = '', **kwargs
+        self, parent: QWidget | None = None, trusted_url_prefix: str = '', **kwargs
     ):
         """
         Initialize the UrlFilteredWebEnginePage.
@@ -904,14 +903,14 @@ class UrlFilteredWebEnginePage(QWebEnginePage):
         ----------
         parent : QWidget, optional
             The parent widget of this web engine page.
-        internal_url_prefix : str
+        trusted_url_prefix : str
             A URL prefix that identifies trusted/internal links. Only links starting
             with this prefix will be loaded within the web view.
         **kwargs : dict
             Additional keyword arguments passed to the base class constructor.
         """
         super().__init__(parent)
-        self._internal_url_prefix = internal_url_prefix
+        self._trusted_url_prefix = trusted_url_prefix
 
     @override
     def acceptNavigationRequest(
@@ -940,8 +939,8 @@ class UrlFilteredWebEnginePage(QWebEnginePage):
         """
         if (
             navigationType == QWebEnginePage.NavigationTypeLinkClicked
-            and not url.url().startswith(self._internal_url_prefix)
+            and not url.url().startswith(self._trusted_url_prefix)
         ):
-            webbrowser.open(url.url())
+            webbrowser.open(url.toString())
             return False
         return super().acceptNavigationRequest(url, navigationType, is_main_frame)

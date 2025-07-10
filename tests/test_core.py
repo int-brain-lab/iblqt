@@ -377,7 +377,7 @@ class TestWorker:
 class TestUrlFilteredWebEnginePage:
     @pytest.fixture
     def web_engine_page(self, qtbot):
-        return core.UrlFilteredWebEnginePage(internal_url_prefix='https://internal.com')
+        return core.RestrictedWebEnginePage(trusted_url_prefix='https://internal.com')
 
     def test_internal_url_allows_navigation(self, web_engine_page):
         assert isinstance(web_engine_page, QWebEnginePage)

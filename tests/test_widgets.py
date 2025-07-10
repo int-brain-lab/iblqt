@@ -3,8 +3,9 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
-from qtpy.QtCore import Qt
+from qtpy.QtCore import Qt, QUrl
 from qtpy.QtGui import QColor, QPainter, QPalette, QStandardItemModel
+from qtpy.QtWebEngineWidgets import QWebEnginePage
 from qtpy.QtWidgets import (
     QCheckBox,
     QDialog,
@@ -377,3 +378,57 @@ class TestDiskSpaceIndicator:
         with qtbot.waitSignal(indicator.thresholdCrossed, timeout=1) as blocker:
             indicator._on_result(dummy_data)
             assert blocker.args[0] is True
+
+
+class TestRestrictedWebView:
+    @pytest.fixture
+    def browser_widget(self, qtbot):
+        widget = widgets.RestrictedWebView(
+            url=QUrl('http://localhost/trusted/start'),
+            trusted_url_prefix='http://localhost/trusted/',
+        )
+        qtbot.addWidget(widget)
+        yield widget
+        with qtbot.waitSignal(widget.webEngineView.page().destroyed, timeout=1000):
+            widget.close()
+
+    def test_default_prefix(self, qtbot):
+        widget = widgets.RestrictedWebView(url='http://localhost/')
+        qtbot.addWidget(widget)
+        assert widget.trustedUrlPrefix() == 'http://localhost/'
+
+    def test_initial_url_loaded(self, browser_widget):
+        assert browser_widget.url() == QUrl('http://localhost/trusted/start')
+        assert browser_widget.trustedUrlPrefix() == 'http://localhost/trusted/'
+
+    def test_home_button_loads_home(self, qtbot, browser_widget):
+        browser_widget.setUrl(QUrl('http://localhost/trusted/other'))
+        assert browser_widget.url().toString().endswith('/other')
+        with qtbot.waitSignal(browser_widget.webEngineView.urlChanged, timeout=3000):
+            qtbot.mouseClick(browser_widget.uiPushHome, Qt.MouseButton.LeftButton)
+        assert browser_widget.url() == QUrl('http://localhost/trusted/start')
+
+    @patch('iblqt.widgets.webbrowser.open')
+    def test_open_in_browser_button(self, mock_open, qtbot, browser_widget):
+        qtbot.mouseClick(browser_widget.uiPushBrowser, Qt.MouseButton.LeftButton)
+        mock_open.assert_called_once_with('http://localhost/trusted/start')
+
+    @patch('iblqt.widgets.webbrowser.open')
+    def test_click_internal_link(self, mock_open, qtbot, browser_widget):
+        result = browser_widget.webEngineView.page().acceptNavigationRequest(
+            url=QUrl('http://localhost/trusted/page'),
+            navigationType=QWebEnginePage.NavigationTypeLinkClicked,
+            is_main_frame=True,
+        )
+        assert result is True
+        mock_open.assert_not_called()
+
+    @patch('iblqt.widgets.webbrowser.open')
+    def test_click_external_link(self, mock_open, browser_widget):
+        result = browser_widget.webEngineView.page().acceptNavigationRequest(
+            url=QUrl('http://localhost/external/page'),
+            navigationType=QWebEnginePage.NavigationTypeLinkClicked,
+            is_main_frame=True,
+        )
+        assert result is False
+        mock_open.assert_called_once_with('http://localhost/external/page')
