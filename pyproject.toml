@@ -108,7 +108,7 @@ source = [
 [tool.tox]
 legacy_tox_ini = """
 [tox]
-env_list = typing,clean,py{310}-{pyqt5,pyqt6,pyside2,pyside6}
+env_list = typing,clean,py{310}-{pyqt5,pyqt6,pyside6}
 
 [testenv]
 groups = test
@@ -119,6 +119,7 @@ setenv=
   pyside2: PYTEST_QT_API=pyside2
   pyside6: PYTEST_QT_API=pyside6
   QT_QPA_PLATFORM=offscreen
+  QT_QUICK_BACKEND=software
 passenv=
   DISPLAY
   XAUTHORITY
@@ -135,15 +136,15 @@ skip_install = true
 commands = coverage erase
 
 [testenv:py{310}-pyqt5]
-deps = PyQt5
+deps=
+  PyQt5
+  PyQtWebEngine
 
 [testenv:py{310}-pyqt6]
-deps = PyQt6
-
-[testenv:py{310}-pyside2]
-platform = ^((?!darwin).)*$
-deps = PySide2
+deps=
+  PyQt6
+  PyQt6-WebEngine
 
 [testenv:py{310}-pyside6]
-deps = PySide6
+deps=PySide6
 """

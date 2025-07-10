@@ -688,6 +688,10 @@ class RestrictedWebView(QWidget):
         self.webEngineView.setContextMenuPolicy(Qt.NoContextMenu)
         self.webEngineView.setAcceptDrops(False)
         self.webEngineView.setProperty('url', QUrl(url))
+        self.webEnginePage = RestrictedWebEnginePage(
+            self.webEngineView, trusted_url_prefix
+        )
+        self.webEngineView.setPage(self.webEnginePage)
 
         # Create a horizontal line to separate the web view from the navigation buttons
         line = QFrame(self)
@@ -731,7 +735,6 @@ class RestrictedWebView(QWidget):
         self.webEngineView.urlChanged.connect(self._on_url_changed)
 
         # set prefix and initial URL
-        self.setTrustedUrlPrefix(trusted_url_prefix)
         self.setUrl(url)
 
     def _on_url_changed(self, url: QUrl):
@@ -784,8 +787,7 @@ class RestrictedWebView(QWidget):
             in the widget's web engine view, while other links will open in the default
             web browser.
         """
-        self._trusted_url_prefix = trusted_url_prefix
-        self.webEngineView.setPage(RestrictedWebEnginePage(self, trusted_url_prefix))
+        self.webEnginePage.setTrustedUrlPrefix(trusted_url_prefix)
 
     def trustedUrlPrefix(self) -> str:
         """
@@ -798,4 +800,4 @@ class RestrictedWebView(QWidget):
             in the widget's web engine view, while other links will open in the default
             web browser.
         """
-        return self._trusted_url_prefix
+        return self.webEnginePage.trustedUrlPrefix()

@@ -894,22 +894,22 @@ class RestrictedWebEnginePage(QWebEnginePage):
     """
 
     def __init__(
-        self, parent: QWidget | None = None, trusted_url_prefix: str = '', **kwargs
+        self, parent: QObject | None = None, trusted_url_prefix: str = '', **kwargs
     ):
         """
         Initialize the UrlFilteredWebEnginePage.
 
         Parameters
         ----------
-        parent : QWidget, optional
-            The parent widget of this web engine page.
+        parent : QObject, optional
+            The parent of this web engine page.
         trusted_url_prefix : str
-            A URL prefix that identifies trusted/internal links. Only links starting
+            A URL prefix that identifies trusted links. Only links starting
             with this prefix will be loaded within the web view.
         **kwargs : dict
             Additional keyword arguments passed to the base class constructor.
         """
-        super().__init__(parent)
+        super().__init__(parent, **kwargs)
         self._trusted_url_prefix = trusted_url_prefix
 
     @override
@@ -937,10 +937,29 @@ class RestrictedWebEnginePage(QWebEnginePage):
             True if the navigation should proceed in the web view;
             False if the link is handled externally.
         """
-        if (
-            navigationType == QWebEnginePage.NavigationTypeLinkClicked
-            and not url.url().startswith(self._trusted_url_prefix)
-        ):
+        if not url.toString().startswith(self._trusted_url_prefix):
             webbrowser.open(url.toString())
             return False
         return super().acceptNavigationRequest(url, navigationType, is_main_frame)
+
+    def setTrustedUrlPrefix(self, trusted_url_prefix: str) -> None:
+        """
+        Set the URL prefix that identifies trusted links.
+
+        Parameters
+        ----------
+        trusted_url_prefix : str
+            The URL prefix that identifies trusted links.
+        """
+        self._trusted_url_prefix = trusted_url_prefix
+
+    def trustedUrlPrefix(self) -> str:
+        """
+        Retrieve the URL prefix that identifies trusted links.
+
+        Returns
+        -------
+        str
+            The URL prefix that identifies trusted links.
+        """
+        return self._trusted_url_prefix

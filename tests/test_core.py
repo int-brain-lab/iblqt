@@ -383,7 +383,7 @@ class TestUrlFilteredWebEnginePage:
         assert isinstance(web_engine_page, QWebEnginePage)
         result = web_engine_page.acceptNavigationRequest(
             url=QUrl('https://internal.com/page'),
-            navigationType=QWebEnginePage.NavigationTypeLinkClicked,
+            navigationType=QWebEnginePage.NavigationType.NavigationTypeLinkClicked,
             is_main_frame=True,
         )
         assert result is True
@@ -392,7 +392,7 @@ class TestUrlFilteredWebEnginePage:
     def test_external_url_opens_in_browser(self, mock_open, web_engine_page):
         result = web_engine_page.acceptNavigationRequest(
             url=QUrl('https://external.com/page'),
-            navigationType=QWebEnginePage.NavigationTypeLinkClicked,
+            navigationType=QWebEnginePage.NavigationType.NavigationTypeLinkClicked,
             is_main_frame=True,
         )
         mock_open.assert_called_once_with('https://external.com/page')

@@ -389,15 +389,17 @@ class TestRestrictedWebView:
         )
         qtbot.addWidget(widget)
         yield widget
-        with qtbot.waitSignal(widget.webEngineView.page().destroyed, timeout=1000):
-            widget.close()
+        page = widget.webEngineView.page()
+        widget.close()
+        with qtbot.waitSignal(page.destroyed, timeout=100):
+            page.deleteLater()
 
     def test_default_prefix(self, qtbot):
         widget = widgets.RestrictedWebView(url='http://localhost/')
         qtbot.addWidget(widget)
         assert widget.trustedUrlPrefix() == 'http://localhost/'
 
-    def test_initial_url_loaded(self, browser_widget):
+    def test_initial_url_loaded(self, qtbot, browser_widget):
         assert browser_widget.url() == QUrl('http://localhost/trusted/start')
         assert browser_widget.trustedUrlPrefix() == 'http://localhost/trusted/'
 
@@ -417,17 +419,17 @@ class TestRestrictedWebView:
     def test_click_internal_link(self, mock_open, qtbot, browser_widget):
         result = browser_widget.webEngineView.page().acceptNavigationRequest(
             url=QUrl('http://localhost/trusted/page'),
-            navigationType=QWebEnginePage.NavigationTypeLinkClicked,
+            navigationType=QWebEnginePage.NavigationType.NavigationTypeLinkClicked,
             is_main_frame=True,
         )
         assert result is True
         mock_open.assert_not_called()
 
     @patch('iblqt.widgets.webbrowser.open')
-    def test_click_external_link(self, mock_open, browser_widget):
+    def test_click_external_link(self, mock_open, qtbot, browser_widget):
         result = browser_widget.webEngineView.page().acceptNavigationRequest(
             url=QUrl('http://localhost/external/page'),
-            navigationType=QWebEnginePage.NavigationTypeLinkClicked,
+            navigationType=QWebEnginePage.NavigationType.NavigationTypeLinkClicked,
             is_main_frame=True,
         )
         assert result is False
