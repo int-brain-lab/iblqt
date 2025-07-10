@@ -4,6 +4,7 @@ import logging
 import sys
 import traceback
 import warnings
+import webbrowser
 from inspect import signature
 from pathlib import Path
 from typing import Any, Callable, cast
@@ -21,12 +22,15 @@ from qtpy.QtCore import (
     QObject,
     QRunnable,
     Qt,
+    QUrl,
     Signal,
     Slot,
 )
 from qtpy.QtGui import QColor
+from qtpy.QtWebEngineWidgets import QWebEnginePage
 from qtpy.QtWidgets import QMessageBox, QWidget
 from requests import HTTPError
+from typing_extensions import override
 
 from one.webclient import AlyxClient  # type: ignore
 
@@ -877,3 +881,67 @@ class Worker(QRunnable):
         finally:
             # Emit the finished signal to indicate completion
             self.signals.finished.emit()
+
+
+class UrlFilteredWebEnginePage(QWebEnginePage):
+    """
+    A QWebEnginePage subclass that filters navigation requests based on a URL prefix.
+
+    Links that start with the specified `internal_url_prefix` are allowed to load
+    inside the application. All other links are opened externally in the default web
+    browser.
+
+    Adapted from: https://www.pythonguis.com/faq/qwebengineview-open-links-new-window/
+    """
+
+    def __init__(
+        self, parent: QWidget | None = None, internal_url_prefix: str = '', **kwargs
+    ):
+        """
+        Initialize the UrlFilteredWebEnginePage.
+
+        Parameters
+        ----------
+        parent : QWidget, optional
+            The parent widget of this web engine page.
+        internal_url_prefix : str
+            A URL prefix that identifies trusted/internal links. Only links starting
+            with this prefix will be loaded within the web view.
+        **kwargs : dict
+            Additional keyword arguments passed to the base class constructor.
+        """
+        super().__init__(parent)
+        self._internal_url_prefix = internal_url_prefix
+
+    @override
+    def acceptNavigationRequest(
+        self,
+        url: QUrl,
+        navigationType: QWebEnginePage.NavigationType,
+        is_main_frame: bool,
+    ) -> bool:
+        """
+        Handle and filter navigation requests.
+
+        Parameters
+        ----------
+        url : QUrl
+            The target URL of the navigation request.
+        navigationType : QWebEnginePage.NavigationType
+            The type of navigation event
+        is_main_frame : bool
+            Whether the navigation occurs in the main frame.
+
+        Returns
+        -------
+        bool
+            True if the navigation should proceed in the web view;
+            False if the link is handled externally.
+        """
+        if (
+            navigationType == QWebEnginePage.NavigationTypeLinkClicked
+            and not url.url().startswith(self._internal_url_prefix)
+        ):
+            webbrowser.open(url.url())
+            return False
+        return super().acceptNavigationRequest(url, navigationType, is_main_frame)

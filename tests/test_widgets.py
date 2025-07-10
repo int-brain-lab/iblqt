@@ -3,9 +3,8 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
-from qtpy.QtCore import Qt, QUrl
+from qtpy.QtCore import Qt
 from qtpy.QtGui import QColor, QPainter, QPalette, QStandardItemModel
-from qtpy.QtWebEngineWidgets import QWebEnginePage
 from qtpy.QtWidgets import (
     QCheckBox,
     QDialog,
@@ -378,30 +377,3 @@ class TestDiskSpaceIndicator:
         with qtbot.waitSignal(indicator.thresholdCrossed, timeout=1) as blocker:
             indicator._on_result(dummy_data)
             assert blocker.args[0] is True
-
-
-class TestUrlFilteredWebEnginePage:
-    @pytest.fixture
-    def web_engine_page(self, qtbot):
-        return widgets.UrlFilteredWebEnginePage(
-            internal_url_prefix='https://internal.com'
-        )
-
-    def test_internal_url_allows_navigation(self, web_engine_page):
-        assert isinstance(web_engine_page, QWebEnginePage)
-        result = web_engine_page.acceptNavigationRequest(
-            url=QUrl('https://internal.com/page'),
-            navigationType=QWebEnginePage.NavigationTypeLinkClicked,
-            is_main_frame=True,
-        )
-        assert result is True
-
-    @patch('iblqt.widgets.webbrowser.open')
-    def test_external_url_opens_in_browser(self, mock_open, web_engine_page):
-        result = web_engine_page.acceptNavigationRequest(
-            url=QUrl('https://external.com/page'),
-            navigationType=QWebEnginePage.NavigationTypeLinkClicked,
-            is_main_frame=True,
-        )
-        mock_open.assert_called_once_with('https://external.com/page')
-        assert result is False

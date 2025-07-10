@@ -6,7 +6,8 @@ from unittest.mock import PropertyMock, patch
 import numpy as np
 import pandas as pd
 import pytest
-from qtpy.QtCore import QModelIndex, Qt, QThreadPool
+from qtpy.QtCore import QModelIndex, Qt, QThreadPool, QUrl
+from qtpy.QtWebEngineWidgets import QWebEnginePage
 from requests import HTTPError
 
 from iblqt import core
@@ -371,3 +372,28 @@ class TestWorker:
         assert hasattr(signals, 'error')
         assert hasattr(signals, 'result')
         assert hasattr(signals, 'progress')
+
+
+class TestUrlFilteredWebEnginePage:
+    @pytest.fixture
+    def web_engine_page(self, qtbot):
+        return core.UrlFilteredWebEnginePage(internal_url_prefix='https://internal.com')
+
+    def test_internal_url_allows_navigation(self, web_engine_page):
+        assert isinstance(web_engine_page, QWebEnginePage)
+        result = web_engine_page.acceptNavigationRequest(
+            url=QUrl('https://internal.com/page'),
+            navigationType=QWebEnginePage.NavigationTypeLinkClicked,
+            is_main_frame=True,
+        )
+        assert result is True
+
+    @patch('iblqt.core.webbrowser.open')
+    def test_external_url_opens_in_browser(self, mock_open, web_engine_page):
+        result = web_engine_page.acceptNavigationRequest(
+            url=QUrl('https://external.com/page'),
+            navigationType=QWebEnginePage.NavigationTypeLinkClicked,
+            is_main_frame=True,
+        )
+        mock_open.assert_called_once_with('https://external.com/page')
+        assert result is False
