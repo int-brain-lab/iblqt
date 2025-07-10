@@ -337,16 +337,16 @@ class TestThresholdProgressBar:
         qtbot.addWidget(bar)
         assert not bar.aboveThreshold()
 
-        with qtbot.waitSignal(bar.thresholdCrossed, timeout=1) as blocker:
+        with qtbot.waitSignal(bar.thresholdCrossed, timeout=1000) as blocker:
             bar.setValue(60)
             assert blocker.args[0] is True
             assert bar.aboveThreshold()
-        with qtbot.waitSignal(bar.thresholdCrossed, timeout=1) as blocker:
+        with qtbot.waitSignal(bar.thresholdCrossed, timeout=1000) as blocker:
             bar.setValue(40)
             assert blocker.args[0] is False
         with (
-            qtbot.waitSignal(bar.thresholdCrossed, timeout=1) as blocker1,
-            qtbot.waitSignal(bar.thresholdChanged, timeout=1) as blocker2,
+            qtbot.waitSignal(bar.thresholdCrossed, timeout=1000) as blocker1,
+            qtbot.waitSignal(bar.thresholdChanged, timeout=1000) as blocker2,
         ):
             bar.setThreshold(30)
             assert blocker1.args[0] is True
@@ -375,7 +375,7 @@ class TestDiskSpaceIndicator:
         indicator = widgets.DiskSpaceIndicator(directory='/', percent_threshold=90)
         qtbot.addWidget(indicator)
 
-        with qtbot.waitSignal(indicator.thresholdCrossed, timeout=1) as blocker:
+        with qtbot.waitSignal(indicator.thresholdCrossed, timeout=1000) as blocker:
             indicator._on_result(dummy_data)
             assert blocker.args[0] is True
 
@@ -403,10 +403,17 @@ class TestRestrictedWebView:
         assert browser_widget.url() == QUrl('http://localhost/trusted/start')
         assert browser_widget.trustedUrlPrefix() == 'http://localhost/trusted/'
 
+    def test_get_set_url(self, qtbot, browser_widget):
+        assert browser_widget.setUrl(QUrl('http://localhost/trusted/some_page'))
+        assert browser_widget.url() == QUrl('http://localhost/trusted/some_page')
+        assert browser_widget.setUrl('http://localhost/trusted/other')
+        assert browser_widget.url() == QUrl('http://localhost/trusted/other')
+        assert not browser_widget.setUrl('http://localhost/external/page')
+        assert browser_widget.url() == QUrl('http://localhost/trusted/other')
+
     def test_home_button_loads_home(self, qtbot, browser_widget):
-        browser_widget.setUrl(QUrl('http://localhost/trusted/other'))
-        assert browser_widget.url().toString().endswith('/other')
-        with qtbot.waitSignal(browser_widget.webEngineView.urlChanged, timeout=3000):
+        browser_widget.setUrl('http://localhost/trusted/other')
+        with qtbot.waitSignal(browser_widget.webEngineView.urlChanged, timeout=1000):
             qtbot.mouseClick(browser_widget.uiPushHome, Qt.MouseButton.LeftButton)
         assert browser_widget.url() == QUrl('http://localhost/trusted/start')
 
@@ -434,3 +441,14 @@ class TestRestrictedWebView:
         )
         assert result is False
         mock_open.assert_called_once_with('http://localhost/external/page')
+
+    @patch('iblqt.widgets.webbrowser.open')
+    def test_change_prefix(self, mock_open, qtbot, browser_widget):
+        browser_widget.setTrustedUrlPrefix('http://localhost/external')
+        result = browser_widget.webEngineView.page().acceptNavigationRequest(
+            url=QUrl('http://localhost/external/page'),
+            navigationType=QWebEnginePage.NavigationType.NavigationTypeLinkClicked,
+            is_main_frame=True,
+        )
+        assert result is True
+        mock_open.assert_not_called()
