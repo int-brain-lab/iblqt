@@ -105,6 +105,7 @@ setenv=
   pyqt6: PYTEST_QT_API=pyqt6
   pyside2: PYTEST_QT_API=pyside2
   pyside6: PYTEST_QT_API=pyside6
+  QTWEBENGINE_CHROMIUM_FLAGS="--no-sandbox --disable-gpu --headless --disable-software-rasterizer"
   QT_QPA_PLATFORM=offscreen
   QT_QUICK_BACKEND=software
   QT_OPENGL=software
