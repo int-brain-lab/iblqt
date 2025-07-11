@@ -22,10 +22,15 @@ authors = [
 dynamic = ["version"]
 
 [project.optional-dependencies]
-PyQt5 = [
+pyqt5 = [
   "PyQt5",
   "PyQtWebEngine",
 ]
+pyqt6 = [
+  "PyQt6",
+  "PyQt6-WebEngine",
+]
+pyside6 = [ "PySide6" ]
 
 [project.urls]
 Homepage = "https://github.com/int-brain-lab/iblqt/"
@@ -49,8 +54,8 @@ test = [
   "pytest>=8.3.4",
   "pytest-cov>=6.0.0",
   "pytest-qt>=4.4.0",
-  "tox-pdm>=0.7.2",
   "tox>=4.23.2",
+  "tox-uv>=1.26.1",
 ]
 typing = [
   "mypy>=1.14.1",
@@ -90,7 +95,7 @@ convention = "numpy"
 known-first-party = [ "ibl*", "one*" ]
 
 [tool.mypy]
-files = ["iblqt/**/*.py", "tests/**/*.py"]
+packages = ["iblqt"]
 
 [tool.pytest.ini_options]
 addopts    = "--cov=iblqt --cov-report=html --cov-report=xml"
@@ -111,15 +116,15 @@ source = [
 [tool.tox]
 legacy_tox_ini = """
 [tox]
-env_list = typing,clean,py{310}-{pyqt5,pyqt6,pyside2,pyside6}
+env_list = typing,clean,py{310}-{pyqt5,pyqt6,pyside6}
 
 [testenv]
-groups = test
+runner = uv-venv-lock-runner
+dependency_groups = test
 commands = pytest tests/ --cov --cov-append
 setenv=
   pyqt5: PYTEST_QT_API=pyqt5
   pyqt6: PYTEST_QT_API=pyqt6
-  pyside2: PYTEST_QT_API=pyside2
   pyside6: PYTEST_QT_API=pyside6
   QT_QPA_PLATFORM=offscreen
 passenv=
@@ -128,25 +133,22 @@ passenv=
   COLUMNS
 
 [testenv:typing]
+runner = uv-venv-lock-runner
 skip_install = true
-groups = typing
-deps = PyQt5
-commands = mypy -p iblqt --always-true=PYQT5 --always-false=PYSIDE2 --always-false=PYQT6 --always-false=PYSIDE6
+dependency_groups = typing
+extras = pyqt5
+commands = mypy --always-true=PYQT5 --always-false=PYQT6 --always-false=PYSIDE6
 
 [testenv:clean]
 skip_install = true
 commands = coverage erase
 
 [testenv:py{310}-pyqt5]
-deps = PyQt5
+extras = pyqt5
 
 [testenv:py{310}-pyqt6]
-deps = PyQt6
-
-[testenv:py{310}-pyside2]
-platform = ^((?!darwin).)*$
-deps = PySide2
+extras = pyqt6
 
 [testenv:py{310}-pyside6]
-deps = PySide6
+extras = pyside6
 """
