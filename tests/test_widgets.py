@@ -417,13 +417,6 @@ class TestRestrictedWebView:
             qtbot.mouseClick(browser_widget.uiPushHome, Qt.MouseButton.LeftButton)
         assert browser_widget.url() == QUrl('http://localhost/trusted/start')
 
-    def test_navigation_buttons(self, qtbot, browser_widget):
-        with qtbot.waitSignal(browser_widget.webEngineView.urlChanged, timeout=1000):
-            browser_widget.setUrl('http://localhost/trusted/other')
-        # with qtbot.waitSignal(browser_widget.webEngineView.urlChanged, timeout=1000):
-        #     qtbot.mouseClick(browser_widget.uiPushBack, Qt.MouseButton.LeftButton)
-        # assert browser_widget.url() == QUrl('http://localhost/trusted/start')
-
     @patch('iblqt.widgets.webbrowser.open')
     def test_open_in_browser_button(self, mock_open, qtbot, browser_widget):
         qtbot.mouseClick(browser_widget.uiPushBrowser, Qt.MouseButton.LeftButton)
@@ -431,7 +424,7 @@ class TestRestrictedWebView:
 
     @patch('iblqt.widgets.webbrowser.open')
     def test_click_internal_link(self, mock_open, qtbot, browser_widget):
-        result = browser_widget.webEngineView.page().acceptNavigationRequest(
+        result = browser_widget.webEnginePage.acceptNavigationRequest(
             url=QUrl('http://localhost/trusted/page'),
             navigationType=QWebEnginePage.NavigationType.NavigationTypeLinkClicked,
             is_main_frame=True,
@@ -441,7 +434,7 @@ class TestRestrictedWebView:
 
     @patch('iblqt.widgets.webbrowser.open')
     def test_click_external_link(self, mock_open, qtbot, browser_widget):
-        result = browser_widget.webEngineView.page().acceptNavigationRequest(
+        result = browser_widget.webEnginePage.acceptNavigationRequest(
             url=QUrl('http://localhost/external/page'),
             navigationType=QWebEnginePage.NavigationType.NavigationTypeLinkClicked,
             is_main_frame=True,
@@ -452,7 +445,7 @@ class TestRestrictedWebView:
     @patch('iblqt.widgets.webbrowser.open')
     def test_change_prefix(self, mock_open, qtbot, browser_widget):
         browser_widget.setTrustedUrlPrefix('http://localhost/external')
-        result = browser_widget.webEngineView.page().acceptNavigationRequest(
+        result = browser_widget.webEnginePage.acceptNavigationRequest(
             url=QUrl('http://localhost/external/page'),
             navigationType=QWebEnginePage.NavigationType.NavigationTypeLinkClicked,
             is_main_frame=True,
