@@ -107,11 +107,11 @@ setenv=
   pyside6: PYTEST_QT_API=pyside6
 #  QTWEBENGINE_CHROMIUM_FLAGS="--no-sandbox --disable-gpu --disable-webgl --headless --disable-software-rasterizer"
 #  QT_QPA_PLATFORM=offscreen
-#  QT_QUICK_BACKEND=software
+  QT_QUICK_BACKEND=software
 #  QT_OPENGL=software
-#passenv=
-#  DISPLAY
-#  XAUTHORITY
+passenv=
+  DISPLAY
+  XAUTHORITY
 #  COLUMNS
 
 [testenv:typing]
