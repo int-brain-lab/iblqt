@@ -28,20 +28,6 @@ Repository = "https://github.com/int-brain-lab/iblqt.git"
 Issues = "https://github.com/int-brain-lab/iblqt/issues"
 Changelog = "https://github.com/int-brain-lab/iblqt/blob/main/CHANGELOG.md"
 
-[tool.pdm]
-distribution = true
-
-[tool.pdm.build]
-excludes = [ "docs/source/api" ]
-source-includes = [ "tests/", "resources/", "docs/source/" ]
-
-[tool.pdm.version]
-source = "file"
-path = "iblqt/__init__.py"
-
-[tool.pdm.scripts]
-docs = "sphinx-build ./docs/source ./docs/build"
-
 [dependency-groups]
 doc = [
   "sphinx>=7.0.0",
@@ -54,11 +40,12 @@ lint = [
   "ruff>=0.9.2",
 ]
 test = [
-  "pytest>=8.3.4",
-  "pytest-cov>=6.0.0",
-  "pytest-qt>=4.4.0",
-  "tox-pdm>=0.7.2",
-  "tox>=4.23.2",
+    "pytest>=8.3.4",
+    "pytest-cov>=6.0.0",
+    "pytest-qt>=4.4.0",
+    "tox-pdm>=0.7.2",
+    "tox>=4.23.2",
+    "pytest-xvfb>=3.1.1",
 ]
 typing = [
   "mypy>=1.14.1",
@@ -148,3 +135,18 @@ deps=
 [testenv:py{310}-pyside6]
 deps=PySide6
 """
+
+[tool.pdm]
+distribution = true
+
+[tool.pdm.build]
+excludes = [ "docs/source/api" ]
+source-includes = [ "tests/", "resources/", "docs/source/" ]
+
+[tool.pdm.version]
+source = "file"
+path = "iblqt/__init__.py"
+
+[tool.pdm.scripts]
+docs = "sphinx-build ./docs/source ./docs/build"
+

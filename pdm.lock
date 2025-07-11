@@ -5,7 +5,7 @@
 groups = ["default", "doc", "lint", "test", "typing"]
 strategy = ["inherit_metadata"]
 lock_version = "4.5.0"
-content_hash = "sha256:840d6579a8efceefae54b80108a770e30600e86e0fc2a7f57355141131884a97"
+content_hash = "sha256:c62e7b792d22830167782e3795eda42b1e4e16d4015a2d86bfeda6a84ec375e4"
 
 [[metadata.targets]]
 requires_python = ">=3.10"
@@ -1019,6 +1019,21 @@ files = [
 ]
 
 [[package]]
+name = "pytest-xvfb"
+version = "3.1.1"
+requires_python = ">=3.9"
+summary = "A pytest plugin to run Xvfb (or Xephyr/Xvnc) for tests."
+groups = ["test"]
+dependencies = [
+    "pytest>=2.8.1",
+    "pyvirtualdisplay>=1.3",
+]
+files = [
+    {file = "pytest_xvfb-3.1.1-py3-none-any.whl", hash = "sha256:3270f91417cfa0652b7c5a90e93a676e3a80bec12ccbd20cae3b42511e4aba98"},
+    {file = "pytest_xvfb-3.1.1.tar.gz", hash = "sha256:90593634427d974b272e845793e4533f5b827c9d84c051879013624504175e44"},
+]
+
+[[package]]
 name = "python-dateutil"
 version = "2.9.0.post0"
 requires_python = "!=3.0.*,!=3.1.*,!=3.2.*,>=2.7"
@@ -1040,6 +1055,16 @@ groups = ["default"]
 files = [
     {file = "pytz-2025.2-py2.py3-none-any.whl", hash = "sha256:5ddf76296dd8c44c26eb8f4b6f35488f3ccbf6fbbd7adee0b7262d43f0ec2f00"},
     {file = "pytz-2025.2.tar.gz", hash = "sha256:360b9e3dbb49a209c21ad61809c7fb453643e048b38924c765813546746e81c3"},
+]
+
+[[package]]
+name = "pyvirtualdisplay"
+version = "3.0"
+summary = "python wrapper for Xvfb, Xephyr and Xvnc"
+groups = ["test"]
+files = [
+    {file = "PyVirtualDisplay-3.0-py3-none-any.whl", hash = "sha256:40d4b8dfe4b8de8552e28eb367647f311f88a130bf837fe910e7f180d5477f0e"},
+    {file = "PyVirtualDisplay-3.0.tar.gz", hash = "sha256:09755bc3ceb6eb725fb07eca5425f43f2358d3bf08e00d2a9b792a1aedd16159"},
 ]
 
 [[package]]
