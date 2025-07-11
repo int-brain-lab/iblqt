@@ -687,9 +687,8 @@ class RestrictedWebView(QWidget):
         self.webEngineView = QWebEngineView(self)
         self.webEngineView.setContextMenuPolicy(Qt.NoContextMenu)
         self.webEngineView.setAcceptDrops(False)
-        self.webEngineView.setProperty('url', QUrl(url))
         self.webEnginePage = RestrictedWebEnginePage(
-            self.webEngineView, trusted_url_prefix
+            parent=self.webEngineView, trusted_url_prefix=trusted_url_prefix
         )
         self.webEngineView.setPage(self.webEnginePage)
 
@@ -738,10 +737,8 @@ class RestrictedWebView(QWidget):
         self.setUrl(url)
 
     def _on_url_changed(self, url: QUrl):
-        self.uiPushBack.setEnabled(len(self.webEngineView.history().backItems(1)) > 0)
-        self.uiPushForward.setEnabled(
-            len(self.webEngineView.history().forwardItems(1)) > 0
-        )
+        self.uiPushBack.setEnabled(self.webEngineView.history().canGoBack())
+        self.uiPushForward.setEnabled(self.webEngineView.history().canGoForward())
 
     def setUrl(self, url: QUrl | str) -> bool:
         """

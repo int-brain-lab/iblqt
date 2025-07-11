@@ -417,6 +417,13 @@ class TestRestrictedWebView:
             qtbot.mouseClick(browser_widget.uiPushHome, Qt.MouseButton.LeftButton)
         assert browser_widget.url() == QUrl('http://localhost/trusted/start')
 
+    def test_navigation_buttons(self, qtbot, browser_widget):
+        with qtbot.waitSignal(browser_widget.webEngineView.urlChanged, timeout=1000):
+            browser_widget.setUrl('http://localhost/trusted/other')
+        # with qtbot.waitSignal(browser_widget.webEngineView.urlChanged, timeout=1000):
+        #     qtbot.mouseClick(browser_widget.uiPushBack, Qt.MouseButton.LeftButton)
+        # assert browser_widget.url() == QUrl('http://localhost/trusted/start')
+
     @patch('iblqt.widgets.webbrowser.open')
     def test_open_in_browser_button(self, mock_open, qtbot, browser_widget):
         qtbot.mouseClick(browser_widget.uiPushBrowser, Qt.MouseButton.LeftButton)
