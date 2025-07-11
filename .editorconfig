@@ -25,6 +25,6 @@ indent_style = space
 indent_size = 3
 
 # Indentation override for rst and yaml files
-[*.{toml,yaml}]
+[*.{toml,yaml,qrc}]
 indent_style = space
 indent_size = 2
