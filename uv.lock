@@ -2,15 +2,17 @@ version = 1
 revision = 2
 requires-python = ">=3.10"
 resolution-markers = [
-    "python_full_version >= '3.12'",
-    "python_full_version == '3.11.*'",
-    "(python_full_version > '3.10' and python_full_version < '3.11') or (python_full_version < '3.11' and sys_platform != 'win32')",
-    "python_full_version <= '3.10' and sys_platform == 'win32'",
+    "python_full_version >= '3.12' and sys_platform != 'win32'",
+    "python_full_version >= '3.12' and sys_platform == 'win32'",
+    "python_full_version == '3.11.*' and sys_platform != 'win32'",
+    "python_full_version == '3.11.*' and sys_platform == 'win32'",
+    "python_full_version < '3.11' and sys_platform != 'win32'",
+    "python_full_version < '3.11' and sys_platform == 'win32'",
 ]
 required-markers = [
-    "python_full_version <= '3.10' and sys_platform == 'win32'",
-    "python_full_version <= '3.10' and sys_platform == 'linux'",
-    "python_full_version <= '3.10' and sys_platform == 'darwin'",
+    "sys_platform == 'win32'",
+    "sys_platform == 'linux'",
+    "sys_platform == 'darwin'",
 ]
 
 [[package]]
@@ -615,8 +617,8 @@ name = "numpy"
 version = "2.2.6"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "(python_full_version > '3.10' and python_full_version < '3.11') or (python_full_version < '3.11' and sys_platform != 'win32')",
-    "python_full_version <= '3.10' and sys_platform == 'win32'",
+    "python_full_version < '3.11' and sys_platform != 'win32'",
+    "python_full_version < '3.11' and sys_platform == 'win32'",
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/76/21/7d2a95e4bba9dc13d043ee156a356c0a8f0c6309dff6b21b4d71a073b8a8/numpy-2.2.6.tar.gz", hash = "sha256:e29554e2bef54a90aa5cc07da6ce955accb83f21ab5de01a62c8478897b264fd", size = 20276440, upload-time = "2025-05-17T22:38:04.611Z" }
 wheels = [
@@ -681,8 +683,10 @@ name = "numpy"
 version = "2.3.1"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.12'",
-    "python_full_version == '3.11.*'",
+    "python_full_version >= '3.12' and sys_platform != 'win32'",
+    "python_full_version >= '3.12' and sys_platform == 'win32'",
+    "python_full_version == '3.11.*' and sys_platform != 'win32'",
+    "python_full_version == '3.11.*' and sys_platform == 'win32'",
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/2e/19/d7c972dfe90a353dbd3efbbe1d14a5951de80c99c9dc1b93cd998d51dc0f/numpy-2.3.1.tar.gz", hash = "sha256:1ec9ae20a4226da374362cca3c62cd753faf2f951440b0e3b98e93c235441d2b", size = 20390372, upload-time = "2025-06-21T12:28:33.469Z" }
 wheels = [
@@ -938,8 +942,8 @@ name = "pyqt5"
 version = "5.15.11"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "pyqt5-qt5", version = "5.15.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version <= '3.10' and sys_platform == 'win32'" },
-    { name = "pyqt5-qt5", version = "5.15.17", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version > '3.10' or sys_platform != 'win32'" },
+    { name = "pyqt5-qt5", version = "5.15.2", source = { registry = "https://pypi.org/simple" }, marker = "sys_platform == 'win32'" },
+    { name = "pyqt5-qt5", version = "5.15.17", source = { registry = "https://pypi.org/simple" }, marker = "sys_platform != 'win32'" },
     { name = "pyqt5-sip" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/0e/07/c9ed0bd428df6f87183fca565a79fee19fa7c88c7f00a7f011ab4379e77a/PyQt5-5.15.11.tar.gz", hash = "sha256:fda45743ebb4a27b4b1a51c6d8ef455c4c1b5d610c90d2934c7802b5c1557c52", size = 3216775, upload-time = "2024-07-19T08:39:57.756Z" }
@@ -956,7 +960,9 @@ name = "pyqt5-qt5"
 version = "5.15.2"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version <= '3.10' and sys_platform == 'win32'",
+    "python_full_version >= '3.12' and sys_platform == 'win32'",
+    "python_full_version == '3.11.*' and sys_platform == 'win32'",
+    "python_full_version < '3.11' and sys_platform == 'win32'",
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/1c/7e/ce7c66a541a105fa98b41d6405fe84940564695e29fc7dccf6d9e8c5f898/PyQt5_Qt5-5.15.2-py3-none-win32.whl", hash = "sha256:9cc7a768b1921f4b982ebc00a318ccb38578e44e45316c7a4a850e953e1dd327", size = 43447358, upload-time = "2021-03-10T14:01:17.827Z" },
@@ -968,9 +974,9 @@ name = "pyqt5-qt5"
 version = "5.15.17"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.12'",
-    "python_full_version == '3.11.*'",
-    "(python_full_version > '3.10' and python_full_version < '3.11') or (python_full_version < '3.11' and sys_platform != 'win32')",
+    "python_full_version >= '3.12' and sys_platform != 'win32'",
+    "python_full_version == '3.11.*' and sys_platform != 'win32'",
+    "python_full_version < '3.11' and sys_platform != 'win32'",
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/d3/f9/accb06e76e23fb23053d48cc24fd78dec6ed14cb4d5cbadb0fd4a0c1b02e/PyQt5_Qt5-5.15.17-py3-none-macosx_10_13_x86_64.whl", hash = "sha256:d8b8094108e748b4bbd315737cfed81291d2d228de43278f0b8bd7d2b808d2b9", size = 39972275, upload-time = "2025-05-24T11:15:42.259Z" },
@@ -1117,8 +1123,8 @@ source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "pyqt5" },
     { name = "pyqt5-sip" },
-    { name = "pyqtwebengine-qt5", version = "5.15.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version <= '3.10' and sys_platform == 'win32'" },
-    { name = "pyqtwebengine-qt5", version = "5.15.17", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version > '3.10' or sys_platform != 'win32'" },
+    { name = "pyqtwebengine-qt5", version = "5.15.2", source = { registry = "https://pypi.org/simple" }, marker = "sys_platform == 'win32'" },
+    { name = "pyqtwebengine-qt5", version = "5.15.17", source = { registry = "https://pypi.org/simple" }, marker = "sys_platform != 'win32'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/18/e8/19a00646866e950307f8cd73841575cdb92800ae14837d5821bcbb91392c/PyQtWebEngine-5.15.7.tar.gz", hash = "sha256:f121ac6e4a2f96ac289619bcfc37f64e68362f24a346553f5d6c42efa4228a4d", size = 32223, upload-time = "2024-07-19T08:44:48.6Z" }
 wheels = [
@@ -1134,7 +1140,9 @@ name = "pyqtwebengine-qt5"
 version = "5.15.2"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version <= '3.10' and sys_platform == 'win32'",
+    "python_full_version >= '3.12' and sys_platform == 'win32'",
+    "python_full_version == '3.11.*' and sys_platform == 'win32'",
+    "python_full_version < '3.11' and sys_platform == 'win32'",
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/4d/25/42925450ba25cc8a2748cbb602f9ccca6c01c45bf23810c3b3219e917962/PyQtWebEngine_Qt5-5.15.2-py3-none-win32.whl", hash = "sha256:9e80b408d8de09d4e708d5d84c3ceaf3603292ff8f5e566ae44bb0320fa59c33", size = 50193245, upload-time = "2021-03-10T14:32:58.905Z" },
@@ -1146,9 +1154,9 @@ name = "pyqtwebengine-qt5"
 version = "5.15.17"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.12'",
-    "python_full_version == '3.11.*'",
-    "(python_full_version > '3.10' and python_full_version < '3.11') or (python_full_version < '3.11' and sys_platform != 'win32')",
+    "python_full_version >= '3.12' and sys_platform != 'win32'",
+    "python_full_version == '3.11.*' and sys_platform != 'win32'",
+    "python_full_version < '3.11' and sys_platform != 'win32'",
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/9e/b9/ef6286ba4f3bb12d12addb3809808f6b2c6491b330286076c9a51b59363d/PyQtWebEngine_Qt5-5.15.17-py3-none-macosx_10_13_x86_64.whl", hash = "sha256:f46be013bdfa883c328c9fff554c6443671833a2ef5b7f649bd33b0d5cf09d2f", size = 74866238, upload-time = "2025-05-24T11:17:22.441Z" },
@@ -1393,8 +1401,8 @@ name = "scipy"
 version = "1.15.3"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "(python_full_version > '3.10' and python_full_version < '3.11') or (python_full_version < '3.11' and sys_platform != 'win32')",
-    "python_full_version <= '3.10' and sys_platform == 'win32'",
+    "python_full_version < '3.11' and sys_platform != 'win32'",
+    "python_full_version < '3.11' and sys_platform == 'win32'",
 ]
 dependencies = [
     { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
@@ -1453,8 +1461,10 @@ name = "scipy"
 version = "1.16.0"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.12'",
-    "python_full_version == '3.11.*'",
+    "python_full_version >= '3.12' and sys_platform != 'win32'",
+    "python_full_version >= '3.12' and sys_platform == 'win32'",
+    "python_full_version == '3.11.*' and sys_platform != 'win32'",
+    "python_full_version == '3.11.*' and sys_platform == 'win32'",
 ]
 dependencies = [
     { name = "numpy", version = "2.3.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
@@ -1543,8 +1553,8 @@ name = "sphinx"
 version = "8.1.3"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "(python_full_version > '3.10' and python_full_version < '3.11') or (python_full_version < '3.11' and sys_platform != 'win32')",
-    "python_full_version <= '3.10' and sys_platform == 'win32'",
+    "python_full_version < '3.11' and sys_platform != 'win32'",
+    "python_full_version < '3.11' and sys_platform == 'win32'",
 ]
 dependencies = [
     { name = "alabaster", marker = "python_full_version < '3.11'" },
@@ -1575,8 +1585,10 @@ name = "sphinx"
 version = "8.2.3"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.12'",
-    "python_full_version == '3.11.*'",
+    "python_full_version >= '3.12' and sys_platform != 'win32'",
+    "python_full_version >= '3.12' and sys_platform == 'win32'",
+    "python_full_version == '3.11.*' and sys_platform != 'win32'",
+    "python_full_version == '3.11.*' and sys_platform == 'win32'",
 ]
 dependencies = [
     { name = "alabaster", marker = "python_full_version >= '3.11'" },
@@ -1607,8 +1619,8 @@ name = "sphinx-autodoc-typehints"
 version = "3.0.1"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "(python_full_version > '3.10' and python_full_version < '3.11') or (python_full_version < '3.11' and sys_platform != 'win32')",
-    "python_full_version <= '3.10' and sys_platform == 'win32'",
+    "python_full_version < '3.11' and sys_platform != 'win32'",
+    "python_full_version < '3.11' and sys_platform == 'win32'",
 ]
 dependencies = [
     { name = "sphinx", version = "8.1.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
@@ -1623,8 +1635,10 @@ name = "sphinx-autodoc-typehints"
 version = "3.2.0"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.12'",
-    "python_full_version == '3.11.*'",
+    "python_full_version >= '3.12' and sys_platform != 'win32'",
+    "python_full_version >= '3.12' and sys_platform == 'win32'",
+    "python_full_version == '3.11.*' and sys_platform != 'win32'",
+    "python_full_version == '3.11.*' and sys_platform == 'win32'",
 ]
 dependencies = [
     { name = "sphinx", version = "8.2.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
