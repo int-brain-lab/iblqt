@@ -107,6 +107,7 @@ setenv=
   pyside6: PYTEST_QT_API=pyside6
   QT_QPA_PLATFORM=offscreen
   QT_QUICK_BACKEND=software
+  QT_OPENGL=software
 passenv=
   DISPLAY
   XAUTHORITY
