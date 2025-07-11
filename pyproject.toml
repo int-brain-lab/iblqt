@@ -124,7 +124,7 @@ source = [
 [tool.tox]
 legacy_tox_ini = """
 [tox]
-env_list = typing,clean,py{310}-{pyqt5,pyqt6,pyside6}
+env_list = typing,clean,py{310,313}-{pyqt5,pyqt6,pyside6},report
 
 [testenv]
 runner = uv-venv-lock-runner
@@ -139,9 +139,12 @@ passenv=
   DISPLAY
   XAUTHORITY
   COLUMNS
+depends=
+  clean: typing
+  py{310,313}-{pyqt5,pyqt6,pyside6}: clean
+  report: py{310,313}-{pyqt5,pyqt6,pyside6}
 
 [testenv:typing]
-runner = uv-venv-lock-runner
 skip_install = true
 dependency_groups = typing
 extras = pyqt5
@@ -151,12 +154,19 @@ commands = mypy --always-true=PYQT5 --always-false=PYQT6 --always-false=PYSIDE6
 skip_install = true
 commands = coverage erase
 
-[testenv:py{310}-pyqt5]
+[testenv:py{310,313}-pyqt5]
 extras = pyqt5
 
-[testenv:py{310}-pyqt6]
+[testenv:py{310,313}-pyqt6]
 extras = pyqt6
 
-[testenv:py{310}-pyside6]
+[testenv:py{310,313}-pyside6]
 extras = pyside6
+
+[testenv:report]
+runner = uv-venv-lock-runner
+skip_install = true
+commands =
+  coverage report
+  coverage html
 """
