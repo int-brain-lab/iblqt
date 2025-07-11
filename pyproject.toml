@@ -66,9 +66,9 @@ typing = [
 
 [tool.uv]
 required-environments = [
-    "python_full_version >= '3.10' and sys_platform == 'win32'",
-    "python_full_version >= '3.10' and sys_platform == 'linux'",
-    "python_full_version >= '3.10' and sys_platform == 'darwin'",
+    "python_full_version == '3.10' and sys_platform == 'win32'",
+    "python_full_version == '3.10' and sys_platform == 'linux'",
+    "python_full_version == '3.10' and sys_platform == 'darwin'",
 ]
 
 [tool.pdm]
