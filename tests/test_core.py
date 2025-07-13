@@ -144,6 +144,7 @@ class TestPathWatcher:
             with qtbot.waitSignal(w.fileChanged) as blocker:
                 with path1.open('a') as f:
                     f.write('Hello, World!')
+                    f.flush()
             assert blocker.args[0] == path1
 
             assert w.removePath(path1) is True
