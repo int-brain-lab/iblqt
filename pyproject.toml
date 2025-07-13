@@ -145,6 +145,7 @@ setenv=
   pyqt6: PYTEST_QT_API=pyqt6
   pyside6: PYTEST_QT_API=pyside6
   QT_QPA_PLATFORM=offscreen
+  COVERALLS_FLAG_NAME: test
 passenv=
   DISPLAY
   XAUTHORITY
