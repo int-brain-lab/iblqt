@@ -131,7 +131,7 @@ source = [
 [tool.tox]
 legacy_tox_ini = """
 [tox]
-env_list = typing,clean,py{310,313}-{pyqt5,pyqt6,pyside6},report
+env_list = typing,clean,{lin,osx,win}-py{310,313}-{pyqt5,pyqt6,pyside6},report
 
 [testenv]
 runner = uv-venv-lock-runner
@@ -140,14 +140,14 @@ commands =
   pytest tests/ --cov --cov-append
   {env:POST_COMMAND:python --version}
 platform =
-  lnx: linux
-  mac: darwin
+  lin: linux
+  osx: darwin
   win: win32
 setenv =
   py310: PYTHON=py310
   py313: PYTHON=py313
   lnx: PLATFORM=lnx
-  mac: PLATFORM=osx
+  osx: PLATFORM=osx
   win: PLATFORM=win
   pyqt5: PYTEST_QT_API=pyqt5
   pyqt6: PYTEST_QT_API=pyqt6
@@ -161,8 +161,8 @@ passenv=
   GITHUB_*
 depends=
   clean: typing
-  py{310,313}-{pyqt5,pyqt6,pyside6}: clean
-  report: py{310,313}-{pyqt5,pyqt6,pyside6}
+  {lin,osx,win}-py{310,313}-{pyqt5,pyqt6,pyside6}: clean
+  report: {lin,osx,win}-py{310,313}-{pyqt5,pyqt6,pyside6}
 extras=
   pyqt5: pyqt5
   pyqt6: pyqt6
@@ -179,7 +179,6 @@ skip_install = true
 commands = coverage erase
 
 [testenv:report]
-runner = uv-venv-lock-runner
 skip_install = true
 commands =
   coverage report
