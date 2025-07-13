@@ -140,12 +140,20 @@ commands =
   pytest tests/ --cov --cov-append
 commands_post =
   {env:POST_COMMAND:python --version}
+platform =
+    linux: linux
+    macos: darwin
+    windows: win32
+setenv =
+    linux: PLATFORM = linux
+    macos: PLATFORM = macos
+    windows: PLATFORM = windows
 setenv=
   pyqt5: PYTEST_QT_API=pyqt5
   pyqt6: PYTEST_QT_API=pyqt6
   pyside6: PYTEST_QT_API=pyside6
   QT_QPA_PLATFORM=offscreen
-  COVERALLS_FLAG_NAME: test
+  COVERALLS_FLAG_NAME={env:PLATFORM}
 passenv=
   DISPLAY
   XAUTHORITY
