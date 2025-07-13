@@ -118,10 +118,10 @@ class TestStatefulButton:
         with qtbot.assertNotEmitted(button.stateChanged):
             button.setActive(False)
         assert button.active is False
-        # assert button.text() == 'Inactive'
-        # button.setTextInactive('Inactive New')
-        # assert button.getTextInactive() == 'Inactive New'
-        # assert button.text() == 'Inactive New'
+        assert button.text() == 'Inactive'
+        button.setTextInactive('Inactive New')
+        assert button.getTextInactive() == 'Inactive New'
+        assert button.text() == 'Inactive New'
 
 
 class TestAlyxUserEdit:
