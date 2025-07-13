@@ -117,9 +117,9 @@ class TestDataFrameTableModel:
 
 
 class TestPathWatcher:
-    @pytest.mark.xfail(
-        reason='This fails with the GitHub Windows runner for some reason.'
-    )
+    # @pytest.mark.xfail(
+    #     reason='This fails with the GitHub Windows runner for some reason.'
+    # )
     def test_path_watcher(self, qtbot):
         parent = core.QObject()
         w = core.PathWatcher(parent=parent, paths=[])
