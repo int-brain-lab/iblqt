@@ -41,21 +41,5 @@ jobs:
       - name: Run Tests
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          POST_COMMAND: coveralls
         run: uv run tox -p auto
-#      - name: coveralls.io
-#        uses: coverallsapp/github-action@v2
-#        with:
-#          flag-name: ${{ matrix.os }}
-#          parallel: true
-#          file: coverage.xml
-#          compare-ref: main
-#
-#  Finish:
-#    needs: [Testing]
-#    if: ${{ always() }}
-#    runs-on: ubuntu-latest
-#    steps:
-#    - name: Coveralls Finished
-#      uses: coverallsapp/github-action@v2
-#      with:
-#        parallel-finished: true
