@@ -41,5 +41,6 @@ jobs:
       - name: Run Tests
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PLATFORM: ${{ matrix.os }}
           POST_COMMAND: coveralls
         run: uv run tox -p auto
