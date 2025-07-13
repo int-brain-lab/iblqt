@@ -147,14 +147,14 @@ platform =
 setenv =
   py310: PYTHON=py310
   py313: PYTHON=py313
-  linux: PLATFORM=lnx
-  macos: PLATFORM=osx
-  windows: PLATFORM=win
+  linux: PLATFRM=lnx
+  macos: PLATFRM=osx
+  windows: PLATFRM=win
   pyqt5: PYTEST_QT_API=pyqt5
   pyqt6: PYTEST_QT_API=pyqt6
   pyside6: PYTEST_QT_API=pyside6
   QT_QPA_PLATFORM=offscreen
-  COVERALLS_FLAG_NAME="{env:PYTEST_QT_API}_{env:PYTHON}_{env:PLATFORM}"
+  COVERALLS_FLAG_NAME={env:PLATFRM}_{env:PYTHON}_{env:PYTEST_QT_API}
 passenv=
   DISPLAY
   XAUTHORITY
