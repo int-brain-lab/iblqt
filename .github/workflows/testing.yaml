@@ -39,7 +39,7 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: sudo apt-get install -y libegl1
       - name: Run Tests
-        run: uv run tox
+        run: uv run tox -p auto
       - name: coveralls.io
         uses: coverallsapp/github-action@v2
         with:
