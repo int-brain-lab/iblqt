@@ -57,6 +57,7 @@ lint = [
   "ruff>=0.9.2",
 ]
 test = [
+  "coveralls>=4.0.1",
   "pytest>=8.3.4",
   "pytest-cov>=6.0.0",
   "pytest-qt>=4.4.0",
@@ -135,7 +136,9 @@ env_list = typing,clean,py{310,313}-{pyqt5,pyqt6,pyside6},report
 [testenv]
 runner = uv-venv-lock-runner
 dependency_groups = test
-commands = pytest tests/ --cov --cov-append
+commands =
+  pytest tests/ --cov --cov-append
+  - coveralls
 setenv=
   pyqt5: PYTEST_QT_API=pyqt5
   pyqt6: PYTEST_QT_API=pyqt6
@@ -145,6 +148,7 @@ passenv=
   DISPLAY
   XAUTHORITY
   COLUMNS
+  GITHUB_*
 depends=
   clean: typing
   py{310,313}-{pyqt5,pyqt6,pyside6}: clean
