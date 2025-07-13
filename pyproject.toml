@@ -138,23 +138,22 @@ runner = uv-venv-lock-runner
 dependency_groups = test
 commands =
   pytest tests/ --cov --cov-append
-commands_post =
   {env:POST_COMMAND:python --version}
 platform =
-  linux: linux
-  macos: darwin
-  windows: win32
+  lnx: linux
+  mac: darwin
+  win: win32
 setenv =
   py310: PYTHON=py310
   py313: PYTHON=py313
-  linux: PLATFRM=lnx
-  macos: PLATFRM=osx
-  windows: PLATFRM=win
+  lnx: PLATFORM=lnx
+  mac: PLATFORM=osx
+  win: PLATFORM=win
   pyqt5: PYTEST_QT_API=pyqt5
   pyqt6: PYTEST_QT_API=pyqt6
   pyside6: PYTEST_QT_API=pyside6
   QT_QPA_PLATFORM=offscreen
-  COVERALLS_FLAG_NAME={env:PLATFRM}_{env:PYTHON}_{env:PYTEST_QT_API}
+  COVERALLS_FLAG_NAME={env:PLATFORM}_{env:PYTHON}_{env:PYTEST_QT_API}
 passenv=
   DISPLAY
   XAUTHORITY
