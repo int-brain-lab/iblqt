@@ -1,14 +1,13 @@
 Developer Guide
 ===============
 
-PDM
----
+UV
+--
 
-This project is utilizing `PDM <https://pdm-project.org/>`_ as its package
-manager for managing dependencies and ensuring consistent and reproducible
-environments. See `PDM's documentation
-<https://pdm-project.org/en/latest/#recommended-installation-method>`_ for
-details on installing PDM.
+This project is utilizing `UV <https://github.com/astral-sh/uv>`_ as its package
+manager for managing dependencies and ensuring consistent and reproducible environments.
+See `UV's documentation <https://docs.astral.sh/uv/>`_ for details on details on
+installing UV.
 
 
 Installing developer dependencies
@@ -21,7 +20,7 @@ dependencies:
 
 .. code-block:: bash
 
-   pdm sync -d
+   uv sync --group dev
 
 
 Running the unit-tests
@@ -33,7 +32,7 @@ unit tests, execute the following command:
 
 .. code-block:: bash
 
-   pdm run tox
+   uv run tox -p auto
 
 Tox which will create isolated environments for each specified version of Qt
 and run the tests in those environments. You can find the results of the tests
@@ -43,11 +42,11 @@ Coverage report
 ---------------
 
 After running tox (see above), you can generate a coverage report to assess how
-much of the code is covered by the tests:
+much of the code is covered by the unit tests:
 
 .. code-block:: bash
 
-   pdm run coverage report
+   uv run coverage report
 
 You'll find the HTML report in the folder ``htmlcov``, where you can open
 ``index.html`` in a web browser to view detailed coverage statistics.
@@ -62,14 +61,14 @@ automatically, run:
 
 .. code-block:: bash
 
-   pdm run ruff format
+   uv run ruff format
 
 This command will apply formatting changes to your codebase according to the
 specified style rules. To check your code for issues, use:
 
 .. code-block:: bash
 
-   pdm run ruff check
+   uv run ruff check
 
 This command will analyze your code and report any issues it finds. If you want
 ruff to attempt to fix any issues it identifies, you can add the ``--fix``
@@ -83,7 +82,7 @@ API reference. To build the documentation, run the following command:
 
 .. code-block:: bash
 
-   pdm run docs
+   uv run sphinx docs/source docs/build
 
 After running this command, you can view the generated documentation in your
 web browser by opening ``docs/build/index.html`.
@@ -95,7 +94,7 @@ To build the package, execute the following command:
 
 .. code-block:: bash
 
-   pdm build
+   uv build
 
 This command will create a distributable package of your project, in the form
 of a source distribution (sdist) and a wheel (bdist_wheel). The generated
