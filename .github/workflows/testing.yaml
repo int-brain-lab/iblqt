@@ -39,6 +39,8 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: sudo apt-get install -y libegl1
       - name: Run Tests
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: uv run tox -p auto
 #      - name: coveralls.io
 #        uses: coverallsapp/github-action@v2
