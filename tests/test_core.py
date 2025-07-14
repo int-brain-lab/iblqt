@@ -143,11 +143,12 @@ class TestPathWatcher:
             assert path1 in w.files()
             assert path2 in w.directories()
 
-            with qtbot.waitSignal(w.fileChanged) as blocker:
-                with path1.open('w') as f:
+            with path1.open('w') as f:
+                with qtbot.waitSignal(w.fileChanged) as blocker:
                     f.write('Hello, World!')
                     f.flush()
                     os.fsync(f.fileno())
+                    f.close()
             assert blocker.signal_triggered
             assert blocker.args[0] == path1
 
