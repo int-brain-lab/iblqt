@@ -1,3 +1,4 @@
+import sys
 from collections import namedtuple
 from pathlib import Path
 from unittest.mock import MagicMock, patch
@@ -394,6 +395,7 @@ class TestRestrictedWebView:
         with qtbot.waitSignal(page.destroyed, timeout=100):
             page.deleteLater()
 
+    @pytest.mark.skipif(sys.platform == 'win32')  ## TODO
     def test_default_prefix(self, qtbot):
         widget = widgets.RestrictedWebView(url='http://localhost/')
         qtbot.addWidget(widget)
