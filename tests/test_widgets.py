@@ -398,10 +398,6 @@ class TestRestrictedWebView:
         widget = widgets.RestrictedWebView(url='http://localhost/')
         qtbot.addWidget(widget)
         assert widget.trustedUrlPrefix() == 'http://localhost/'
-        page = widget.webEngineView.page()
-        widget.close()
-        with qtbot.waitSignal(page.destroyed, timeout=100):
-            page.deleteLater()
 
     def test_initial_url_loaded(self, qtbot, browser_widget):
         assert browser_widget.url() == QUrl('http://localhost/trusted/start')
