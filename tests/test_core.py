@@ -1,3 +1,4 @@
+import os
 import tempfile
 import time
 from pathlib import Path
@@ -6,7 +7,7 @@ from unittest.mock import PropertyMock, patch
 import numpy as np
 import pandas as pd
 import pytest
-from qtpy.QtCore import QModelIndex, Qt, QThreadPool
+from qtpy.QtCore import QCoreApplication, QModelIndex, Qt, QThreadPool
 from requests import HTTPError
 
 from iblqt import core
@@ -117,15 +118,13 @@ class TestDataFrameTableModel:
 
 
 class TestPathWatcher:
-    @pytest.mark.xfail(
-        reason='This fails with the GitHub Windows runner for some reason.'
-    )
     def test_path_watcher(self, qtbot):
         parent = core.QObject()
         w = core.PathWatcher(parent=parent, paths=[])
 
-        with tempfile.NamedTemporaryFile(delete=False) as temp_file:
-            path1 = Path(temp_file.name)
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            path1 = Path(tmpdirname) / 'watched_file.txt'
+            path1.touch()
             path2 = path1.parent
 
             assert w.addPath(path1) is True
@@ -142,8 +141,11 @@ class TestPathWatcher:
             assert path2 in w.directories()
 
             with qtbot.waitSignal(w.fileChanged) as blocker:
-                with path1.open('a') as f:
+                with path1.open('w') as f:
                     f.write('Hello, World!')
+                    f.flush()
+                    os.fsync(f.fileno())
+                QCoreApplication.instance().processEvents()
             assert blocker.args[0] == path1
 
             assert w.removePath(path1) is True
