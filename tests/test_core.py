@@ -122,6 +122,8 @@ class TestPathWatcher:
         parent = core.QObject()
         watcher = core.PathWatcher(parent=parent, paths=[])
         yield watcher
+        watcher.removePaths(watcher.directories())
+        watcher.removePaths(watcher.files())
 
     def test_empty(self, qtbot, path_watcher):
         assert path_watcher.files() == []
@@ -401,10 +403,10 @@ class TestWorker:
         assert hasattr(signals, 'progress')
 
 
-class TestUrlFilteredWebEnginePage:
+class TestRestrictedWebEnginePage:
     @pytest.fixture
     def web_engine_page(self, qtbot):
-        return core.RestrictedWebEnginePage(trusted_url_prefix='https://internal.com')
+        yield core.RestrictedWebEnginePage(trusted_url_prefix='https://internal.com')
 
     def test_internal_url_allows_navigation(self, web_engine_page):
         assert isinstance(web_engine_page, core.QWebEnginePage)
