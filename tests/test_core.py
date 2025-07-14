@@ -7,7 +7,7 @@ from unittest.mock import PropertyMock, patch
 import numpy as np
 import pandas as pd
 import pytest
-from qtpy.QtCore import QCoreApplication, QModelIndex, Qt, QThreadPool, QUrl
+from qtpy.QtCore import QModelIndex, Qt, QThreadPool, QUrl
 from requests import HTTPError
 
 from iblqt import core
@@ -143,9 +143,10 @@ class TestPathWatcher:
             with qtbot.waitSignal(w.fileChanged) as blocker:
                 with path1.open('w') as f:
                     f.write('Hello, World!')
+                if os.name == 'nt':  # workaround for windows
                     f.flush()
                     os.fsync(f.fileno())
-                QCoreApplication.instance().processEvents()
+                    qtbot.wait(100)
             assert blocker.args[0] == path1
 
             assert w.removePath(path1) is True
