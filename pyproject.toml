@@ -57,10 +57,8 @@ lint = [
   "ruff>=0.9.2",
 ]
 test = [
-  "coveralls>=4.0.1",
   "pytest>=8.3.4",
   "pytest-cov>=6.0.0",
-  "pytest-github-actions-annotate-failures>=0.3.0",
   "pytest-qt>=4.4.0",
   "tox>=4.23.2",
   "tox-uv>=1.26.1",
@@ -70,6 +68,10 @@ typing = [
   "pandas-stubs>=2.2.3.241126",
   "types-requests>=2.32.0.20241016",
   "PyQt5-stubs>=5.15.6.0",
+]
+ci = [
+  "coveralls>=4.0.1",
+  "pytest-github-actions-annotate-failures>=0.3.0",
 ]
 
 [tool.uv]
