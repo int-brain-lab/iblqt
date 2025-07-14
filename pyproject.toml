@@ -138,7 +138,9 @@ env_list = typing,clean,py{310,313}-{pyqt5,pyqt6,pyside6}
 
 [testenv]
 runner = uv-venv-lock-runner
-dependency_groups = test
+dependency_groups =
+  test
+  {env:EXTRA_DEPS:}
 commands =
   pytest tests/ --cov --cov-append
   {env:POST_COMMAND:python --version}
@@ -155,6 +157,7 @@ passenv=
   XAUTHORITY
   COLUMNS
   GITHUB_*
+  EXTRA_DEPS
 depends=
   clean: typing
   py{310,313}-{pyqt5,pyqt6,pyside6}: clean
