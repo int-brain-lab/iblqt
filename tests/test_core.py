@@ -124,8 +124,9 @@ class TestPathWatcher:
         parent = core.QObject()
         w = core.PathWatcher(parent=parent, paths=[])
 
-        with tempfile.NamedTemporaryFile(delete=False) as temp_file:
-            path1 = Path(temp_file.name)
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            path1 = Path(tmpdirname) / 'watched_file.txt'
+            path1.touch()
             path2 = path1.parent
 
             assert w.addPath(path1) is True
