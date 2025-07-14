@@ -41,5 +41,5 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PLATFORM: ${{ matrix.os }}
           EXTRA_DEPS: ci
-          POST_COMMAND: '- coveralls'
+          POST_COMMAND: '- coveralls --submit=${{ COVERAGE_FILE }}'
         run: uv run tox -p auto --parallel-no-spinner

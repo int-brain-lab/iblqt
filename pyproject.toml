@@ -116,7 +116,7 @@ known-first-party = [ "ibl*", "one*" ]
 packages = ["iblqt"]
 
 [tool.pytest.ini_options]
-addopts    = "--cov=iblqt --cov-report=html --cov-report=xml"
+addopts    = "--cov=iblqt"
 minversion = "6.0"
 testpaths  = [ "tests" ]
 
@@ -134,16 +134,24 @@ source = [
 [tool.tox]
 legacy_tox_ini = """
 [tox]
-env_list = typing,clean,py{310,313}-{pyqt5,pyqt6,pyside6}
+env_list = clean,typing,py{310,313}-{pyqt5,pyqt6,pyside6},report
 
 [testenv]
+dependency_groups = test
 runner = uv-venv-lock-runner
+
+[testenv:py{310,313}-{pyqt5,pyqt6,pyside6}]
+depends = clean
+commands =
+  pytest
+  {env:POST_COMMAND:python --version}
 dependency_groups =
   test
   {env:EXTRA_DEPS:}
-commands =
-  pytest tests/ --cov --cov-append
-  {env:POST_COMMAND:python --version}
+extras=
+  pyqt5: pyqt5
+  pyqt6: pyqt6
+  pyside6: pyside6
 setenv =
   py310: PYTHON=py310
   py313: PYTHON=py313
@@ -151,6 +159,7 @@ setenv =
   pyqt6: PYTEST_QT_API=pyqt6
   pyside6: PYTEST_QT_API=pyside6
   COVERALLS_FLAG_NAME={env:PLATFORM}_{env:PYTHON}_{env:PYTEST_QT_API}
+  COVERAGE_FILE=.coverage.{env:PYTHON}.{env:PYTEST_QT_API}.xml
   QTWEBENGINE_CHROMIUM_FLAGS="--disable-gpu"
   QT_QPA_PLATFORM=offscreen
   QT_QUICK_BACKEND=software
@@ -161,14 +170,11 @@ passenv=
   COLUMNS
   GITHUB_*
   EXTRA_DEPS
-depends=
-  clean: typing
-  py{310,313}-{pyqt5,pyqt6,pyside6}: clean
-  report: py{310,313}-{pyqt5,pyqt6,pyside6}
-extras=
-  pyqt5: pyqt5
-  pyqt6: pyqt6
-  pyside6: pyside6
+
+[testenv:clean]
+skip_install = true
+commands =
+  coverage erase
 
 [testenv:typing]
 skip_install = true
@@ -176,7 +182,10 @@ dependency_groups = typing
 extras = pyqt5
 commands = mypy --always-true=PYQT5 --always-false=PYQT6 --always-false=PYSIDE6
 
-[testenv:clean]
+[testenv:report]
+depends = py{310,313}-{pyqt5,pyqt6,pyside6}
 skip_install = true
-commands = coverage erase
+commands =
+  coverage combine
+  coverage html
 """
