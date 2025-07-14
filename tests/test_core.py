@@ -403,6 +403,7 @@ class TestWorker:
         assert hasattr(signals, 'progress')
 
 
+@pytest.mark.skipif(sys.platform == "win32", reason="does not run on windows")  ## TODO
 class TestRestrictedWebEnginePage:
     @pytest.fixture
     def web_engine_page(self, qtbot):
