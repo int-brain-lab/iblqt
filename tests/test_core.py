@@ -148,7 +148,7 @@ class TestPathWatcher:
                     f.write('Hello, World!')
                     f.flush()
                     os.fsync(f.fileno())
-                    # f.close()
+                    f.close()
             assert blocker.args[0] == path1
 
             assert w.removePath(path1) is True
