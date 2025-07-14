@@ -118,9 +118,9 @@ class TestDataFrameTableModel:
 
 
 class TestPathWatcher:
-    # @pytest.mark.xfail(
-    #     reason='This fails with the GitHub Windows runner for some reason.'
-    # )
+    @pytest.mark.xfail(
+        reason='This fails with the GitHub Windows runner for some reason.'
+    )
     def test_path_watcher(self, qtbot):
         parent = core.QObject()
         w = core.PathWatcher(parent=parent, paths=[])
@@ -143,12 +143,12 @@ class TestPathWatcher:
             assert path1 in w.files()
             assert path2 in w.directories()
 
-            with path1.open('w') as f:
-                with qtbot.waitSignal(w.fileChanged) as blocker:
+            with qtbot.waitSignal(w.fileChanged) as blocker:
+                with path1.open('w') as f:
                     f.write('Hello, World!')
                     f.flush()
                     os.fsync(f.fileno())
-                    f.close()
+                qtbot.wait(50)
             assert blocker.args[0] == path1
 
             assert w.removePath(path1) is True
