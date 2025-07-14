@@ -82,7 +82,7 @@ required-environments = [
     "sys_platform == 'linux'",
     "sys_platform == 'darwin'",
 ]
-default-groups = []
+default-groups = ["lint", "test"]
 
 [tool.pdm]
 distribution = true
