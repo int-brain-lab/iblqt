@@ -60,6 +60,7 @@ test = [
   "coveralls>=4.0.1",
   "pytest>=8.3.4",
   "pytest-cov>=6.0.0",
+  "pytest-github-actions-annotate-failures>=0.3.0",
   "pytest-qt>=4.4.0",
   "tox>=4.23.2",
   "tox-uv>=1.26.1",
