@@ -144,10 +144,11 @@ class TestPathWatcher:
             assert path2 in w.directories()
 
             with qtbot.waitSignal(w.fileChanged) as blocker:
-                with path1.open('a') as f:
+                with path1.open('w') as f:
                     f.write('Hello, World!')
                     f.flush()
                     os.fsync(f.fileno())
+            assert blocker.signal_triggered
             assert blocker.args[0] == path1
 
             assert w.removePath(path1) is True
