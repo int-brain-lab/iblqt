@@ -134,7 +134,7 @@ source = [
 [tool.tox]
 legacy_tox_ini = """
 [tox]
-env_list = typing,clean,py{310,313}-{pyqt5,pyqt6,pyside6}
+env_list = typing,clean,py{310,313}-{pyqt5,pyqt6,pyside6},report
 
 [testenv]
 runner = uv-venv-lock-runner
@@ -178,9 +178,8 @@ skip_install = true
 commands = coverage erase
 
 [testenv:report]
-parallel_show_output = True
+parallel_show_output = False
 skip_install = true
 commands =
-  coverage report
   - coveralls --finish
 """
