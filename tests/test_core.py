@@ -1,3 +1,4 @@
+import os
 import tempfile
 import time
 from pathlib import Path
@@ -6,8 +7,7 @@ from unittest.mock import PropertyMock, patch
 import numpy as np
 import pandas as pd
 import pytest
-from qtpy.QtCore import QModelIndex, Qt, QThreadPool, QUrl
-from qtpy.QtWebEngineWidgets import QWebEnginePage
+from qtpy.QtCore import QCoreApplication, QModelIndex, Qt, QThreadPool, QUrl
 from requests import HTTPError
 
 from iblqt import core
@@ -118,15 +118,13 @@ class TestDataFrameTableModel:
 
 
 class TestPathWatcher:
-    @pytest.mark.xfail(
-        reason='This fails with the GitHub Windows runner for some reason.'
-    )
     def test_path_watcher(self, qtbot):
         parent = core.QObject()
         w = core.PathWatcher(parent=parent, paths=[])
 
-        with tempfile.NamedTemporaryFile(delete=False) as temp_file:
-            path1 = Path(temp_file.name)
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            path1 = Path(tmpdirname) / 'watched_file.txt'
+            path1.touch()
             path2 = path1.parent
 
             assert w.addPath(path1) is True
@@ -143,8 +141,11 @@ class TestPathWatcher:
             assert path2 in w.directories()
 
             with qtbot.waitSignal(w.fileChanged) as blocker:
-                with path1.open('a') as f:
+                with path1.open('w') as f:
                     f.write('Hello, World!')
+                    f.flush()
+                    os.fsync(f.fileno())
+                QCoreApplication.instance().processEvents()
             assert blocker.args[0] == path1
 
             assert w.removePath(path1) is True
@@ -380,10 +381,10 @@ class TestUrlFilteredWebEnginePage:
         return core.RestrictedWebEnginePage(trusted_url_prefix='https://internal.com')
 
     def test_internal_url_allows_navigation(self, web_engine_page):
-        assert isinstance(web_engine_page, QWebEnginePage)
+        assert isinstance(web_engine_page, core.QWebEnginePage)
         result = web_engine_page.acceptNavigationRequest(
             url=QUrl('https://internal.com/page'),
-            navigationType=QWebEnginePage.NavigationType.NavigationTypeLinkClicked,
+            navigationType=core.QWebEnginePage.NavigationType.NavigationTypeLinkClicked,
             is_main_frame=True,
         )
         assert result is True
@@ -392,7 +393,7 @@ class TestUrlFilteredWebEnginePage:
     def test_external_url_opens_in_browser(self, mock_open, web_engine_page):
         result = web_engine_page.acceptNavigationRequest(
             url=QUrl('https://external.com/page'),
-            navigationType=QWebEnginePage.NavigationType.NavigationTypeLinkClicked,
+            navigationType=core.QWebEnginePage.NavigationType.NavigationTypeLinkClicked,
             is_main_frame=True,
         )
         mock_open.assert_called_once_with('https://external.com/page')

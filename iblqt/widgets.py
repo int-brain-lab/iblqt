@@ -172,11 +172,7 @@ class StatefulButton(QPushButton):
         super().__init__(self._textActive if active else self._textInactive, parent)
 
         self.clicked.connect(self._onClick)
-        self.stateChanged.connect(
-            lambda active: self.setText(
-                self._textActive if active else self._textInactive
-            )
-        )
+        self.stateChanged.connect(self._onStateChange)
 
     def getActive(self) -> bool:
         """Get the active state of the button.
@@ -267,6 +263,11 @@ class StatefulButton(QPushButton):
             self.clickedWhileActive.emit()
         else:
             self.clickedWhileInactive.emit()
+
+    @Slot(bool)
+    def _onStateChange(self, state: bool):
+        """Handle the state change event."""
+        self.setText(self._textActive if state is True else self._textInactive)
 
 
 class UseTokenCache(IntEnum):
