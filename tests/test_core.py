@@ -406,12 +406,12 @@ class TestWorker:
 class TestRestrictedWebEnginePage:
     @pytest.fixture
     def web_engine_page(self, qtbot):
-        yield core.RestrictedWebEnginePage(trusted_url_prefix='https://internal.com')
+        yield core.RestrictedWebEnginePage(trusted_url_prefix='http://localhost/local')
 
     def test_internal_url_allows_navigation(self, web_engine_page):
         assert isinstance(web_engine_page, core.QWebEnginePage)
         result = web_engine_page.acceptNavigationRequest(
-            url=QUrl('https://internal.com/page'),
+            url=QUrl('http://localhost/local/page'),
             navigationType=core.QWebEnginePage.NavigationType.NavigationTypeLinkClicked,
             is_main_frame=True,
         )
@@ -420,9 +420,9 @@ class TestRestrictedWebEnginePage:
     @patch('iblqt.core.webbrowser.open')
     def test_external_url_opens_in_browser(self, mock_open, web_engine_page):
         result = web_engine_page.acceptNavigationRequest(
-            url=QUrl('https://external.com/page'),
+            url=QUrl('http://localhost/external/page'),
             navigationType=core.QWebEnginePage.NavigationType.NavigationTypeLinkClicked,
             is_main_frame=True,
         )
-        mock_open.assert_called_once_with('https://external.com/page')
+        mock_open.assert_called_once_with('http://localhost/external/page')
         assert result is False
