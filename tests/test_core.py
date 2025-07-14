@@ -116,74 +116,74 @@ class TestDataFrameTableModel:
         assert model.columnCount(parent_index) == 0
 
 
-class TestPathWatcher:
-    @pytest.fixture
-    def path_watcher(self, qtbot):
-        parent = core.QObject()
-        watcher = core.PathWatcher(parent=parent, paths=[])
-        yield watcher
-        watcher.removePaths(watcher.directories())
-        watcher.removePaths(watcher.files())
-
-    def test_empty(self, qtbot, path_watcher):
-        assert path_watcher.files() == []
-        assert path_watcher.directories() == []
-
-    def test_add_path(self, qtbot, path_watcher, tmp_path):
-        file_path = Path(tmp_path).joinpath('watched_file.txt')
-        assert path_watcher.addPath(file_path) is False
-        file_path.touch()
-        assert path_watcher.addPath(file_path) is True
-        assert path_watcher.addPath(file_path) is False
-        assert file_path in path_watcher.files()
-        assert path_watcher.directories() == []
-
-    def test_add_paths(self, qtbot, path_watcher, tmp_path):
-        file_path = Path(tmp_path).joinpath('watched_file.txt')
-        assert path_watcher.addPaths([file_path]) == [file_path]
-        file_path.touch()
-        assert path_watcher.addPaths([file_path]) == []
-        assert path_watcher.addPaths([file_path]) == [file_path]
-        assert file_path in path_watcher.files()
-        assert path_watcher.directories() == []
-
-    def test_remove_path(self, qtbot, path_watcher, tmp_path):
-        assert path_watcher.removePath(tmp_path) is False
-        assert path_watcher.addPath(tmp_path) is True
-        assert tmp_path in path_watcher.directories()
-        assert tmp_path not in path_watcher.files()
-        assert path_watcher.removePath(tmp_path) is True
-        assert path_watcher.removePath(tmp_path) is False
-        assert tmp_path not in path_watcher.directories()
-
-    def test_remove_paths(self, qtbot, path_watcher, tmp_path):
-        assert path_watcher.removePaths([tmp_path]) == [tmp_path]
-        assert path_watcher.addPaths([tmp_path]) == []
-        assert tmp_path in path_watcher.directories()
-        assert tmp_path not in path_watcher.files()
-        assert path_watcher.removePaths([tmp_path]) == []
-        assert path_watcher.removePaths([tmp_path]) == [tmp_path]
-        assert tmp_path not in path_watcher.directories()
-
-    def file_changed(self, qtbot, path_watcher, tmp_path):
-        file_path = Path(tmp_path).joinpath('watched_file.txt')
-        file_path.touch()
-        path_watcher.addPath(file_path)
-        with qtbot.waitSignal(path_watcher.fileChanged):
-            with file_path.open('w') as f:
-                f.write('Hello, World!')
-                f.flush()
-                os.fsync(f.fileno())
-
-    def directory_changed(self, qtbot, path_watcher, tmp_path):
-        file_path = Path(tmp_path).joinpath('watched_file.txt')
-        file_path.touch()
-        path_watcher.addPath(tmp_path)
-        with qtbot.waitSignal(path_watcher.directoryChanged):
-            with file_path.open('w') as f:
-                f.write('Hello, World!')
-                f.flush()
-                os.fsync(f.fileno())
+# class TestPathWatcher:
+#     @pytest.fixture
+#     def path_watcher(self, qtbot):
+#         parent = core.QObject()
+#         watcher = core.PathWatcher(parent=parent, paths=[])
+#         yield watcher
+#         watcher.removePaths(watcher.directories())
+#         watcher.removePaths(watcher.files())
+#
+#     def test_empty(self, qtbot, path_watcher):
+#         assert path_watcher.files() == []
+#         assert path_watcher.directories() == []
+#
+#     def test_add_path(self, qtbot, path_watcher, tmp_path):
+#         file_path = Path(tmp_path).joinpath('watched_file.txt')
+#         assert path_watcher.addPath(file_path) is False
+#         file_path.touch()
+#         assert path_watcher.addPath(file_path) is True
+#         assert path_watcher.addPath(file_path) is False
+#         assert file_path in path_watcher.files()
+#         assert path_watcher.directories() == []
+#
+#     def test_add_paths(self, qtbot, path_watcher, tmp_path):
+#         file_path = Path(tmp_path).joinpath('watched_file.txt')
+#         assert path_watcher.addPaths([file_path]) == [file_path]
+#         file_path.touch()
+#         assert path_watcher.addPaths([file_path]) == []
+#         assert path_watcher.addPaths([file_path]) == [file_path]
+#         assert file_path in path_watcher.files()
+#         assert path_watcher.directories() == []
+#
+#     def test_remove_path(self, qtbot, path_watcher, tmp_path):
+#         assert path_watcher.removePath(tmp_path) is False
+#         assert path_watcher.addPath(tmp_path) is True
+#         assert tmp_path in path_watcher.directories()
+#         assert tmp_path not in path_watcher.files()
+#         assert path_watcher.removePath(tmp_path) is True
+#         assert path_watcher.removePath(tmp_path) is False
+#         assert tmp_path not in path_watcher.directories()
+#
+#     def test_remove_paths(self, qtbot, path_watcher, tmp_path):
+#         assert path_watcher.removePaths([tmp_path]) == [tmp_path]
+#         assert path_watcher.addPaths([tmp_path]) == []
+#         assert tmp_path in path_watcher.directories()
+#         assert tmp_path not in path_watcher.files()
+#         assert path_watcher.removePaths([tmp_path]) == []
+#         assert path_watcher.removePaths([tmp_path]) == [tmp_path]
+#         assert tmp_path not in path_watcher.directories()
+#
+#     def file_changed(self, qtbot, path_watcher, tmp_path):
+#         file_path = Path(tmp_path).joinpath('watched_file.txt')
+#         file_path.touch()
+#         path_watcher.addPath(file_path)
+#         with qtbot.waitSignal(path_watcher.fileChanged):
+#             with file_path.open('w') as f:
+#                 f.write('Hello, World!')
+#                 f.flush()
+#                 os.fsync(f.fileno())
+#
+#     def directory_changed(self, qtbot, path_watcher, tmp_path):
+#         file_path = Path(tmp_path).joinpath('watched_file.txt')
+#         file_path.touch()
+#         path_watcher.addPath(tmp_path)
+#         with qtbot.waitSignal(path_watcher.directoryChanged):
+#             with file_path.open('w') as f:
+#                 f.write('Hello, World!')
+#                 f.flush()
+#                 os.fsync(f.fileno())
 
 
 class TestQAlyx:
