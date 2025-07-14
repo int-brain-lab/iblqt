@@ -44,3 +44,4 @@ jobs:
           EXTRA_DEPS: ci
           POST_COMMAND: coveralls
         run: uv run tox -p auto --parallel-no-spinner
+      - run: coveralls --finish

@@ -134,7 +134,7 @@ source = [
 [tool.tox]
 legacy_tox_ini = """
 [tox]
-env_list = typing,clean,py{310,313}-{pyqt5,pyqt6,pyside6},report
+env_list = typing,clean,py{310,313}-{pyqt5,pyqt6,pyside6}
 
 [testenv]
 runner = uv-venv-lock-runner
@@ -176,10 +176,4 @@ commands = mypy --always-true=PYQT5 --always-false=PYQT6 --always-false=PYSIDE6
 [testenv:clean]
 skip_install = true
 commands = coverage erase
-
-[testenv:report]
-parallel_show_output = False
-skip_install = true
-commands =
-  - coveralls --finish
 """
