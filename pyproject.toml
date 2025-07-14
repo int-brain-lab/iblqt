@@ -180,5 +180,7 @@ commands = coverage erase
 [testenv:report]
 parallel_show_output = True
 skip_install = true
-commands = coverage report
+commands =
+  coverage report
+  - coveralls --finish
 """
