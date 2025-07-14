@@ -413,8 +413,9 @@ class TestRestrictedWebView:
 
     def test_home_button_loads_home(self, qtbot, browser_widget):
         browser_widget.setUrl('http://localhost/trusted/other')
-        with qtbot.waitSignal(browser_widget.webEngineView.urlChanged, timeout=1000):
+        with qtbot.waitSignal(browser_widget.uiPushHome.clicked, timeout=1000):
             qtbot.mouseClick(browser_widget.uiPushHome, Qt.MouseButton.LeftButton)
+        qtbot.wait(500)
         assert browser_widget.url() == QUrl('http://localhost/trusted/start')
 
     @patch('iblqt.widgets.webbrowser.open')
