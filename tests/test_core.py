@@ -1,3 +1,4 @@
+import os
 import tempfile
 import time
 from pathlib import Path
@@ -146,6 +147,7 @@ class TestPathWatcher:
                 with path1.open('a') as f:
                     f.write('Hello, World!')
                     f.flush()
+                    os.fsync(f.fileno())
             assert blocker.args[0] == path1
 
             assert w.removePath(path1) is True
