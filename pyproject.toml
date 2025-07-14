@@ -137,6 +137,7 @@ legacy_tox_ini = """
 env_list = clean,typing,py{310,313}-{pyqt5,pyqt6,pyside6},report
 
 [testenv]
+no_default_groups = true
 dependency_groups = test
 runner = uv-venv-lock-runner
 
