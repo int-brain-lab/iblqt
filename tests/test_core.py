@@ -1,5 +1,5 @@
 import os
-import tempfile
+import sys
 import time
 from pathlib import Path
 from unittest.mock import PropertyMock, patch
@@ -7,7 +7,8 @@ from unittest.mock import PropertyMock, patch
 import numpy as np
 import pandas as pd
 import pytest
-from qtpy.QtCore import QCoreApplication, QModelIndex, Qt, QThreadPool
+from qtpy import API_NAME as QT_VERSION
+from qtpy.QtCore import QModelIndex, Qt, QThreadPool, QUrl
 from requests import HTTPError
 
 from iblqt import core
@@ -118,44 +119,73 @@ class TestDataFrameTableModel:
 
 
 class TestPathWatcher:
-    def test_path_watcher(self, qtbot):
+    @pytest.fixture
+    def path_watcher(self, qtbot):
         parent = core.QObject()
-        w = core.PathWatcher(parent=parent, paths=[])
+        watcher = core.PathWatcher(parent=parent, paths=[])
+        yield watcher
+        watcher.removePaths(watcher.directories())
+        watcher.removePaths(watcher.files())
 
-        with tempfile.TemporaryDirectory() as tmpdirname:
-            path1 = Path(tmpdirname) / 'watched_file.txt'
-            path1.touch()
-            path2 = path1.parent
+    def test_empty(self, qtbot, path_watcher):
+        assert path_watcher.files() == []
+        assert path_watcher.directories() == []
 
-            assert w.addPath(path1) is True
-            assert len(w.files()) == 1
-            assert path1 in w.files()
-            assert w.removePath(path1) is True
-            assert path1 not in w.files()
+    def test_add_path(self, qtbot, path_watcher, tmp_path):
+        file_path = Path(tmp_path).joinpath('watched_file.txt')
+        assert path_watcher.addPath(file_path) is False
+        file_path.touch()
+        assert path_watcher.addPath(file_path) is True
+        assert path_watcher.addPath(file_path) is False
+        assert file_path in path_watcher.files()
+        assert path_watcher.directories() == []
 
-            assert len(w.addPaths([path1, path2])) == 0
-            assert w.addPaths(['not-a-path']) == [Path('not-a-path')]
-            assert len(w.files()) == 1
-            assert len(w.directories()) == 1
-            assert path1 in w.files()
-            assert path2 in w.directories()
+    def test_add_paths(self, qtbot, path_watcher, tmp_path):
+        file_path = Path(tmp_path).joinpath('watched_file.txt')
+        assert path_watcher.addPaths([file_path]) == [file_path]
+        file_path.touch()
+        assert path_watcher.addPaths([file_path]) == []
+        assert path_watcher.addPaths([file_path]) == [file_path]
+        assert file_path in path_watcher.files()
+        assert path_watcher.directories() == []
 
-            with qtbot.waitSignal(w.fileChanged) as blocker:
-                with path1.open('w') as f:
-                    f.write('Hello, World!')
-                    f.flush()
-                    os.fsync(f.fileno())
-                QCoreApplication.instance().processEvents()
-            assert blocker.args[0] == path1
+    def test_remove_path(self, qtbot, path_watcher, tmp_path):
+        assert path_watcher.removePath(tmp_path) is False
+        assert path_watcher.addPath(tmp_path) is True
+        assert tmp_path in path_watcher.directories()
+        assert tmp_path not in path_watcher.files()
+        assert path_watcher.removePath(tmp_path) is True
+        assert path_watcher.removePath(tmp_path) is False
+        assert tmp_path not in path_watcher.directories()
 
-            assert w.removePath(path1) is True
-            with qtbot.waitSignal(w.directoryChanged) as blocker:
-                path1.unlink()
-            assert blocker.args[0] == path2
+    def test_remove_paths(self, qtbot, path_watcher, tmp_path):
+        assert path_watcher.removePaths([tmp_path]) == [tmp_path]
+        assert path_watcher.addPaths([tmp_path]) == []
+        assert tmp_path in path_watcher.directories()
+        assert tmp_path not in path_watcher.files()
+        assert path_watcher.removePaths([tmp_path]) == []
+        assert path_watcher.removePaths([tmp_path]) == [tmp_path]
+        assert tmp_path not in path_watcher.directories()
 
-            assert len(w.removePaths([path2])) == 0
-            assert len(w.directories()) == 0
-            assert path1 not in w.directories()
+    def file_changed(self, qtbot, path_watcher, tmp_path):
+        file_path = Path(tmp_path).joinpath('watched_file.txt')
+        file_path.touch()
+        path_watcher.addPath(file_path)
+        with qtbot.waitSignal(path_watcher.fileChanged):
+            with file_path.open('w') as f:
+                f.write('Hello, World!')
+                f.flush()
+                os.fsync(f.fileno())
+
+    def directory_changed(self, qtbot, path_watcher, tmp_path):
+        file_path = Path(tmp_path).joinpath('watched_file.txt')
+        file_path.touch()
+        path_watcher.addPath(tmp_path)
+        with qtbot.waitSignal(path_watcher.directoryChanged):
+            with file_path.open('w') as f:
+                f.write('Hello, World!')
+                f.flush()
+                os.fsync(f.fileno())
 
 
 class TestQAlyx:
@@ -373,3 +403,35 @@ class TestWorker:
         assert hasattr(signals, 'error')
         assert hasattr(signals, 'result')
         assert hasattr(signals, 'progress')
+
+
+@pytest.mark.skipif(
+    sys.platform == 'win32' and QT_VERSION == 'PyQt5' and 'TOX' in os.environ,
+    reason='Test fails when run in Tox with PyQt5 on Windows',
+)  # TODO
+class TestRestrictedWebEnginePage:
+    @pytest.fixture
+    def web_engine_page(self, qtbot):
+        page = core.RestrictedWebEnginePage(trusted_url_prefix='http://localhost/local')
+        yield page
+        with qtbot.waitSignal(page.destroyed, timeout=100):
+            page.deleteLater()
+
+    def test_internal_url_allows_navigation(self, qtbot, web_engine_page):
+        assert isinstance(web_engine_page, core.QWebEnginePage)
+        result = web_engine_page.acceptNavigationRequest(
+            url=QUrl('http://localhost/local/page'),
+            navigationType=core.QWebEnginePage.NavigationType.NavigationTypeLinkClicked,
+            is_main_frame=True,
+        )
+        assert result is True
+
+    @patch('iblqt.core.webbrowser.open')
+    def test_external_url_opens_in_browser(self, mock_open, qtbot, web_engine_page):
+        result = web_engine_page.acceptNavigationRequest(
+            url=QUrl('http://localhost/external/page'),
+            navigationType=core.QWebEnginePage.NavigationType.NavigationTypeLinkClicked,
+            is_main_frame=True,
+        )
+        mock_open.assert_called_once_with('http://localhost/external/page')
+        assert result is False

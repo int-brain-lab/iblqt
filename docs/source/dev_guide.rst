@@ -38,15 +38,29 @@ Tox which will create isolated environments for each specified version of Qt
 and run the tests in those environments. You can find the results of the tests
 in the terminal output, which will indicate whether the tests passed or failed.
 
+Alternatively, if you want to run unit-tests for your current environment, run
+
+.. code-block:: bash
+
+   uv run pytest
+
+
 Coverage report
 ---------------
 
-After running tox (see above), you can generate a coverage report to assess how
-much of the code is covered by the unit tests:
+After running ``tox`` or ``pytest`` (see above), you can generate a coverage report
+to assess how much of the code is covered by the unit tests:
 
 .. code-block:: bash
 
    uv run coverage report
+
+If you need a more detailed representation of your code coverage, generate an HTML
+report:
+
+.. code-block:: bash
+
+   uv run coverage html
 
 You'll find the HTML report in the folder ``htmlcov``, where you can open
 ``index.html`` in a web browser to view detailed coverage statistics.

@@ -1,5 +1,6 @@
 """Graphical user interface components."""
 
+import webbrowser
 from enum import IntEnum
 from pathlib import Path
 from shutil import _ntuple_diskusage, disk_usage
@@ -13,16 +14,19 @@ from qtpy.QtCore import (
     QRect,
     Qt,
     QThreadPool,
+    QUrl,
     Signal,
     Slot,
 )
 from qtpy.QtGui import QColor, QIcon, QMouseEvent, QPainter, QPalette
+from qtpy.QtWebEngineWidgets import QWebEngineView
 from qtpy.QtWidgets import (
     QApplication,
     QCheckBox,
     QDialog,
     QDialogButtonBox,
     QFormLayout,
+    QFrame,
     QHBoxLayout,
     QLabel,
     QLayout,
@@ -41,7 +45,7 @@ from qtpy.QtWidgets import (
 )
 
 from iblqt import resources  # noqa: F401
-from iblqt.core import QAlyx, Worker
+from iblqt.core import QAlyx, RestrictedWebEnginePage, Worker
 
 
 class CheckBoxDelegate(QStyledItemDelegate):
@@ -649,3 +653,149 @@ class DiskSpaceIndicator(ThresholdProgressBar):
     def _on_result(self, result: _ntuple_diskusage) -> None:
         percent = round(result.used / result.total * 100)
         self.setValue(percent)
+
+
+class RestrictedWebView(QWidget):
+    """A browser widget that restricts navigation to a trusted URL prefix."""
+
+    def __init__(
+        self,
+        url: QUrl | str,
+        trusted_url_prefix: str | None = None,
+        parent: QWidget | None = None,
+    ):
+        """
+        Initialize the RestrictedWebView.
+
+        Parameters
+        ----------
+        url : QUrl or str
+            The initial URL to load in the browser.
+        trusted_url_prefix : str, optional
+            Prefix of trusted URLs. Clicking on links to matching URLs will open
+            in the widget's web engine view, while other links will open in the default
+            web browser. Defaults to the value of `url`.
+        parent : QWidget or None, optional
+            The parent widget.
+        """
+        super().__init__(parent)
+        if isinstance(url, str):
+            url = QUrl(url)
+        if trusted_url_prefix is None:
+            trusted_url_prefix = url.toString()
+
+        # Create a QWebEngineView to display the web content
+        self.webEngineView = QWebEngineView(self)
+        self.webEngineView.setContextMenuPolicy(Qt.NoContextMenu)
+        self.webEngineView.setAcceptDrops(False)
+        self.webEnginePage = RestrictedWebEnginePage(
+            parent=self.webEngineView, trusted_url_prefix=trusted_url_prefix
+        )
+        self.webEngineView.setPage(self.webEnginePage)
+
+        # Create a horizontal line to separate the web view from the navigation buttons
+        line = QFrame(self)
+        line.setFrameShadow(QFrame.Sunken)
+        line.setFrameShape(QFrame.HLine)
+
+        # Create a frame to hold the navigation buttons
+        frame = QFrame(self)
+        frame.setFrameShape(QFrame.NoFrame)
+
+        # Create navigation buttons, set initial state
+        self.uiPushBack = QPushButton(QIcon(':/icon/previous'), '', frame)
+        self.uiPushForward = QPushButton(QIcon(':/icon/next'), '', frame)
+        self.uiPushHome = QPushButton(QIcon(':/icon/home'), '', frame)
+        self.uiPushBrowser = QPushButton(QIcon(':/icon/globe'), '', frame)
+        self.uiPushBack.setEnabled(False)
+        self.uiPushForward.setEnabled(False)
+
+        # Assemble the layout
+        horizontalLayout = QHBoxLayout(frame)
+        horizontalLayout.addWidget(self.uiPushBack)
+        horizontalLayout.addWidget(self.uiPushForward)
+        horizontalLayout.addWidget(self.uiPushHome)
+        horizontalLayout.addStretch(1)
+        horizontalLayout.addWidget(self.uiPushBrowser)
+        verticalLayout = QVBoxLayout(self)
+        verticalLayout.setContentsMargins(0, 0, 0, 0)
+        verticalLayout.addWidget(self.webEngineView)
+        verticalLayout.addWidget(line)
+        verticalLayout.addWidget(frame)
+        verticalLayout.setStretch(0, 1)
+        verticalLayout.setSpacing(0)
+
+        # connect signals to slots
+        self.uiPushHome.clicked.connect(lambda: self.webEngineView.load(QUrl(url)))
+        self.uiPushBack.clicked.connect(lambda: self.webEngineView.back())
+        self.uiPushForward.clicked.connect(lambda: self.webEngineView.forward())
+        self.uiPushBrowser.clicked.connect(
+            lambda: webbrowser.open(self.webEngineView.url().url())
+        )
+        self.webEngineView.urlChanged.connect(self._on_url_changed)
+
+        # set prefix and initial URL
+        self.setUrl(url)
+
+    def _on_url_changed(self, url: QUrl):
+        self.uiPushBack.setEnabled(self.webEngineView.history().canGoBack())
+        self.uiPushForward.setEnabled(self.webEngineView.history().canGoForward())
+
+    def setUrl(self, url: QUrl | str) -> bool:
+        """
+        Set the URL to be displayed in the web engine view.
+
+        Parameters
+        ----------
+        url : QUrl or str
+            The URL to load in the web engine view.
+
+        Returns
+        -------
+        bool
+            True if the navigation request is accepted, False otherwise.
+        """
+        if isinstance(url, str):
+            url = QUrl(url)
+        if url.toString().startswith(self.trustedUrlPrefix()):
+            self.webEngineView.setUrl(url)
+            return True
+        else:
+            return False
+
+    def url(self) -> QUrl:
+        """
+        Get the current URL displayed in the web engine view.
+
+        Returns
+        -------
+        QUrl
+            The current URL.
+        """
+        return self.webEngineView.url()
+
+    def setTrustedUrlPrefix(self, trusted_url_prefix: str):
+        """
+        Set the trusted URL prefix.
+
+        Parameters
+        ----------
+        trusted_url_prefix : str
+            The prefix of trusted URLs. Clicking on links to matching URLs will open
+            in the widget's web engine view, while other links will open in the default
+            web browser.
+        """
+        self.webEnginePage.setTrustedUrlPrefix(trusted_url_prefix)
+
+    def trustedUrlPrefix(self) -> str:
+        """
+        Get the trusted URL prefix.
+
+        Returns
+        -------
+        str
+            The prefix of trusted URLs. Clicking on links to matching URLs will open
+            in the widget's web engine view, while other links will open in the default
+            web browser.
+        """
+        return self.webEnginePage.trustedUrlPrefix()
