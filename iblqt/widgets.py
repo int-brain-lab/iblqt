@@ -834,7 +834,7 @@ class RestrictedWebView(QWidget):
 
 class SlideToggle(QAbstractButton):
     """
-    A toggle switch.
+    A sliding toggle switch.
 
     Adapted from :class:`Switch` class by Stefan Scherfke
     https://stackoverflow.com/a/51825815
@@ -897,9 +897,6 @@ class SlideToggle(QAbstractButton):
     def paintEvent(self, event: QPaintEvent):
         """
         Handle the painting of the custom toggle switch.
-
-        Draws the background track, the animated thumb, and an optional
-        symbol (✔ or ✘) centered within the thumb, depending on the checked state.
 
         The appearance adapts to the widget's enabled/disabled state and palette.
 
