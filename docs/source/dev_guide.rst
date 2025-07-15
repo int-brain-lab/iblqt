@@ -31,12 +31,34 @@ Installing developer dependencies
 To set up your development environment, you need to install the necessary
 dependencies. The following command will synchronize your environment with the
 dependencies specified in the ``pyproject.toml`` file, including development
-dependencies and PyQt6:
+dependencies and Qt:
 
-.. code-block:: console
+.. tab-set::
 
-   $ uv sync --extra pyqt6
+   .. tab-item:: PyQt5
 
+      .. code-block:: console
+
+         $ uv sync --extra pyqt5
+
+   .. tab-item:: PyQt6
+
+      .. code-block:: console
+
+         $ uv sync --extra pyqt6
+
+   .. tab-item:: PySide6
+
+      .. code-block:: console
+
+         $ uv sync --extra pyside6
+
+The virtualenv will default to Python 3.13 unless you specify another version of the
+interpreter, for instance:
+
+   .. code-block:: console
+
+      $ uv sync --extra pyside6 --python 3.10
 
 Running the unit-tests
 ----------------------

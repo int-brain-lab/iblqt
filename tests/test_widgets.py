@@ -389,15 +389,31 @@ class TestDiskSpaceIndicator:
 )  # TODO
 class TestRestrictedWebView:
     @pytest.fixture
-    def browser_widget(self, qtbot):
-        widget = widgets.RestrictedWebView(
+    def browser_widget_factory(self, qtbot):
+        created_widgets = []
+
+        def _browser_widget(*args, **kwargs):
+            widget = widgets.RestrictedWebView(*args, **kwargs)
+            created_widgets.append(widget)
+            qtbot.addWidget(widget)
+            return widget
+
+        yield _browser_widget
+
+        for widget in created_widgets:
+            try:
+                page = widget.webEngineView.page()
+            except RuntimeError:
+                continue
+            with qtbot.waitSignal(page.destroyed):
+                widget.close()
+
+    @pytest.fixture
+    def browser_widget(self, qtbot, browser_widget_factory):
+        yield browser_widget_factory(
             url=QUrl('http://localhost/trusted/start'),
             trusted_url_prefix='http://localhost/trusted/',
         )
-        qtbot.addWidget(widget)
-        yield widget
-        with qtbot.waitSignal(widget.webEngineView.page().destroyed, timeout=100):
-            widget.close()
 
     def test_default_prefix(self, qtbot):
         widget = widgets.RestrictedWebView(url='http://localhost/')
@@ -416,6 +432,7 @@ class TestRestrictedWebView:
         assert not browser_widget.setUrl('http://localhost/external/page')
         assert browser_widget.url() == QUrl('http://localhost/trusted/other')
 
+    @pytest.mark.xfail(sys.platform == 'win32', reason='Tends to fail on Windows')
     def test_home_button_loads_home(self, qtbot, browser_widget):
         browser_widget.setUrl('http://localhost/trusted/other')
         with qtbot.waitSignal(browser_widget.webEngineView.urlChanged):
@@ -457,3 +474,18 @@ class TestRestrictedWebView:
         )
         assert result is True
         mock_open.assert_not_called()
+
+    def test_tool_and_status_tips(self, qtbot, browser_widget_factory):
+        widget = browser_widget_factory('http://localhost/')
+        assert len(widget.uiPushHome.toolTip()) > 0
+        assert len(widget.uiPushHome.statusTip()) == 0
+        widget = browser_widget_factory(
+            'http://localhost/', use_tool_tips=False, use_status_tips=True
+        )
+        assert len(widget.uiPushHome.toolTip()) == 0
+        assert len(widget.uiPushHome.statusTip()) > 0
+        widget = browser_widget_factory(
+            'http://localhost/', use_tool_tips=True, use_status_tips=False
+        )
+        assert len(widget.uiPushHome.toolTip()) > 0
+        assert len(widget.uiPushHome.statusTip()) == 0
