@@ -662,6 +662,8 @@ class RestrictedWebView(QWidget):
         self,
         url: QUrl | str,
         trusted_url_prefix: str | None = None,
+        use_tool_tips: bool = True,
+        use_status_tips: bool = False,
         parent: QWidget | None = None,
     ):
         """
@@ -675,6 +677,10 @@ class RestrictedWebView(QWidget):
             Prefix of trusted URLs. Clicking on links to matching URLs will open
             in the widget's web engine view, while other links will open in the default
             web browser. Defaults to the value of `url`.
+        use_tool_tips : bool, optional
+            Whether to set default tool tips for the buttons. Default is True.
+        use_status_tips : bool, optional
+            Whether to set default status tips for the buttons. Default is False.
         parent : QWidget or None, optional
             The parent widget.
         """
@@ -733,6 +739,18 @@ class RestrictedWebView(QWidget):
             lambda: webbrowser.open(self.webEngineView.url().url())
         )
         self.webEngineView.urlChanged.connect(self._on_url_changed)
+
+        # set tool tips / status tips
+        if use_tool_tips:
+            self.uiPushHome.setToolTip('Go to home page')
+            self.uiPushBack.setToolTip('Go back one page')
+            self.uiPushForward.setToolTip('Go forward one page')
+            self.uiPushBrowser.setToolTip('Open page in default browser')
+        if use_status_tips:
+            self.uiPushHome.setStatusTip('Go to home page')
+            self.uiPushBack.setStatusTip('Go back one page')
+            self.uiPushForward.setStatusTip('Go forward one page')
+            self.uiPushBrowser.setStatusTip('Open page in default browser')
 
         # set prefix and initial URL
         self.setUrl(url)
