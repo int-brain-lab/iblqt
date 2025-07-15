@@ -435,7 +435,7 @@ class TestRestrictedWebView:
     @pytest.mark.xfail(sys.platform == 'win32', reason='Tends to fail on Windows')
     def test_home_button_loads_home(self, qtbot, browser_widget):
         browser_widget.setUrl('http://localhost/trusted/other')
-        with qtbot.waitSignal(browser_widget.webEngineView.urlChanged, 500):
+        with qtbot.waitSignal(browser_widget.webEngineView.urlChanged, timeout=100):
             qtbot.mouseClick(browser_widget.uiPushHome, Qt.MouseButton.LeftButton)
         assert browser_widget.url() == QUrl('http://localhost/trusted/start')
 
