@@ -25,6 +25,7 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
     'sphinx.ext.viewcode',
+    'sphinx_design',
     'sphinx_qt_documentation',
     'myst_parser',
 ]

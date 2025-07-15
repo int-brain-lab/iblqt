@@ -4,6 +4,7 @@ import logging
 import sys
 import traceback
 import warnings
+import webbrowser
 from inspect import signature
 from pathlib import Path
 from typing import Any, Callable, cast
@@ -21,12 +22,15 @@ from qtpy.QtCore import (
     QObject,
     QRunnable,
     Qt,
+    QUrl,
     Signal,
     Slot,
 )
 from qtpy.QtGui import QColor
+from qtpy.QtWebEngineWidgets import QWebEnginePage
 from qtpy.QtWidgets import QMessageBox, QWidget
 from requests import HTTPError
+from typing_extensions import override
 
 from one.webclient import AlyxClient  # type: ignore
 
@@ -774,30 +778,27 @@ class QAlyx(QObject):
 
 
 class WorkerSignals(QObject):
-    """
-    Signals used by the :class:`Worker` class to communicate with the main thread.
-
-    Attributes
-    ----------
-    finished : Signal
-        Signal emitted when the worker has finished its task.
-
-    error : Signal(tuple)
-        Signal emitted when an error occurs. The signal carries a tuple with the exception type,
-        exception value, and the formatted traceback.
-
-    result : Signal(Any)
-        Signal emitted when the worker has successfully completed its task. The signal carries
-        the result of the task.
-
-    progress : Signal(int)
-        Signal emitted to report progress during the task. The signal carries an integer value.
-    """
+    """Signals used by the :class:`Worker` class to communicate with the main thread."""
 
     finished = Signal()
+    """Emitted when the worker has finished its task."""
+
     error = Signal(tuple)
+    """
+    Emitted when an error occurs. The signal carries a tuple with the exception type,
+    exception value, and the formatted traceback.
+    """
+
     result = Signal(object)
+    """
+    Emitted when the worker has successfully completed its task. The signal carries the
+    result of the task.
+    """
+
     progress = Signal(int)
+    """
+    Emitted to report progress during the task. The signal carries an integer value.
+    """
 
 
 class Worker(QRunnable):
@@ -877,3 +878,81 @@ class Worker(QRunnable):
         finally:
             # Emit the finished signal to indicate completion
             self.signals.finished.emit()
+
+
+class RestrictedWebEnginePage(QWebEnginePage):
+    """
+    A :class:`QWebEnginePage` subclass that filters navigation requests based on a URL prefix.
+
+    Links that start with the specified `trusted_url_prefix` are allowed to load inside
+    the application. All other links are opened externally in the default web browser.
+
+    Adapted from: https://www.pythonguis.com/faq/qwebengineview-open-links-new-window/
+    """
+
+    def __init__(self, parent: QObject | None = None, trusted_url_prefix: str = ''):
+        """
+        Initialize the UrlFilteredWebEnginePage.
+
+        Parameters
+        ----------
+        parent : QObject, optional
+            The parent of this web engine page.
+        trusted_url_prefix : str
+            A URL prefix that identifies trusted links. Only links starting
+            with this prefix will be loaded within the web view.
+        """
+        super().__init__(parent)
+        self._trusted_url_prefix = trusted_url_prefix
+
+    @override
+    def acceptNavigationRequest(
+        self,
+        url: QUrl,
+        navigationType: QWebEnginePage.NavigationType,
+        is_main_frame: bool,
+    ) -> bool:
+        """
+        Handle and filter navigation requests.
+
+        Parameters
+        ----------
+        url : QUrl
+            The target URL of the navigation request.
+        navigationType : QWebEnginePage.NavigationType
+            The type of navigation event
+        is_main_frame : bool
+            Whether the navigation occurs in the main frame.
+
+        Returns
+        -------
+        bool
+            True if the navigation should proceed in the web view;
+            False if the link is handled externally.
+        """
+        if not url.toString().startswith(self._trusted_url_prefix):
+            webbrowser.open(url.toString())
+            return False
+        return super().acceptNavigationRequest(url, navigationType, is_main_frame)
+
+    def setTrustedUrlPrefix(self, trusted_url_prefix: str) -> None:
+        """
+        Set the URL prefix that identifies trusted links.
+
+        Parameters
+        ----------
+        trusted_url_prefix : str
+            The URL prefix that identifies trusted links.
+        """
+        self._trusted_url_prefix = trusted_url_prefix
+
+    def trustedUrlPrefix(self) -> str:
+        """
+        Retrieve the URL prefix that identifies trusted links.
+
+        Returns
+        -------
+        str
+            The URL prefix that identifies trusted links.
+        """
+        return self._trusted_url_prefix

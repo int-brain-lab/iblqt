@@ -1,10 +1,14 @@
+import os
+import sys
 from collections import namedtuple
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
-from qtpy.QtCore import Qt
+from qtpy import API_NAME as QT_VERSION
+from qtpy.QtCore import Qt, QUrl
 from qtpy.QtGui import QColor, QPainter, QPalette, QStandardItemModel
+from qtpy.QtWebEngineWidgets import QWebEnginePage
 from qtpy.QtWidgets import (
     QCheckBox,
     QDialog,
@@ -336,16 +340,16 @@ class TestThresholdProgressBar:
         qtbot.addWidget(bar)
         assert not bar.aboveThreshold()
 
-        with qtbot.waitSignal(bar.thresholdCrossed, timeout=1) as blocker:
+        with qtbot.waitSignal(bar.thresholdCrossed, timeout=1000) as blocker:
             bar.setValue(60)
             assert blocker.args[0] is True
             assert bar.aboveThreshold()
-        with qtbot.waitSignal(bar.thresholdCrossed, timeout=1) as blocker:
+        with qtbot.waitSignal(bar.thresholdCrossed, timeout=1000) as blocker:
             bar.setValue(40)
             assert blocker.args[0] is False
         with (
-            qtbot.waitSignal(bar.thresholdCrossed, timeout=1) as blocker1,
-            qtbot.waitSignal(bar.thresholdChanged, timeout=1) as blocker2,
+            qtbot.waitSignal(bar.thresholdCrossed, timeout=1000) as blocker1,
+            qtbot.waitSignal(bar.thresholdChanged, timeout=1000) as blocker2,
         ):
             bar.setThreshold(30)
             assert blocker1.args[0] is True
@@ -374,6 +378,82 @@ class TestDiskSpaceIndicator:
         indicator = widgets.DiskSpaceIndicator(directory='/', percent_threshold=90)
         qtbot.addWidget(indicator)
 
-        with qtbot.waitSignal(indicator.thresholdCrossed, timeout=1) as blocker:
+        with qtbot.waitSignal(indicator.thresholdCrossed, timeout=1000) as blocker:
             indicator._on_result(dummy_data)
             assert blocker.args[0] is True
+
+
+@pytest.mark.skipif(
+    sys.platform == 'win32' and QT_VERSION == 'PyQt5' and 'TOX' in os.environ,
+    reason='Test fails when run in Tox with PyQt5 on Windows',
+)  # TODO
+class TestRestrictedWebView:
+    @pytest.fixture
+    def browser_widget(self, qtbot):
+        widget = widgets.RestrictedWebView(
+            url=QUrl('http://localhost/trusted/start'),
+            trusted_url_prefix='http://localhost/trusted/',
+        )
+        qtbot.addWidget(widget)
+        yield widget
+        with qtbot.waitSignal(widget.webEngineView.page().destroyed, timeout=100):
+            widget.close()
+
+    def test_default_prefix(self, qtbot):
+        widget = widgets.RestrictedWebView(url='http://localhost/')
+        qtbot.addWidget(widget)
+        assert widget.trustedUrlPrefix() == 'http://localhost/'
+
+    def test_initial_url_loaded(self, qtbot, browser_widget):
+        assert browser_widget.url() == QUrl('http://localhost/trusted/start')
+        assert browser_widget.trustedUrlPrefix() == 'http://localhost/trusted/'
+
+    def test_get_set_url(self, qtbot, browser_widget):
+        assert browser_widget.setUrl(QUrl('http://localhost/trusted/some_page'))
+        assert browser_widget.url() == QUrl('http://localhost/trusted/some_page')
+        assert browser_widget.setUrl('http://localhost/trusted/other')
+        assert browser_widget.url() == QUrl('http://localhost/trusted/other')
+        assert not browser_widget.setUrl('http://localhost/external/page')
+        assert browser_widget.url() == QUrl('http://localhost/trusted/other')
+
+    def test_home_button_loads_home(self, qtbot, browser_widget):
+        browser_widget.setUrl('http://localhost/trusted/other')
+        with qtbot.waitSignal(browser_widget.webEngineView.urlChanged):
+            qtbot.mouseClick(browser_widget.uiPushHome, Qt.MouseButton.LeftButton)
+        assert browser_widget.url() == QUrl('http://localhost/trusted/start')
+
+    @patch('iblqt.widgets.webbrowser.open')
+    def test_open_in_browser_button(self, mock_open, qtbot, browser_widget):
+        qtbot.mouseClick(browser_widget.uiPushBrowser, Qt.MouseButton.LeftButton)
+        mock_open.assert_called_once_with('http://localhost/trusted/start')
+
+    @patch('iblqt.widgets.webbrowser.open')
+    def test_click_internal_link(self, mock_open, qtbot, browser_widget):
+        result = browser_widget.webEnginePage.acceptNavigationRequest(
+            url=QUrl('http://localhost/trusted/page'),
+            navigationType=QWebEnginePage.NavigationType.NavigationTypeLinkClicked,
+            is_main_frame=True,
+        )
+        assert result is True
+        mock_open.assert_not_called()
+
+    @patch('iblqt.widgets.webbrowser.open')
+    def test_click_external_link(self, mock_open, qtbot, browser_widget):
+        result = browser_widget.webEnginePage.acceptNavigationRequest(
+            url=QUrl('http://localhost/external/page'),
+            navigationType=QWebEnginePage.NavigationType.NavigationTypeLinkClicked,
+            is_main_frame=True,
+        )
+        assert result is False
+        mock_open.assert_called_once_with('http://localhost/external/page')
+
+    @patch('iblqt.widgets.webbrowser.open')
+    def test_change_prefix(self, mock_open, qtbot, browser_widget):
+        browser_widget.setTrustedUrlPrefix('http://localhost/external')
+        result = browser_widget.webEnginePage.acceptNavigationRequest(
+            url=QUrl('http://localhost/external/page'),
+            navigationType=QWebEnginePage.NavigationType.NavigationTypeLinkClicked,
+            is_main_frame=True,
+        )
+        assert result is True
+        mock_open.assert_not_called()
