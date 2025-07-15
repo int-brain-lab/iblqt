@@ -1,9 +1,11 @@
+import os
 import sys
 from collections import namedtuple
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
+from qtpy import API_NAME as QT_VERSION
 from qtpy.QtCore import Qt, QUrl
 from qtpy.QtGui import QColor, QPainter, QPalette, QStandardItemModel
 from qtpy.QtWebEngineWidgets import QWebEnginePage
@@ -381,7 +383,10 @@ class TestDiskSpaceIndicator:
             assert blocker.args[0] is True
 
 
-@pytest.mark.skipif(sys.platform == 'win32', reason='issues on windows')  # TODO
+@pytest.mark.skipif(
+    sys.platform == 'win32' and QT_VERSION == 'PyQt5' and 'TOX' in os.environ,
+    reason='Test fails when run in Tox with PyQt5 on Windows',
+)  # TODO
 class TestRestrictedWebView:
     @pytest.fixture
     def browser_widget(self, qtbot):
@@ -394,7 +399,6 @@ class TestRestrictedWebView:
         with qtbot.waitSignal(widget.webEngineView.page().destroyed, timeout=100):
             widget.close()
 
-    @pytest.mark.skipif(sys.platform == 'win32', reason='issues on windows')  # TODO
     def test_default_prefix(self, qtbot):
         widget = widgets.RestrictedWebView(url='http://localhost/')
         qtbot.addWidget(widget)
@@ -412,10 +416,9 @@ class TestRestrictedWebView:
         assert not browser_widget.setUrl('http://localhost/external/page')
         assert browser_widget.url() == QUrl('http://localhost/trusted/other')
 
-    @pytest.mark.xfail(reason='This tends to fail on Windows')  # TODO
     def test_home_button_loads_home(self, qtbot, browser_widget):
         browser_widget.setUrl('http://localhost/trusted/other')
-        with qtbot.waitSignal(browser_widget.webEngineView.urlChanged, 1000):
+        with qtbot.waitSignal(browser_widget.webEngineView.urlChanged):
             qtbot.mouseClick(browser_widget.uiPushHome, Qt.MouseButton.LeftButton)
         assert browser_widget.url() == QUrl('http://localhost/trusted/start')
 

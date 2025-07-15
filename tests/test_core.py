@@ -7,6 +7,7 @@ from unittest.mock import PropertyMock, patch
 import numpy as np
 import pandas as pd
 import pytest
+from qtpy import API_NAME as QT_VERSION
 from qtpy.QtCore import QModelIndex, Qt, QThreadPool, QUrl
 from requests import HTTPError
 
@@ -404,11 +405,17 @@ class TestWorker:
         assert hasattr(signals, 'progress')
 
 
-@pytest.mark.skipif(sys.platform == 'win32', reason='issues on windows')  # TODO
+@pytest.mark.skipif(
+    sys.platform == 'win32' and QT_VERSION == 'PyQt5' and 'TOX' in os.environ,
+    reason='Test fails when run in Tox with PyQt5 on Windows',
+)  # TODO
 class TestRestrictedWebEnginePage:
     @pytest.fixture
     def web_engine_page(self, qtbot):
-        return core.RestrictedWebEnginePage(trusted_url_prefix='http://localhost/local')
+        page = core.RestrictedWebEnginePage(trusted_url_prefix='http://localhost/local')
+        yield page
+        with qtbot.waitSignal(page.destroyed, timeout=100):
+            page.deleteLater()
 
     def test_internal_url_allows_navigation(self, qtbot, web_engine_page):
         assert isinstance(web_engine_page, core.QWebEnginePage)

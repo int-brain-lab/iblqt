@@ -893,9 +893,7 @@ class RestrictedWebEnginePage(QWebEnginePage):
     Adapted from: https://www.pythonguis.com/faq/qwebengineview-open-links-new-window/
     """
 
-    def __init__(
-        self, parent: QObject | None = None, trusted_url_prefix: str = '', **kwargs
-    ):
+    def __init__(self, parent: QObject | None = None, trusted_url_prefix: str = ''):
         """
         Initialize the UrlFilteredWebEnginePage.
 
@@ -906,10 +904,8 @@ class RestrictedWebEnginePage(QWebEnginePage):
         trusted_url_prefix : str
             A URL prefix that identifies trusted links. Only links starting
             with this prefix will be loaded within the web view.
-        **kwargs : dict
-            Additional keyword arguments passed to the base class constructor.
         """
-        super().__init__(parent, **kwargs)
+        super().__init__(parent)
         self._trusted_url_prefix = trusted_url_prefix
 
     @override
