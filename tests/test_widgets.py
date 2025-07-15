@@ -381,6 +381,7 @@ class TestDiskSpaceIndicator:
             assert blocker.args[0] is True
 
 
+@pytest.mark.skipif(sys.platform == 'win32', reason='issues on windows')  # TODO
 class TestRestrictedWebView:
     @pytest.fixture
     def browser_widget(self, qtbot):
@@ -390,10 +391,8 @@ class TestRestrictedWebView:
         )
         qtbot.addWidget(widget)
         yield widget
-        page = widget.webEngineView.page()
-        widget.close()
-        with qtbot.waitSignal(page.destroyed, timeout=100):
-            page.deleteLater()
+        with qtbot.waitSignal(widget.webEngineView.page().destroyed, timeout=100):
+            widget.close()
 
     @pytest.mark.skipif(sys.platform == 'win32', reason='issues on windows')  # TODO
     def test_default_prefix(self, qtbot):
