@@ -53,6 +53,7 @@ doc = [
   "sphinx-qt-documentation>=0.4.1",
   "sphinx-rtd-theme>=2.0.0",
   "sphinx-design>=0.6.1",
+  "sphinx-copybutton>=0.5.2",
 ]
 lint = [
   "ruff>=0.9.2",

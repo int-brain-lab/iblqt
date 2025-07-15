@@ -25,6 +25,7 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
     'sphinx.ext.viewcode',
+    'sphinx_copybutton',
     'sphinx_design',
     'sphinx_qt_documentation',
     'myst_parser',
@@ -83,3 +84,5 @@ napoleon_use_keyword = True
 napoleon_preprocess_types = True
 napoleon_type_aliases = None
 napoleon_attr_annotations = True
+
+copybutton_exclude = '.linenos, .gp'
