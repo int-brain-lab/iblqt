@@ -1,6 +1,5 @@
 import os
 import sys
-import weakref
 from collections import namedtuple
 from pathlib import Path
 from unittest.mock import MagicMock, patch
