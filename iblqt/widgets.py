@@ -11,16 +11,29 @@ from qtpy.QtCore import (
     QAbstractItemModel,
     QEvent,
     QModelIndex,
+    QPointF,
+    QPropertyAnimation,
     QRect,
+    QRectF,
+    QSize,
+    QSizeF,
     Qt,
     QThreadPool,
     QUrl,
     Signal,
     Slot,
 )
-from qtpy.QtGui import QColor, QIcon, QMouseEvent, QPainter, QPalette
+from qtpy.QtGui import (
+    QColor,
+    QIcon,
+    QMouseEvent,
+    QPainter,
+    QPaintEvent,
+    QPalette,
+)
 from qtpy.QtWebEngineWidgets import QWebEngineView
 from qtpy.QtWidgets import (
+    QAbstractButton,
     QApplication,
     QCheckBox,
     QDialog,
@@ -817,3 +830,114 @@ class RestrictedWebView(QWidget):
             web browser.
         """
         return self.webEnginePage.trustedUrlPrefix()
+
+
+class SlideToggle(QAbstractButton):
+    """
+    A toggle switch.
+
+    Adapted from :class:`Switch` class by Stefan Scherfke
+    https://stackoverflow.com/a/51825815
+    """
+
+    def __init__(self, parent: QWidget | None = None, height: int = 20) -> None:
+        """
+        Initialize the toggle switch.
+
+        Parameters
+        ----------
+        parent : QWidget or None, optional
+            The parent widget of the switch. Defaults to None.
+
+        height : int, optional
+            The height of the switch in pixels. The overall size and
+            internal geometry are derived from this value. Defaults to 20.
+        """
+        super().__init__(parent=parent)
+        self.setCheckable(True)
+        self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+
+        self._radius = height / 2.0
+        thumb_radius = self._radius * 0.8
+        self._margin = self._radius - thumb_radius
+        self._thumb_size = QSizeF(2 * thumb_radius, 2 * thumb_radius)
+        self._relative_position_value = 0.0
+        font = self.font()
+        font.setPixelSize(round(1.5 * thumb_radius))
+        self.setFont(font)
+
+        self._animation = QPropertyAnimation(self, b'_relative_position', self)
+        self._animation.setDuration(120)
+        self.toggled.connect(self._setup_animation)
+
+    def _setup_animation(self, checked: bool):
+        self._animation.setEndValue(float(checked))
+        self._animation.start()
+
+    @Property(float)
+    def _relative_position(self) -> float:
+        return self._relative_position_value
+
+    @_relative_position.setter
+    def _relative_position(self, value: float):
+        self._relative_position_value = value
+        self.update()
+
+    def sizeHint(self) -> QSize:
+        """
+        Return the recommended size for the widget.
+
+        Returns
+        -------
+        QSize
+            The recommended size of the widget as a QSize object
+        """
+        return QSize(round(4 * self._radius), round(2 * self._radius))
+
+    def paintEvent(self, event: QPaintEvent):
+        """
+        Handle the painting of the custom toggle switch.
+
+        Draws the background track, the animated thumb, and an optional
+        symbol (✔ or ✘) centered within the thumb, depending on the checked state.
+
+        The appearance adapts to the widget's enabled/disabled state and palette.
+
+        Parameters
+        ----------
+        event : QPaintEvent
+            The paint event that triggered this repaint. Not directly used
+            but required to match the overridden method signature.
+        """
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing, True)
+
+        # Determine colors based on state
+        palette = self.palette()
+        if not self.isEnabled():
+            color_background = palette.shadow().color()
+            color_foreground = palette.midlight().color()
+        elif self.isChecked():
+            color_background = palette.highlight().color()
+            color_foreground = palette.highlightedText().color()
+        else:
+            color_background = palette.dark().color()
+            color_foreground = palette.light().color()
+
+        # Draw track
+        track_rect = self.rect()
+        painter.setPen(Qt.NoPen)
+        painter.setBrush(color_background)
+        painter.drawRoundedRect(track_rect, self._radius, self._radius)
+
+        # Draw thumb
+        x = (self.width() - 2 * self._radius) * self._relative_position + self._margin
+        thumb_rect = QRectF(QPointF(x, self._margin), self._thumb_size)
+        painter.setBrush(color_foreground)
+        painter.drawEllipse(thumb_rect)
+
+        # Draw symbol
+        painter.setPen(color_background)
+        painter.setFont(self.font())
+        symbol = '✔' if self.isChecked() else '✘'
+        painter.drawText(thumb_rect, Qt.AlignCenter, symbol)
