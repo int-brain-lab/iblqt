@@ -188,5 +188,4 @@ depends = py{310,313}-{pyqt5,pyqt6,pyside6}
 skip_install = true
 commands =
   coverage combine
-  coverage html
 """
