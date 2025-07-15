@@ -6,6 +6,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2025-07-15
+
+### Added
+- `widgets.RestrictedWebView`: a browser widget that restricts navigation to a trusted URL prefix.
+- `core.RestrictedWebEnginePage`: a QWebEnginePage subclass that filters navigation requests based on a URL prefix.
+
+### Changed
+- moved dependency management from PDM to UV
+- improved workflows for CI and testing
+
 ## [0.5.0] - 2025-07-09
 
 ### Added
@@ -13,7 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   separate thread
 - `widgets.ThresholdProgressBar`: a progress bar that changes color based on a threshold
   value
-- `widgets.DiskSpaceIndicator`: A progress bar widget that indicates the disk space
+- `widgets.DiskSpaceIndicator`: a progress bar widget that indicates the disk space
   usage of a directory
 - `tools`: a collection of small Qt tools, adapted from `ibllib.misc.qt`
 - `.editorconfig`: for consistent coding style
@@ -120,6 +130,7 @@ _First release._
   providing color-mapped numerical data.
 - `widgets.StatefulButton`: A `QPushButton` that maintains an active/inactive state.
 
+[0.6.0]: https://github.com/int-brain-lab/iblqt/releases/tag/v0.6.0
 [0.5.0]: https://github.com/int-brain-lab/iblqt/releases/tag/v0.5.0
 [0.4.4]: https://github.com/int-brain-lab/iblqt/releases/tag/v0.4.4
 [0.4.3]: https://github.com/int-brain-lab/iblqt/releases/tag/v0.4.3

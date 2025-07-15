@@ -778,30 +778,27 @@ class QAlyx(QObject):
 
 
 class WorkerSignals(QObject):
-    """
-    Signals used by the :class:`Worker` class to communicate with the main thread.
-
-    Attributes
-    ----------
-    finished : Signal
-        Signal emitted when the worker has finished its task.
-
-    error : Signal(tuple)
-        Signal emitted when an error occurs. The signal carries a tuple with the exception type,
-        exception value, and the formatted traceback.
-
-    result : Signal(Any)
-        Signal emitted when the worker has successfully completed its task. The signal carries
-        the result of the task.
-
-    progress : Signal(int)
-        Signal emitted to report progress during the task. The signal carries an integer value.
-    """
+    """Signals used by the :class:`Worker` class to communicate with the main thread."""
 
     finished = Signal()
+    """Emitted when the worker has finished its task."""
+
     error = Signal(tuple)
+    """
+    Emitted when an error occurs. The signal carries a tuple with the exception type,
+    exception value, and the formatted traceback.
+    """
+
     result = Signal(object)
+    """
+    Emitted when the worker has successfully completed its task. The signal carries the
+    result of the task.
+    """
+
     progress = Signal(int)
+    """
+    Emitted to report progress during the task. The signal carries an integer value.
+    """
 
 
 class Worker(QRunnable):
@@ -885,7 +882,7 @@ class Worker(QRunnable):
 
 class RestrictedWebEnginePage(QWebEnginePage):
     """
-    A QWebEnginePage subclass that filters navigation requests based on a URL prefix.
+    A :class:`QWebEnginePage` subclass that filters navigation requests based on a URL prefix.
 
     Links that start with the specified `trusted_url_prefix` are allowed to load inside
     the application. All other links are opened externally in the default web browser.

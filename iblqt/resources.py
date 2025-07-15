@@ -1,3 +1,5 @@
+"""Module for managing Qt resource data."""
+
 from qtpy import QtCore
 
 qt_resource_data = b"\
@@ -273,9 +275,15 @@ else:
     qt_resource_struct = qt_resource_struct_v2
 
 def qInitResources():
+    """
+    Registers embedded resource data with Qt, making resources available for use.
+    """
     QtCore.qRegisterResourceData(rcc_version, qt_resource_struct, qt_resource_name, qt_resource_data)
 
 def qCleanupResources():
+    """
+    Unregisters previously registered resource data, freeing up resources.
+    """
     QtCore.qUnregisterResourceData(rcc_version, qt_resource_struct, qt_resource_name, qt_resource_data)
 
 qInitResources()
