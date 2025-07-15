@@ -878,7 +878,7 @@ class SlideToggle(QAbstractButton):
     def _relative_position(self) -> float:
         return self._relative_position_value
 
-    @_relative_position.setter
+    @_relative_position.setter  # type: ignore
     def _relative_position(self, value: float):
         self._relative_position_value = value
         self.update()
