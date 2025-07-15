@@ -1,11 +1,9 @@
-import os
 import sys
 from collections import namedtuple
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
-from qtpy import API_NAME as QT_VERSION
 from qtpy.QtCore import Qt, QUrl
 from qtpy.QtGui import QColor, QPainter, QPalette, QStandardItemModel
 from qtpy.QtWebEngineWidgets import QWebEnginePage
