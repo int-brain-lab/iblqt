@@ -383,10 +383,10 @@ class TestDiskSpaceIndicator:
             assert blocker.args[0] is True
 
 
-@pytest.mark.skipif(
-    sys.platform == 'win32' and QT_VERSION == 'PyQt5' and 'TOX' in os.environ,
-    reason='Test fails when run in Tox with PyQt5 on Windows',
-)  # TODO
+# @pytest.mark.skipif(
+#     sys.platform == 'win32' and QT_VERSION == 'PyQt5' and 'TOX' in os.environ,
+#     reason='Test fails when run in Tox with PyQt5 on Windows',
+# )  # TODO
 class TestRestrictedWebView:
     @pytest.fixture
     def browser_widget_factory(self, qtbot):
