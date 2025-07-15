@@ -22,8 +22,7 @@ jobs:
         uses: astral-sh/setup-uv@v6
       - name: Install dependencies
         run: uv sync --no-default-groups --group doc --extra pyqt6
-      - name: Install libegl1 (Ubuntu only)
-        if: matrix.os == 'ubuntu-latest'
+      - name: Install libegl1
         uses: awalsh128/cache-apt-pkgs-action@latest
         with:
           packages: libegl1
