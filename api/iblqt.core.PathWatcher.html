@@ -1,0 +1,343 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>iblqt.core.PathWatcher &mdash; iblqt 0.7.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5a057da9"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=35a8b989"></script>
+      <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="iblqt.core.QAlyx" href="iblqt.core.QAlyx.html" />
+    <link rel="prev" title="iblqt.core.DataFrameTableModel" href="iblqt.core.DataFrameTableModel.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            iblqt
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../dev_guide.html">Developer Guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="iblqt.html">iblqt</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="iblqt.core.html">iblqt.core</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="iblqt.core.ColoredDataFrameTableModel.html">iblqt.core.ColoredDataFrameTableModel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="iblqt.core.DataFrameTableModel.html">iblqt.core.DataFrameTableModel</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">iblqt.core.PathWatcher</a></li>
+<li class="toctree-l4"><a class="reference internal" href="iblqt.core.QAlyx.html">iblqt.core.QAlyx</a></li>
+<li class="toctree-l4"><a class="reference internal" href="iblqt.core.RestrictedWebEnginePage.html">iblqt.core.RestrictedWebEnginePage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="iblqt.core.Worker.html">iblqt.core.Worker</a></li>
+<li class="toctree-l4"><a class="reference internal" href="iblqt.core.WorkerSignals.html">iblqt.core.WorkerSignals</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="iblqt.resources.html">iblqt.resources</a></li>
+<li class="toctree-l3"><a class="reference internal" href="iblqt.tools.html">iblqt.tools</a></li>
+<li class="toctree-l3"><a class="reference internal" href="iblqt.widgets.html">iblqt.widgets</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Links</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/int-brain-lab/iblqt">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pypi.org/project/iblqt">PyPI</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">iblqt</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../api.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="iblqt.html">iblqt</a></li>
+          <li class="breadcrumb-item"><a href="iblqt.core.html">iblqt.core</a></li>
+      <li class="breadcrumb-item active">iblqt.core.PathWatcher</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/iblqt.core.PathWatcher.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="iblqt-core-pathwatcher">
+<h1>iblqt.core.PathWatcher<a class="headerlink" href="#iblqt-core-pathwatcher" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="iblqt.core.PathWatcher">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">iblqt.core.</span></span><span class="sig-name descname"><span class="pre">PathWatcher</span></span><a class="reference internal" href="../_modules/iblqt/core.html#PathWatcher"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#iblqt.core.PathWatcher" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">QObject</span></code></p>
+<p>Watch paths for changes.</p>
+<p>Identical to <a class="reference external" href="https://doc.qt.io/qt-5/qfilesystemwatcher.html" title="(in Qt5 v5.15)"><code class="docutils literal notranslate"><span class="pre">QFileSystemWatcher</span></code></a> but using
+<a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a> instead of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> for arguments and signals.</p>
+<p>Call <a class="reference internal" href="#iblqt.core.PathWatcher.addPath" title="iblqt.core.PathWatcher.addPath"><code class="xref py py-meth docutils literal notranslate"><span class="pre">addPath()</span></code></a> to watch a particular file or
+directory. Multiple paths can be added using the
+<a class="reference internal" href="#iblqt.core.PathWatcher.addPaths" title="iblqt.core.PathWatcher.addPaths"><code class="xref py py-meth docutils literal notranslate"><span class="pre">addPaths()</span></code></a> function. Existing paths can be removed by
+using the <a class="reference internal" href="#iblqt.core.PathWatcher.removePath" title="iblqt.core.PathWatcher.removePath"><code class="xref py py-meth docutils literal notranslate"><span class="pre">removePath()</span></code></a> and
+<a class="reference internal" href="#iblqt.core.PathWatcher.removePaths" title="iblqt.core.PathWatcher.removePaths"><code class="xref py py-meth docutils literal notranslate"><span class="pre">removePaths()</span></code></a> functions.</p>
+<p>PathWatcher examines each path added to it. Files that have been added to the
+PathWatcher can be accessed using the <a class="reference internal" href="#iblqt.core.PathWatcher.files" title="iblqt.core.PathWatcher.files"><code class="xref py py-meth docutils literal notranslate"><span class="pre">files()</span></code></a>
+function, and directories using the <a class="reference internal" href="#iblqt.core.PathWatcher.directories" title="iblqt.core.PathWatcher.directories"><code class="xref py py-meth docutils literal notranslate"><span class="pre">directories()</span></code></a>
+function.</p>
+<p>The <a class="reference internal" href="#iblqt.core.PathWatcher.fileChanged" title="iblqt.core.PathWatcher.fileChanged"><code class="xref py py-meth docutils literal notranslate"><span class="pre">fileChanged()</span></code></a> signal is emitted when a file has
+been modified, renamed or removed from disk. Similarly, the
+<a class="reference internal" href="#iblqt.core.PathWatcher.directoryChanged" title="iblqt.core.PathWatcher.directoryChanged"><code class="xref py py-meth docutils literal notranslate"><span class="pre">directoryChanged()</span></code></a> signal is emitted when a
+directory or its contents is modified or removed. Note that PathWatcher stops
+monitoring files once they have been renamed or removed from disk, and directories
+once they have been removed from disk.</p>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<ul class="simple">
+<li><p>On systems running a Linux kernel without inotify support, file systems that
+contain watched paths cannot be unmounted.</p></li>
+<li><p>The act of monitoring files and directories for modifications consumes system
+resources. This implies there is a limit to the number of files and directories
+your process can monitor simultaneously. On all BSD variants, for example,
+an open file descriptor is required for each monitored file. Some system limits
+the number of open file descriptors to 256 by default. This means that
+<a class="reference internal" href="#iblqt.core.PathWatcher.addPath" title="iblqt.core.PathWatcher.addPath"><code class="xref py py-meth docutils literal notranslate"><span class="pre">addPath()</span></code></a> and
+<a class="reference internal" href="#iblqt.core.PathWatcher.addPaths" title="iblqt.core.PathWatcher.addPaths"><code class="xref py py-meth docutils literal notranslate"><span class="pre">addPaths()</span></code></a> will fail if your process tries to add
+more than 256 files or directories to the PathWatcher. Also note that your
+process may have other file descriptors open in addition to the ones for files
+being monitored, and these other open descriptors also count in the total. macOS
+uses a different backend and does not suffer from this issue.</p></li>
+</ul>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="iblqt.core.PathWatcher.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">paths</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/iblqt/core.html#PathWatcher.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#iblqt.core.PathWatcher.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initialize the PathWatcher.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parent</strong> (<a class="reference external" href="https://doc.qt.io/qt-5/qobject.html" title="(in Qt5 v5.15)"><code class="docutils literal notranslate"><span class="pre">QObject</span></code></a>) – The parent object.</p></li>
+<li><p><strong>paths</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list[Path]</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">list[str]</span></code>) – Paths or directories to be watched.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="iblqt.core.PathWatcher.addPath">
+<span class="sig-name descname"><span class="pre">addPath</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/iblqt/core.html#PathWatcher.addPath"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#iblqt.core.PathWatcher.addPath" title="Link to this definition"></a></dt>
+<dd><p>Add path to the PathWatcher.</p>
+<p>The path is not added if it does not exist, or if it is already being monitored
+by the PathWatcher.</p>
+<p>If path specifies a directory, the directoryChanged() signal will be emitted
+when path is modified or removed from disk; otherwise the fileChanged() signal
+is emitted when path is modified, renamed or removed.</p>
+<p>If the watch was successful, true is returned.</p>
+<p>Reasons for a watch failure are generally system-dependent, but may include the
+resource not existing, access failures, or the total watch count limit, if the
+platform has one.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>There may be a system dependent limit to the number of files and directories
+that can be monitored simultaneously. If this limit is been reached, path will
+not be monitored, and false is returned.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>path</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code> or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – Path or directory to be watched.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if the watch was successful, otherwise False.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="iblqt.core.PathWatcher.addPaths">
+<span class="sig-name descname"><span class="pre">addPaths</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">paths</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/iblqt/core.html#PathWatcher.addPaths"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#iblqt.core.PathWatcher.addPaths" title="Link to this definition"></a></dt>
+<dd><p>Add each path in paths to the PathWatcher.</p>
+<p>Paths are not added if they do not exist, or if they are already being monitored
+by the PathWatcher.</p>
+<p>If a path specifies a directory, the directoryChanged() signal will be emitted
+when the path is modified or removed from disk; otherwise the fileChanged()
+signal is emitted when the path is modified, renamed, or removed.</p>
+<p>The return value is a list of paths that could not be watched.</p>
+<p>Reasons for a watch failure are generally system-dependent, but may include the
+resource not existing, access failures, or the total watch count limit, if the
+platform has one.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>There may be a system dependent limit to the number of files and directories
+that can be monitored simultaneously. If this limit has been reached, the excess
+paths will not be monitored, and they will be added to the returned list.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>paths</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list[Path]</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">list[str]</span></code>) – Paths or directories to be watched.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of paths that could not be watched.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">list[Path]</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="iblqt.core.PathWatcher.directories">
+<span class="sig-name descname"><span class="pre">directories</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/iblqt/core.html#PathWatcher.directories"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#iblqt.core.PathWatcher.directories" title="Link to this definition"></a></dt>
+<dd><p>Return a list of paths to directories that are being watched.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List of paths to directories that are being watched.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">list[Path]</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="iblqt.core.PathWatcher.files">
+<span class="sig-name descname"><span class="pre">files</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/iblqt/core.html#PathWatcher.files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#iblqt.core.PathWatcher.files" title="Link to this definition"></a></dt>
+<dd><p>Return a list of paths to files that are being watched.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List of paths to files that are being watched.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">list[Path]</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="iblqt.core.PathWatcher.removePath">
+<span class="sig-name descname"><span class="pre">removePath</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/iblqt/core.html#PathWatcher.removePath"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#iblqt.core.PathWatcher.removePath" title="Link to this definition"></a></dt>
+<dd><p>Remove the specified path from the PathWatcher.</p>
+<p>If the watch is successfully removed, true is returned.</p>
+<p>Reasons for watch removal failing are generally system-dependent, but may be due
+to the path having already been deleted, for example.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>path</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list[Path]</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">list[str]</span></code>) – Path or directory to be removed from the PathWatcher.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if the watch was successful, otherwise False.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="iblqt.core.PathWatcher.removePaths">
+<span class="sig-name descname"><span class="pre">removePaths</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">paths</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/iblqt/core.html#PathWatcher.removePaths"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#iblqt.core.PathWatcher.removePaths" title="Link to this definition"></a></dt>
+<dd><p>Remove the specified paths from the PathWatcher.</p>
+<p>The return value is a list of paths which were not able to be unwatched
+successfully.</p>
+<p>Reasons for watch removal failing are generally system-dependent, but may be due
+to the path having already been deleted, for example.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>paths</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list[Path]</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">list[str]</span></code>) – Paths or directories to be unwatched.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of paths which were not able to be unwatched successfully.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">list[Path]</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="iblqt.core.PathWatcher.directoryChanged">
+<span class="sig-name descname"><span class="pre">directoryChanged</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://doc.qt.io/qt-5/signalsandslots.html" title="(in Qt5 vQT_VERSION)"><span class="pre">Signal</span></a></em><a class="headerlink" href="#iblqt.core.PathWatcher.directoryChanged" title="Link to this definition"></a></dt>
+<dd><p>Emitted when a directory or its contents is modified or removed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="iblqt.core.PathWatcher.fileChanged">
+<span class="sig-name descname"><span class="pre">fileChanged</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://doc.qt.io/qt-5/signalsandslots.html" title="(in Qt5 vQT_VERSION)"><span class="pre">Signal</span></a></em><a class="headerlink" href="#iblqt.core.PathWatcher.fileChanged" title="Link to this definition"></a></dt>
+<dd><p>Emitted when a file has been modified, renamed or removed from disk.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="iblqt.core.DataFrameTableModel.html" class="btn btn-neutral float-left" title="iblqt.core.DataFrameTableModel" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="iblqt.core.QAlyx.html" class="btn btn-neutral float-right" title="iblqt.core.QAlyx" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, International Brain Laboratory.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

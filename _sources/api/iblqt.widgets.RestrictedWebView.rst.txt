@@ -1,0 +1,9 @@
+iblqt.widgets.RestrictedWebView
+===============================
+
+.. currentmodule:: iblqt.widgets
+
+.. autoclass:: RestrictedWebView
+   :members:
+   :undoc-members:
+   :show-inheritance:

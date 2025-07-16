@@ -1,0 +1,9 @@
+iblqt.core.Worker
+=================
+
+.. currentmodule:: iblqt.core
+
+.. autoclass:: Worker
+   :members:
+   :undoc-members:
+   :show-inheritance:

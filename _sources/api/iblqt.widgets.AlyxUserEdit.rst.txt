@@ -1,0 +1,9 @@
+iblqt.widgets.AlyxUserEdit
+==========================
+
+.. currentmodule:: iblqt.widgets
+
+.. autoclass:: AlyxUserEdit
+   :members:
+   :undoc-members:
+   :show-inheritance:

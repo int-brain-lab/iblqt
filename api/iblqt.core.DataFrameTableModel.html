@@ -1,0 +1,311 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>iblqt.core.DataFrameTableModel &mdash; iblqt 0.7.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5a057da9"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=35a8b989"></script>
+      <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="iblqt.core.PathWatcher" href="iblqt.core.PathWatcher.html" />
+    <link rel="prev" title="iblqt.core.ColoredDataFrameTableModel" href="iblqt.core.ColoredDataFrameTableModel.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            iblqt
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../dev_guide.html">Developer Guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="iblqt.html">iblqt</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="iblqt.core.html">iblqt.core</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="iblqt.core.ColoredDataFrameTableModel.html">iblqt.core.ColoredDataFrameTableModel</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">iblqt.core.DataFrameTableModel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="iblqt.core.PathWatcher.html">iblqt.core.PathWatcher</a></li>
+<li class="toctree-l4"><a class="reference internal" href="iblqt.core.QAlyx.html">iblqt.core.QAlyx</a></li>
+<li class="toctree-l4"><a class="reference internal" href="iblqt.core.RestrictedWebEnginePage.html">iblqt.core.RestrictedWebEnginePage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="iblqt.core.Worker.html">iblqt.core.Worker</a></li>
+<li class="toctree-l4"><a class="reference internal" href="iblqt.core.WorkerSignals.html">iblqt.core.WorkerSignals</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="iblqt.resources.html">iblqt.resources</a></li>
+<li class="toctree-l3"><a class="reference internal" href="iblqt.tools.html">iblqt.tools</a></li>
+<li class="toctree-l3"><a class="reference internal" href="iblqt.widgets.html">iblqt.widgets</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Links</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/int-brain-lab/iblqt">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pypi.org/project/iblqt">PyPI</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">iblqt</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../api.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="iblqt.html">iblqt</a></li>
+          <li class="breadcrumb-item"><a href="iblqt.core.html">iblqt.core</a></li>
+      <li class="breadcrumb-item active">iblqt.core.DataFrameTableModel</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/iblqt.core.DataFrameTableModel.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="iblqt-core-dataframetablemodel">
+<h1>iblqt.core.DataFrameTableModel<a class="headerlink" href="#iblqt-core-dataframetablemodel" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="iblqt.core.DataFrameTableModel">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">iblqt.core.</span></span><span class="sig-name descname"><span class="pre">DataFrameTableModel</span></span><a class="reference internal" href="../_modules/iblqt/core.html#DataFrameTableModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#iblqt.core.DataFrameTableModel" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">QAbstractTableModel</span></code></p>
+<p>A Qt TableModel for Pandas DataFrames.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>dataFrame</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Property</span></code>) – The DataFrame containing the models data.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="iblqt.core.DataFrameTableModel.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataFrame</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/iblqt/core.html#DataFrameTableModel.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#iblqt.core.DataFrameTableModel.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initialize the DataFrameTableModel.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parent</strong> (<a class="reference external" href="https://doc.qt.io/qt-5/qobject.html" title="(in Qt5 v5.15)"><code class="docutils literal notranslate"><span class="pre">QObject</span></code></a>, <em>optional</em>) – The parent object.</p></li>
+<li><p><strong>dataFrame</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>, <em>optional</em>) – The Pandas DataFrame to be represented by the model.</p></li>
+<li><p><strong>*args</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a>) – Positional arguments passed to the parent class.</p></li>
+<li><p><strong>**kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>) – Keyword arguments passed to the parent class.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="iblqt.core.DataFrameTableModel.columnCount">
+<span class="sig-name descname"><span class="pre">columnCount</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/iblqt/core.html#DataFrameTableModel.columnCount"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#iblqt.core.DataFrameTableModel.columnCount" title="Link to this definition"></a></dt>
+<dd><p>Get the number of columns in the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>parent</strong> (<a class="reference external" href="https://doc.qt.io/qt-5/qmodelindex.html" title="(in Qt5 v5.15)"><code class="docutils literal notranslate"><span class="pre">QModelIndex</span></code></a>, <em>optional</em>) – The parent index.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The number of columns.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="iblqt.core.DataFrameTableModel.data">
+<span class="sig-name descname"><span class="pre">data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">role</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">ItemDataRole.DisplayRole</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/iblqt/core.html#DataFrameTableModel.data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#iblqt.core.DataFrameTableModel.data" title="Link to this definition"></a></dt>
+<dd><p>Get the data for the specified index.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>index</strong> (<a class="reference external" href="https://doc.qt.io/qt-5/qmodelindex.html" title="(in Qt5 v5.15)"><code class="docutils literal notranslate"><span class="pre">QModelIndex</span></code></a>) – The index of the data.</p></li>
+<li><p><strong>role</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <em>optional</em>) – The role of the data.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The data for the specified index.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Any</span></code> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="iblqt.core.DataFrameTableModel.getDataFrame">
+<span class="sig-name descname"><span class="pre">getDataFrame</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/iblqt/core.html#DataFrameTableModel.getDataFrame"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#iblqt.core.DataFrameTableModel.getDataFrame" title="Link to this definition"></a></dt>
+<dd><p>Get the underlying DataFrame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The DataFrame represented by the model.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="iblqt.core.DataFrameTableModel.headerData">
+<span class="sig-name descname"><span class="pre">headerData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">section</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orientation=&lt;Orientation.Horizontal:</span> <span class="pre">1&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">role=ItemDataRole.DisplayRole</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/iblqt/core.html#DataFrameTableModel.headerData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#iblqt.core.DataFrameTableModel.headerData" title="Link to this definition"></a></dt>
+<dd><p>Get the header data for the specified section.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>section</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – The section index.</p></li>
+<li><p><strong>orientation</strong> (<a class="reference external" href="https://doc.qt.io/qt-5/qt.html#Orientation-enum" title="(in Qt5 v5.15)"><code class="docutils literal notranslate"><span class="pre">Orientation</span></code></a>, <em>optional</em>) – The orientation of the header. Defaults to Horizontal.</p></li>
+<li><p><strong>role</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <em>optional</em>) – The role of the header data. Only DisplayRole is supported at this time.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The header data.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Any</span></code> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="iblqt.core.DataFrameTableModel.rowCount">
+<span class="sig-name descname"><span class="pre">rowCount</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/iblqt/core.html#DataFrameTableModel.rowCount"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#iblqt.core.DataFrameTableModel.rowCount" title="Link to this definition"></a></dt>
+<dd><p>Get the number of rows in the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>parent</strong> (<a class="reference external" href="https://doc.qt.io/qt-5/qmodelindex.html" title="(in Qt5 v5.15)"><code class="docutils literal notranslate"><span class="pre">QModelIndex</span></code></a>, <em>optional</em>) – The parent index.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The number of rows.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="iblqt.core.DataFrameTableModel.setData">
+<span class="sig-name descname"><span class="pre">setData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">role</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">ItemDataRole.DisplayRole</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/iblqt/core.html#DataFrameTableModel.setData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#iblqt.core.DataFrameTableModel.setData" title="Link to this definition"></a></dt>
+<dd><p>Set data at the specified index with the given value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>index</strong> (<a class="reference external" href="https://doc.qt.io/qt-5/qmodelindex.html" title="(in Qt5 v5.15)"><code class="docutils literal notranslate"><span class="pre">QModelIndex</span></code></a>) – The index where the data will be set.</p></li>
+<li><p><strong>value</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Any</span></code>) – The new value to be set at the specified index.</p></li>
+<li><p><strong>role</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <em>optional</em>) – The role of the data. Only DisplayRole is supported at this time.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Returns true if successful; otherwise returns false.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="iblqt.core.DataFrameTableModel.setDataFrame">
+<span class="sig-name descname"><span class="pre">setDataFrame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataFrame</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/iblqt/core.html#DataFrameTableModel.setDataFrame"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#iblqt.core.DataFrameTableModel.setDataFrame" title="Link to this definition"></a></dt>
+<dd><p>Set a new DataFrame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>dataFrame</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – The new DataFrame to be set.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="iblqt.core.DataFrameTableModel.sort">
+<span class="sig-name descname"><span class="pre">sort</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">SortOrder.AscendingOrder</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/iblqt/core.html#DataFrameTableModel.sort"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#iblqt.core.DataFrameTableModel.sort" title="Link to this definition"></a></dt>
+<dd><p>Sort the data based on the specified column and order.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>column</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – The column index to sort by.</p></li>
+<li><p><strong>order</strong> (<a class="reference external" href="https://doc.qt.io/qt-5/qt.html#SortOrder-enum" title="(in Qt5 v5.15)"><code class="docutils literal notranslate"><span class="pre">SortOrder</span></code></a>, <em>optional</em>) – The sort order. Defaults to Ascending order.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="iblqt.core.DataFrameTableModel.dataFrame">
+<span class="sig-name descname"><span class="pre">dataFrame</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">pyqtProperty</span></em><a class="headerlink" href="#iblqt.core.DataFrameTableModel.dataFrame" title="Link to this definition"></a></dt>
+<dd><p>The DataFrame containing the models data.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="iblqt.core.ColoredDataFrameTableModel.html" class="btn btn-neutral float-left" title="iblqt.core.ColoredDataFrameTableModel" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="iblqt.core.PathWatcher.html" class="btn btn-neutral float-right" title="iblqt.core.PathWatcher" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, International Brain Laboratory.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

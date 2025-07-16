@@ -1,0 +1,1188 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>iblqt.core &mdash; iblqt 0.7.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5a057da9"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=35a8b989"></script>
+      <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            iblqt
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../dev_guide.html">Developer Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Links</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/int-brain-lab/iblqt">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pypi.org/project/iblqt">PyPI</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">iblqt</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">iblqt.core</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for iblqt.core</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Non-GUI functionality, including event handling, data types, and data management.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">traceback</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">webbrowser</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">inspect</span><span class="w"> </span><span class="kn">import</span> <span class="n">signature</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">cast</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">npt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataFrame</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyqtgraph</span><span class="w"> </span><span class="kn">import</span> <span class="n">ColorMap</span><span class="p">,</span> <span class="n">colormap</span>  <span class="c1"># type: ignore</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qtpy.QtCore</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Property</span><span class="p">,</span>
+    <span class="n">QAbstractTableModel</span><span class="p">,</span>
+    <span class="n">QFileSystemWatcher</span><span class="p">,</span>
+    <span class="n">QModelIndex</span><span class="p">,</span>
+    <span class="n">QObject</span><span class="p">,</span>
+    <span class="n">QRunnable</span><span class="p">,</span>
+    <span class="n">Qt</span><span class="p">,</span>
+    <span class="n">QUrl</span><span class="p">,</span>
+    <span class="n">Signal</span><span class="p">,</span>
+    <span class="n">Slot</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qtpy.QtGui</span><span class="w"> </span><span class="kn">import</span> <span class="n">QColor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qtpy.QtWebEngineWidgets</span><span class="w"> </span><span class="kn">import</span> <span class="n">QWebEnginePage</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qtpy.QtWidgets</span><span class="w"> </span><span class="kn">import</span> <span class="n">QMessageBox</span><span class="p">,</span> <span class="n">QWidget</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">requests</span><span class="w"> </span><span class="kn">import</span> <span class="n">HTTPError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">override</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">one.webclient</span><span class="w"> </span><span class="kn">import</span> <span class="n">AlyxClient</span>  <span class="c1"># type: ignore</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="DataFrameTableModel">
+<a class="viewcode-back" href="../../api/iblqt.core.DataFrameTableModel.html#iblqt.core.DataFrameTableModel">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DataFrameTableModel</span><span class="p">(</span><span class="n">QAbstractTableModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A Qt TableModel for Pandas DataFrames.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dataFrame : Property</span>
+<span class="sd">        The DataFrame containing the models data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="DataFrameTableModel.__init__">
+<a class="viewcode-back" href="../../api/iblqt.core.DataFrameTableModel.html#iblqt.core.DataFrameTableModel.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">parent</span><span class="p">:</span> <span class="n">QObject</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">dataFrame</span><span class="p">:</span> <span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the DataFrameTableModel.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        parent : QObject, optional</span>
+<span class="sd">            The parent object.</span>
+<span class="sd">        dataFrame : DataFrame, optional</span>
+<span class="sd">            The Pandas DataFrame to be represented by the model.</span>
+<span class="sd">        *args : tuple</span>
+<span class="sd">            Positional arguments passed to the parent class.</span>
+<span class="sd">        **kwargs : dict</span>
+<span class="sd">            Keyword arguments passed to the parent class.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dataFrame</span> <span class="o">=</span> <span class="n">DataFrame</span><span class="p">()</span> <span class="k">if</span> <span class="n">dataFrame</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">dataFrame</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="DataFrameTableModel.getDataFrame">
+<a class="viewcode-back" href="../../api/iblqt.core.DataFrameTableModel.html#iblqt.core.DataFrameTableModel.getDataFrame">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">getDataFrame</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the underlying DataFrame.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        DataFrame</span>
+<span class="sd">            The DataFrame represented by the model.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataFrame</span></div>
+
+
+<div class="viewcode-block" id="DataFrameTableModel.setDataFrame">
+<a class="viewcode-back" href="../../api/iblqt.core.DataFrameTableModel.html#iblqt.core.DataFrameTableModel.setDataFrame">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setDataFrame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataFrame</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set a new DataFrame.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        dataFrame : DataFrame</span>
+<span class="sd">            The new DataFrame to be set.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">beginResetModel</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dataFrame</span> <span class="o">=</span> <span class="n">dataFrame</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">endResetModel</span><span class="p">()</span></div>
+
+
+    <span class="n">dataFrame</span> <span class="o">=</span> <span class="n">Property</span><span class="p">(</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">fget</span><span class="o">=</span><span class="n">getDataFrame</span><span class="p">,</span> <span class="n">fset</span><span class="o">=</span><span class="n">setDataFrame</span><span class="p">)</span>  <span class="c1"># type: Property</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The DataFrame containing the models data.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="DataFrameTableModel.headerData">
+<a class="viewcode-back" href="../../api/iblqt.core.DataFrameTableModel.html#iblqt.core.DataFrameTableModel.headerData">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">headerData</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">section</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">orientation</span><span class="p">:</span> <span class="n">Qt</span><span class="o">.</span><span class="n">Orientation</span> <span class="o">=</span> <span class="n">Qt</span><span class="o">.</span><span class="n">Orientation</span><span class="o">.</span><span class="n">Horizontal</span><span class="p">,</span>
+        <span class="n">role</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Qt</span><span class="o">.</span><span class="n">ItemDataRole</span><span class="o">.</span><span class="n">DisplayRole</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the header data for the specified section.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        section : int</span>
+<span class="sd">            The section index.</span>
+<span class="sd">        orientation : Qt.Orientation, optional</span>
+<span class="sd">            The orientation of the header. Defaults to Horizontal.</span>
+<span class="sd">        role : int, optional</span>
+<span class="sd">            The role of the header data. Only DisplayRole is supported at this time.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Any or None</span>
+<span class="sd">            The header data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">role</span> <span class="o">==</span> <span class="n">Qt</span><span class="o">.</span><span class="n">ItemDataRole</span><span class="o">.</span><span class="n">DisplayRole</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="n">orientation</span> <span class="o">==</span> <span class="n">Qt</span><span class="o">.</span><span class="n">Orientation</span><span class="o">.</span><span class="n">Horizontal</span>
+                <span class="ow">and</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">section</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">columnCount</span><span class="p">()</span>
+            <span class="p">):</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataFrame</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="n">section</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="p">(</span>
+                <span class="n">orientation</span> <span class="o">==</span> <span class="n">Qt</span><span class="o">.</span><span class="n">Orientation</span><span class="o">.</span><span class="n">Vertical</span>
+                <span class="ow">and</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">section</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">rowCount</span><span class="p">()</span>
+            <span class="p">):</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataFrame</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">section</span><span class="p">]</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="DataFrameTableModel.rowCount">
+<a class="viewcode-back" href="../../api/iblqt.core.DataFrameTableModel.html#iblqt.core.DataFrameTableModel.rowCount">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rowCount</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">QModelIndex</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the number of rows in the model.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        parent : QModelIndex, optional</span>
+<span class="sd">            The parent index.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            The number of rows.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">QModelIndex</span><span class="p">)</span> <span class="ow">and</span> <span class="n">parent</span><span class="o">.</span><span class="n">isValid</span><span class="p">():</span>
+            <span class="k">return</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataFrame</span><span class="o">.</span><span class="n">index</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DataFrameTableModel.columnCount">
+<a class="viewcode-back" href="../../api/iblqt.core.DataFrameTableModel.html#iblqt.core.DataFrameTableModel.columnCount">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">columnCount</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">QModelIndex</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the number of columns in the model.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        parent : QModelIndex, optional</span>
+<span class="sd">            The parent index.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            The number of columns.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">QModelIndex</span><span class="p">)</span> <span class="ow">and</span> <span class="n">parent</span><span class="o">.</span><span class="n">isValid</span><span class="p">():</span>
+            <span class="k">return</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataFrame</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">size</span></div>
+
+
+<div class="viewcode-block" id="DataFrameTableModel.data">
+<a class="viewcode-back" href="../../api/iblqt.core.DataFrameTableModel.html#iblqt.core.DataFrameTableModel.data">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">data</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="n">QModelIndex</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Qt</span><span class="o">.</span><span class="n">ItemDataRole</span><span class="o">.</span><span class="n">DisplayRole</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the data for the specified index.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        index : QModelIndex</span>
+<span class="sd">            The index of the data.</span>
+<span class="sd">        role : int, optional</span>
+<span class="sd">            The role of the data.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Any or None</span>
+<span class="sd">            The data for the specified index.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">index</span><span class="o">.</span><span class="n">isValid</span><span class="p">()</span> <span class="ow">and</span> <span class="n">role</span> <span class="o">==</span> <span class="n">Qt</span><span class="o">.</span><span class="n">ItemDataRole</span><span class="o">.</span><span class="n">DisplayRole</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataFrame</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">index</span><span class="o">.</span><span class="n">row</span><span class="p">(),</span> <span class="n">index</span><span class="o">.</span><span class="n">column</span><span class="p">()]</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">generic</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">data</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="DataFrameTableModel.setData">
+<a class="viewcode-back" href="../../api/iblqt.core.DataFrameTableModel.html#iblqt.core.DataFrameTableModel.setData">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setData</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="n">QModelIndex</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Qt</span><span class="o">.</span><span class="n">ItemDataRole</span><span class="o">.</span><span class="n">DisplayRole</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set data at the specified index with the given value.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        index : QModelIndex</span>
+<span class="sd">            The index where the data will be set.</span>
+<span class="sd">        value : Any</span>
+<span class="sd">            The new value to be set at the specified index.</span>
+<span class="sd">        role : int, optional</span>
+<span class="sd">            The role of the data. Only DisplayRole is supported at this time.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            Returns true if successful; otherwise returns false.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">index</span><span class="o">.</span><span class="n">isValid</span><span class="p">()</span> <span class="ow">and</span> <span class="n">role</span> <span class="o">==</span> <span class="n">Qt</span><span class="o">.</span><span class="n">ItemDataRole</span><span class="o">.</span><span class="n">DisplayRole</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dataFrame</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">index</span><span class="o">.</span><span class="n">row</span><span class="p">(),</span> <span class="n">index</span><span class="o">.</span><span class="n">column</span><span class="p">()]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dataChanged</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="p">[</span><span class="n">role</span><span class="p">])</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="DataFrameTableModel.sort">
+<a class="viewcode-back" href="../../api/iblqt.core.DataFrameTableModel.html#iblqt.core.DataFrameTableModel.sort">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sort</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">order</span><span class="p">:</span> <span class="n">Qt</span><span class="o">.</span><span class="n">SortOrder</span> <span class="o">=</span> <span class="n">Qt</span><span class="o">.</span><span class="n">SortOrder</span><span class="o">.</span><span class="n">AscendingOrder</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sort the data based on the specified column and order.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        column : int</span>
+<span class="sd">            The column index to sort by.</span>
+<span class="sd">        order : Qt.SortOrder, optional</span>
+<span class="sd">            The sort order. Defaults to Ascending order.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">columnCount</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">columnName</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataFrame</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="n">column</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layoutAboutToBeChanged</span><span class="o">.</span><span class="n">emit</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dataFrame</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span>
+            <span class="n">by</span><span class="o">=</span><span class="n">columnName</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="n">order</span> <span class="o">==</span> <span class="n">Qt</span><span class="o">.</span><span class="n">SortOrder</span><span class="o">.</span><span class="n">AscendingOrder</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layoutChanged</span><span class="o">.</span><span class="n">emit</span><span class="p">()</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="ColoredDataFrameTableModel">
+<a class="viewcode-back" href="../../api/iblqt.core.ColoredDataFrameTableModel.html#iblqt.core.ColoredDataFrameTableModel">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ColoredDataFrameTableModel</span><span class="p">(</span><span class="n">DataFrameTableModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extension of DataFrameTableModel providing color-mapped numerical data.&quot;&quot;&quot;</span>
+
+    <span class="n">colormapChanged</span> <span class="o">=</span> <span class="n">Signal</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>  <span class="c1"># type: Signal</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Emitted when the colormap has been changed.&quot;&quot;&quot;</span>
+
+    <span class="n">alphaChanged</span> <span class="o">=</span> <span class="n">Signal</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>  <span class="c1"># type: Signal</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Emitted when the alpha value has been changed.&quot;&quot;&quot;</span>
+
+    <span class="n">_normData</span> <span class="o">=</span> <span class="n">DataFrame</span><span class="p">()</span>
+    <span class="n">_background</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int_</span><span class="p">]</span>
+    <span class="n">_foreground</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int_</span><span class="p">]</span>
+    <span class="n">_cmap</span><span class="p">:</span> <span class="n">ColorMap</span> <span class="o">=</span> <span class="n">colormap</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;plasma&#39;</span><span class="p">)</span>
+    <span class="n">_alpha</span><span class="p">:</span> <span class="nb">int</span>
+
+<div class="viewcode-block" id="ColoredDataFrameTableModel.__init__">
+<a class="viewcode-back" href="../../api/iblqt.core.ColoredDataFrameTableModel.html#iblqt.core.ColoredDataFrameTableModel.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">parent</span><span class="p">:</span> <span class="n">QObject</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">dataFrame</span><span class="p">:</span> <span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">colormap</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;plasma&#39;</span><span class="p">,</span>
+        <span class="n">alpha</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">255</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the ColoredDataFrameTableModel.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        parent : QObject, optional</span>
+<span class="sd">            The parent object.</span>
+<span class="sd">        dataFrame : DataFrame, optional</span>
+<span class="sd">            The Pandas DataFrame to be represented by the model.</span>
+<span class="sd">        colormap : str</span>
+<span class="sd">            The colormap to be used. Can be the name of a valid colormap from matplotlib or colorcet.</span>
+<span class="sd">        alpha : int</span>
+<span class="sd">            The alpha value of the colormap. Must be between 0 and 255.</span>
+<span class="sd">        *args : tuple</span>
+<span class="sd">            Positional arguments passed to the parent class.</span>
+<span class="sd">        **kwargs : dict</span>
+<span class="sd">            Keyword arguments passed to the parent class.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">modelReset</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_normalizeData</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_normalizeData</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">colormapChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_defineColors</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setProperty</span><span class="p">(</span><span class="s1">&#39;colormap&#39;</span><span class="p">,</span> <span class="n">colormap</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setProperty</span><span class="p">(</span><span class="s1">&#39;alpha&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">dataFrame</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setDataFrame</span><span class="p">(</span><span class="n">dataFrame</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ColoredDataFrameTableModel.getColormap">
+<a class="viewcode-back" href="../../api/iblqt.core.ColoredDataFrameTableModel.html#iblqt.core.ColoredDataFrameTableModel.getColormap">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">getColormap</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the name of the current colormap.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            The name of the current colormap</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cmap</span><span class="o">.</span><span class="n">name</span></div>
+
+
+<div class="viewcode-block" id="ColoredDataFrameTableModel.setColormap">
+<a class="viewcode-back" href="../../api/iblqt.core.ColoredDataFrameTableModel.html#iblqt.core.ColoredDataFrameTableModel.setColormap">[docs]</a>
+    <span class="nd">@Slot</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setColormap</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the colormap.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : str</span>
+<span class="sd">            Name of the colormap to be used. Can be the name of a valid colormap from matplotlib or colorcet.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;matplotlib&#39;</span><span class="p">,</span> <span class="s1">&#39;colorcet&#39;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">colormap</span><span class="o">.</span><span class="n">listMaps</span><span class="p">(</span><span class="n">source</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_cmap</span> <span class="o">=</span> <span class="n">colormap</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">source</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">colormapChanged</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+                <span class="k">return</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;No such colormap: &quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&quot;&#39;</span><span class="p">)</span></div>
+
+
+    <span class="n">colormap</span> <span class="o">=</span> <span class="n">Property</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">fget</span><span class="o">=</span><span class="n">getColormap</span><span class="p">,</span> <span class="n">fset</span><span class="o">=</span><span class="n">setColormap</span><span class="p">,</span> <span class="n">notify</span><span class="o">=</span><span class="n">colormapChanged</span><span class="p">)</span>  <span class="c1"># type: Property</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The name of the colormap.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ColoredDataFrameTableModel.getAlpha">
+<a class="viewcode-back" href="../../api/iblqt.core.ColoredDataFrameTableModel.html#iblqt.core.ColoredDataFrameTableModel.getAlpha">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">getAlpha</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the alpha value of the colormap.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            The alpha value of the colormap.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_alpha</span></div>
+
+
+<div class="viewcode-block" id="ColoredDataFrameTableModel.setAlpha">
+<a class="viewcode-back" href="../../api/iblqt.core.ColoredDataFrameTableModel.html#iblqt.core.ColoredDataFrameTableModel.setAlpha">[docs]</a>
+    <span class="nd">@Slot</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setAlpha</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alpha</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">255</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the alpha value of the colormap.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        alpha : int</span>
+<span class="sd">            The alpha value of the colormap. Must be between 0 and 255.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">_</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_alpha</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="mi">255</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alphaChanged</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_alpha</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layoutChanged</span><span class="o">.</span><span class="n">emit</span><span class="p">()</span></div>
+
+
+    <span class="n">alpha</span> <span class="o">=</span> <span class="n">Property</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">fget</span><span class="o">=</span><span class="n">getAlpha</span><span class="p">,</span> <span class="n">fset</span><span class="o">=</span><span class="n">setAlpha</span><span class="p">,</span> <span class="n">notify</span><span class="o">=</span><span class="n">alphaChanged</span><span class="p">)</span>  <span class="c1"># type: Property</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The alpha value of the colormap.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_normalizeData</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Normalize the Data for mapping to a colormap.&quot;&quot;&quot;</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataFrame</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="c1"># coerce non-bool / non-numeric values to numeric</span>
+        <span class="n">cols</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span><span class="n">exclude</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;bool&#39;</span><span class="p">,</span> <span class="s1">&#39;number&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">columns</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">cols</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">cols</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s1">&#39;coerce&#39;</span><span class="p">)</span>
+
+        <span class="c1"># normalize numeric values, avoiding inf values and division by zero</span>
+        <span class="n">cols</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span><span class="n">include</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;number&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">columns</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">cols</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">cols</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="mi">1</span>  <span class="c1"># boolean mask for columns with only 1 unique value</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">cols</span><span class="p">[</span><span class="n">m</span><span class="p">]]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">cols</span><span class="p">[</span><span class="n">m</span><span class="p">]]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">cols</span><span class="p">[</span><span class="n">m</span><span class="p">]]</span><span class="o">.</span><span class="n">isna</span><span class="p">(),</span> <span class="n">other</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+        <span class="n">cols</span> <span class="o">=</span> <span class="n">cols</span><span class="p">[</span><span class="o">~</span><span class="n">m</span><span class="p">]</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">cols</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">cols</span><span class="p">]</span> <span class="o">-</span> <span class="n">df</span><span class="p">[</span><span class="n">cols</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">())</span> <span class="o">/</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">cols</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">-</span> <span class="n">df</span><span class="p">[</span><span class="n">cols</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">())</span>
+
+        <span class="c1"># convert boolean values</span>
+        <span class="n">cols</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span><span class="n">include</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;bool&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">columns</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">cols</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">cols</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+
+        <span class="c1"># store as property &amp; call _defineColors()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_normData</span> <span class="o">=</span> <span class="n">df</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_defineColors</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_defineColors</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Define the background and foreground colors according to the table&#39;s data.</span>
+
+<span class="sd">        The background color is set to the colormap-mapped values of the normalized</span>
+<span class="sd">        data, and the foreground color is set to the inverse of the background&#39;s</span>
+<span class="sd">        approximated luminosity.</span>
+
+<span class="sd">        The `layoutChanged` signal is emitted after the colors are defined.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normData</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_background</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_foreground</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_normData</span><span class="p">)</span>  <span class="c1"># binary mask for finite values</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_background</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_normData</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span> <span class="o">*</span> <span class="mi">255</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_background</span><span class="p">[</span><span class="n">m</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cmap</span><span class="o">.</span><span class="n">mapToByte</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_normData</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">m</span><span class="p">])[:,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_foreground</span> <span class="o">=</span> <span class="mi">255</span> <span class="o">-</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_background</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[[</span><span class="mf">0.21</span><span class="p">,</span> <span class="mf">0.72</span><span class="p">,</span> <span class="mf">0.07</span><span class="p">]]])</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layoutChanged</span><span class="o">.</span><span class="n">emit</span><span class="p">()</span>
+
+<div class="viewcode-block" id="ColoredDataFrameTableModel.data">
+<a class="viewcode-back" href="../../api/iblqt.core.ColoredDataFrameTableModel.html#iblqt.core.ColoredDataFrameTableModel.data">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="n">QModelIndex</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Qt</span><span class="o">.</span><span class="n">ItemDataRole</span><span class="o">.</span><span class="n">DisplayRole</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the data for the specified index.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        index : QModelIndex</span>
+<span class="sd">            The index of the data.</span>
+<span class="sd">        role : int, optional</span>
+<span class="sd">            The role of the data.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Any</span>
+<span class="sd">            The data for the specified index.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">role</span> <span class="ow">in</span> <span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">ItemDataRole</span><span class="o">.</span><span class="n">BackgroundRole</span><span class="p">,</span> <span class="n">Qt</span><span class="o">.</span><span class="n">ItemDataRole</span><span class="o">.</span><span class="n">ForegroundRole</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="n">index</span><span class="o">.</span><span class="n">isValid</span><span class="p">()</span>
+        <span class="p">):</span>
+            <span class="n">row</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataFrame</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">index</span><span class="o">.</span><span class="n">row</span><span class="p">()]</span>
+            <span class="n">col</span> <span class="o">=</span> <span class="n">index</span><span class="o">.</span><span class="n">column</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">role</span> <span class="o">==</span> <span class="n">Qt</span><span class="o">.</span><span class="n">ItemDataRole</span><span class="o">.</span><span class="n">BackgroundRole</span><span class="p">:</span>
+                <span class="n">r</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_background</span><span class="p">[</span><span class="n">row</span><span class="p">][</span><span class="n">col</span><span class="p">]</span>
+                <span class="k">return</span> <span class="n">QColor</span><span class="o">.</span><span class="n">fromRgb</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_alpha</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">role</span> <span class="o">==</span> <span class="n">Qt</span><span class="o">.</span><span class="n">ItemDataRole</span><span class="o">.</span><span class="n">ForegroundRole</span><span class="p">:</span>
+                <span class="n">lum</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_foreground</span><span class="p">[</span><span class="n">row</span><span class="p">][</span><span class="n">col</span><span class="p">]</span>
+                <span class="k">return</span> <span class="n">QColor</span><span class="p">(</span><span class="s1">&#39;black&#39;</span> <span class="k">if</span> <span class="p">(</span><span class="n">lum</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_alpha</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">32512</span> <span class="k">else</span> <span class="s1">&#39;white&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">role</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="PathWatcher">
+<a class="viewcode-back" href="../../api/iblqt.core.PathWatcher.html#iblqt.core.PathWatcher">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">PathWatcher</span><span class="p">(</span><span class="n">QObject</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Watch paths for changes.</span>
+
+<span class="sd">    Identical to :class:`~PyQt5.QtCore.QFileSystemWatcher` but using</span>
+<span class="sd">    :class:`~pathlib.Path` instead of :class:`str` for arguments and signals.</span>
+
+<span class="sd">    Call :meth:`~iblqt.core.PathWatcher.addPath` to watch a particular file or</span>
+<span class="sd">    directory. Multiple paths can be added using the</span>
+<span class="sd">    :meth:`~iblqt.core.PathWatcher.addPaths` function. Existing paths can be removed by</span>
+<span class="sd">    using the :meth:`~iblqt.core.PathWatcher.removePath` and</span>
+<span class="sd">    :meth:`~iblqt.core.PathWatcher.removePaths` functions.</span>
+
+<span class="sd">    PathWatcher examines each path added to it. Files that have been added to the</span>
+<span class="sd">    PathWatcher can be accessed using the :meth:`~iblqt.core.PathWatcher.files`</span>
+<span class="sd">    function, and directories using the :meth:`~iblqt.core.PathWatcher.directories`</span>
+<span class="sd">    function.</span>
+
+<span class="sd">    The :meth:`~iblqt.core.PathWatcher.fileChanged` signal is emitted when a file has</span>
+<span class="sd">    been modified, renamed or removed from disk. Similarly, the</span>
+<span class="sd">    :meth:`~iblqt.core.PathWatcher.directoryChanged` signal is emitted when a</span>
+<span class="sd">    directory or its contents is modified or removed. Note that PathWatcher stops</span>
+<span class="sd">    monitoring files once they have been renamed or removed from disk, and directories</span>
+<span class="sd">    once they have been removed from disk.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - On systems running a Linux kernel without inotify support, file systems that</span>
+<span class="sd">      contain watched paths cannot be unmounted.</span>
+<span class="sd">    - The act of monitoring files and directories for modifications consumes system</span>
+<span class="sd">      resources. This implies there is a limit to the number of files and directories</span>
+<span class="sd">      your process can monitor simultaneously. On all BSD variants, for example,</span>
+<span class="sd">      an open file descriptor is required for each monitored file. Some system limits</span>
+<span class="sd">      the number of open file descriptors to 256 by default. This means that</span>
+<span class="sd">      :meth:`~iblqt.core.PathWatcher.addPath` and</span>
+<span class="sd">      :meth:`~iblqt.core.PathWatcher.addPaths` will fail if your process tries to add</span>
+<span class="sd">      more than 256 files or directories to the PathWatcher. Also note that your</span>
+<span class="sd">      process may have other file descriptors open in addition to the ones for files</span>
+<span class="sd">      being monitored, and these other open descriptors also count in the total. macOS</span>
+<span class="sd">      uses a different backend and does not suffer from this issue.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">fileChanged</span> <span class="o">=</span> <span class="n">Signal</span><span class="p">(</span><span class="n">Path</span><span class="p">)</span>  <span class="c1"># type: Signal</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Emitted when a file has been modified, renamed or removed from disk.&quot;&quot;&quot;</span>
+
+    <span class="n">directoryChanged</span> <span class="o">=</span> <span class="n">Signal</span><span class="p">(</span><span class="n">Path</span><span class="p">)</span>  <span class="c1"># type: Signal</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Emitted when a directory or its contents is modified or removed.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="PathWatcher.__init__">
+<a class="viewcode-back" href="../../api/iblqt.core.PathWatcher.html#iblqt.core.PathWatcher.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">QObject</span><span class="p">,</span> <span class="n">paths</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the PathWatcher.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        parent : QObject</span>
+<span class="sd">            The parent object.</span>
+<span class="sd">        paths : list[Path] or list[str]</span>
+<span class="sd">            Paths or directories to be watched.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_watcher</span> <span class="o">=</span> <span class="n">QFileSystemWatcher</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">],</span> <span class="n">parent</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_watcher</span><span class="o">.</span><span class="n">fileChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span> <span class="n">f</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">fileChanged</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">f</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_watcher</span><span class="o">.</span><span class="n">directoryChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">d</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">directoryChanged</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">d</span><span class="p">))</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PathWatcher.files">
+<a class="viewcode-back" href="../../api/iblqt.core.PathWatcher.html#iblqt.core.PathWatcher.files">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">files</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a list of paths to files that are being watched.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list[Path]</span>
+<span class="sd">            List of paths to files that are being watched.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">Path</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_watcher</span><span class="o">.</span><span class="n">files</span><span class="p">()]</span></div>
+
+
+<div class="viewcode-block" id="PathWatcher.directories">
+<a class="viewcode-back" href="../../api/iblqt.core.PathWatcher.html#iblqt.core.PathWatcher.directories">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">directories</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a list of paths to directories that are being watched.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list[Path]</span>
+<span class="sd">            List of paths to directories that are being watched.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">Path</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_watcher</span><span class="o">.</span><span class="n">directories</span><span class="p">()]</span></div>
+
+
+<div class="viewcode-block" id="PathWatcher.addPath">
+<a class="viewcode-back" href="../../api/iblqt.core.PathWatcher.html#iblqt.core.PathWatcher.addPath">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">addPath</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add path to the PathWatcher.</span>
+
+<span class="sd">        The path is not added if it does not exist, or if it is already being monitored</span>
+<span class="sd">        by the PathWatcher.</span>
+
+<span class="sd">        If path specifies a directory, the directoryChanged() signal will be emitted</span>
+<span class="sd">        when path is modified or removed from disk; otherwise the fileChanged() signal</span>
+<span class="sd">        is emitted when path is modified, renamed or removed.</span>
+
+<span class="sd">        If the watch was successful, true is returned.</span>
+
+<span class="sd">        Reasons for a watch failure are generally system-dependent, but may include the</span>
+<span class="sd">        resource not existing, access failures, or the total watch count limit, if the</span>
+<span class="sd">        platform has one.</span>
+
+<span class="sd">        Note</span>
+<span class="sd">        ----</span>
+<span class="sd">        There may be a system dependent limit to the number of files and directories</span>
+<span class="sd">        that can be monitored simultaneously. If this limit is been reached, path will</span>
+<span class="sd">        not be monitored, and false is returned.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        path : Path or str</span>
+<span class="sd">            Path or directory to be watched.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True if the watch was successful, otherwise False.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_watcher</span><span class="o">.</span><span class="n">addPath</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="PathWatcher.addPaths">
+<a class="viewcode-back" href="../../api/iblqt.core.PathWatcher.html#iblqt.core.PathWatcher.addPaths">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">addPaths</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">paths</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add each path in paths to the PathWatcher.</span>
+
+<span class="sd">        Paths are not added if they do not exist, or if they are already being monitored</span>
+<span class="sd">        by the PathWatcher.</span>
+
+<span class="sd">        If a path specifies a directory, the directoryChanged() signal will be emitted</span>
+<span class="sd">        when the path is modified or removed from disk; otherwise the fileChanged()</span>
+<span class="sd">        signal is emitted when the path is modified, renamed, or removed.</span>
+
+<span class="sd">        The return value is a list of paths that could not be watched.</span>
+
+<span class="sd">        Reasons for a watch failure are generally system-dependent, but may include the</span>
+<span class="sd">        resource not existing, access failures, or the total watch count limit, if the</span>
+<span class="sd">        platform has one.</span>
+
+<span class="sd">        Note</span>
+<span class="sd">        ----</span>
+<span class="sd">        There may be a system dependent limit to the number of files and directories</span>
+<span class="sd">        that can be monitored simultaneously. If this limit has been reached, the excess</span>
+<span class="sd">        paths will not be monitored, and they will be added to the returned list.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        paths : list[Path] or list[str]</span>
+<span class="sd">            Paths or directories to be watched.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list[Path]</span>
+<span class="sd">            List of paths that could not be watched.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_watcher</span><span class="o">.</span><span class="n">addPaths</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">])</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">Path</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">out</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="PathWatcher.removePath">
+<a class="viewcode-back" href="../../api/iblqt.core.PathWatcher.html#iblqt.core.PathWatcher.removePath">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">removePath</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Remove the specified path from the PathWatcher.</span>
+
+<span class="sd">        If the watch is successfully removed, true is returned.</span>
+
+<span class="sd">        Reasons for watch removal failing are generally system-dependent, but may be due</span>
+<span class="sd">        to the path having already been deleted, for example.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        path : list[Path] or list[str]</span>
+<span class="sd">            Path or directory to be removed from the PathWatcher.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True if the watch was successful, otherwise False.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_watcher</span><span class="o">.</span><span class="n">removePath</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="PathWatcher.removePaths">
+<a class="viewcode-back" href="../../api/iblqt.core.PathWatcher.html#iblqt.core.PathWatcher.removePaths">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">removePaths</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">paths</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Remove the specified paths from the PathWatcher.</span>
+
+<span class="sd">        The return value is a list of paths which were not able to be unwatched</span>
+<span class="sd">        successfully.</span>
+
+<span class="sd">        Reasons for watch removal failing are generally system-dependent, but may be due</span>
+<span class="sd">        to the path having already been deleted, for example.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        paths : list[Path] or list[str]</span>
+<span class="sd">            Paths or directories to be unwatched.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list[Path]</span>
+<span class="sd">            List of paths which were not able to be unwatched successfully.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_watcher</span><span class="o">.</span><span class="n">removePaths</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">])</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">Path</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">out</span><span class="p">]</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="QAlyx">
+<a class="viewcode-back" href="../../api/iblqt.core.QAlyx.html#iblqt.core.QAlyx">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">QAlyx</span><span class="p">(</span><span class="n">QObject</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A Qt wrapper for :class:`one.webclient.AlyxClient`.&quot;&quot;&quot;</span>
+
+    <span class="n">tokenMissing</span> <span class="o">=</span> <span class="n">Signal</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Emitted when a login attempt failed due to a missing cache token.&quot;&quot;&quot;</span>
+
+    <span class="n">authenticationFailed</span> <span class="o">=</span> <span class="n">Signal</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Emitted when a login attempt failed due to incorrect credentials.&quot;&quot;&quot;</span>
+
+    <span class="n">connectionFailed</span> <span class="o">=</span> <span class="n">Signal</span><span class="p">(</span><span class="ne">Exception</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Emitted when a login attempt failed due to connection issues.&quot;&quot;&quot;</span>
+
+    <span class="n">loggedIn</span> <span class="o">=</span> <span class="n">Signal</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Emitted when successfully logged in.&quot;&quot;&quot;</span>
+
+    <span class="n">loggedOut</span> <span class="o">=</span> <span class="n">Signal</span><span class="p">()</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Emitted when logged out.&quot;&quot;&quot;</span>
+
+    <span class="n">statusChanged</span> <span class="o">=</span> <span class="n">Signal</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Emitted when the login status has changed.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="QAlyx.__init__">
+<a class="viewcode-back" href="../../api/iblqt.core.QAlyx.html#iblqt.core.QAlyx.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">QObject</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="n">AlyxClient</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="n">base_url</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parentWidget</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">cast</span><span class="p">(</span><span class="n">QWidget</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">())</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">(),</span> <span class="n">QWidget</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connectionFailed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_onConnectionFailed</span><span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">client</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AlyxClient</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the wrapped client.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`~one.webclient.AlyxClient`</span>
+<span class="sd">        The wrapped client.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span>
+
+<div class="viewcode-block" id="QAlyx.login">
+<a class="viewcode-back" href="../../api/iblqt.core.QAlyx.html#iblqt.core.QAlyx.login">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">login</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">password</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">cache_token</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Try to log into Alyx.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        username : str</span>
+<span class="sd">            Alyx username.</span>
+<span class="sd">        password : str, optional</span>
+<span class="sd">            Alyx password.</span>
+<span class="sd">        cache_token : bool</span>
+<span class="sd">            If true, the token is cached for subsequent auto-logins. Default: False.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">is_logged_in</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">user</span> <span class="o">==</span> <span class="n">username</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="c1"># try to authenticate. upgrade warnings to exceptions so we can catch them.</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">():</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s1">&#39;error&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">authenticate</span><span class="p">(</span>
+                    <span class="n">username</span><span class="o">=</span><span class="n">username</span><span class="p">,</span>
+                    <span class="n">password</span><span class="o">=</span><span class="n">password</span><span class="p">,</span>
+                    <span class="n">cache_token</span><span class="o">=</span><span class="n">cache_token</span><span class="p">,</span>
+                    <span class="n">force</span><span class="o">=</span><span class="n">password</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="p">)</span>
+
+        <span class="c1"># catch missing password / token</span>
+        <span class="k">except</span> <span class="ne">UserWarning</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s1">&#39;No password or cached token&#39;</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">tokenMissing</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">username</span><span class="p">)</span>
+                <span class="k">return</span>
+
+        <span class="c1"># catch connection issues: display a message box</span>
+        <span class="k">except</span> <span class="ne">ConnectionError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">connectionFailed</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="c1"># catch authentication errors</span>
+        <span class="k">except</span> <span class="n">HTTPError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">errno</span> <span class="o">==</span> <span class="mi">400</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">authenticationFailed</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">username</span><span class="p">)</span>
+                <span class="k">return</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">e</span>
+
+        <span class="c1"># emit signals</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">is_logged_in</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">user</span> <span class="o">==</span> <span class="n">username</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">statusChanged</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">loggedIn</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">username</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="QAlyx.rest">
+<a class="viewcode-back" href="../../api/iblqt.core.QAlyx.html#iblqt.core.QAlyx.rest">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rest</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Query Alyx rest API.</span>
+
+<span class="sd">        A wrapper for :meth:`one.webclient.AlyxClient.rest`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        *args : Any</span>
+<span class="sd">            Positional arguments passed to :meth:`AlyxClient.rest() &lt;one.webclient.AlyxClient.rest&gt;`.</span>
+<span class="sd">        **args : Any</span>
+<span class="sd">            Keyword arguments passed to :meth:`AlyxClient.rest() &lt;one.webclient.AlyxClient.rest&gt;`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Any</span>
+<span class="sd">            The response received from Alyx.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">():</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">rest</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">HTTPError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">errno</span> <span class="o">==</span> <span class="mi">400</span><span class="p">:</span>
+                <span class="n">QMessageBox</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_parentWidget</span><span class="p">,</span>
+                    <span class="s1">&#39;Error&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;Cannot perform query without authentication.</span><span class="se">\n</span><span class="s1">&#39;</span>
+                    <span class="s1">&#39;Please log in to Alyx and try again.&#39;</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">connectionFailed</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_onConnectionFailed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="ne">ConnectionError</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;Can&#39;t connect&quot;</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="ow">or</span> <span class="p">(</span>
+            <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">HTTPError</span><span class="p">)</span> <span class="ow">and</span> <span class="n">e</span><span class="o">.</span><span class="n">errno</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">404</span><span class="p">,</span> <span class="mi">400</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="n">QMessageBox</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_parentWidget</span><span class="p">,</span>
+                <span class="s1">&#39;Connection Error&#39;</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;Can&#39;t connect to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">base_url</span><span class="si">}</span><span class="s2">.</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s1">&#39;Check your internet connection and availability of the Alyx instance.&#39;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">HTTPError</span><span class="p">)</span> <span class="ow">and</span> <span class="n">e</span><span class="o">.</span><span class="n">errno</span> <span class="o">==</span> <span class="mi">400</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">authenticationFailed</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">user</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">e</span>
+
+<div class="viewcode-block" id="QAlyx.logout">
+<a class="viewcode-back" href="../../api/iblqt.core.QAlyx.html#iblqt.core.QAlyx.logout">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">logout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Log out of Alyx.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">is_logged_in</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">logout</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">statusChanged</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loggedOut</span><span class="o">.</span><span class="n">emit</span><span class="p">()</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="WorkerSignals">
+<a class="viewcode-back" href="../../api/iblqt.core.WorkerSignals.html#iblqt.core.WorkerSignals">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">WorkerSignals</span><span class="p">(</span><span class="n">QObject</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Signals used by the :class:`Worker` class to communicate with the main thread.&quot;&quot;&quot;</span>
+
+    <span class="n">finished</span> <span class="o">=</span> <span class="n">Signal</span><span class="p">()</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Emitted when the worker has finished its task.&quot;&quot;&quot;</span>
+
+    <span class="n">error</span> <span class="o">=</span> <span class="n">Signal</span><span class="p">(</span><span class="nb">tuple</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Emitted when an error occurs. The signal carries a tuple with the exception type,</span>
+<span class="sd">    exception value, and the formatted traceback.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="n">Signal</span><span class="p">(</span><span class="nb">object</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Emitted when the worker has successfully completed its task. The signal carries the</span>
+<span class="sd">    result of the task.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">progress</span> <span class="o">=</span> <span class="n">Signal</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Emitted to report progress during the task. The signal carries an integer value.</span>
+<span class="sd">    &quot;&quot;&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="Worker">
+<a class="viewcode-back" href="../../api/iblqt.core.Worker.html#iblqt.core.Worker">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Worker</span><span class="p">(</span><span class="n">QRunnable</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A generic worker class for executing functions concurrently in a separate thread.</span>
+
+<span class="sd">    This class is designed to run functions concurrently in a separate thread and emit signals</span>
+<span class="sd">    to communicate the results or errors back to the main thread.</span>
+
+<span class="sd">    Adapted from: https://www.pythonguis.com/tutorials/multithreading-pyqt-applications-qthreadpool/</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fn : Callable</span>
+<span class="sd">        The function to be executed concurrently.</span>
+
+<span class="sd">    args : tuple</span>
+<span class="sd">        Positional arguments for the function.</span>
+
+<span class="sd">    kwargs : dict</span>
+<span class="sd">        Keyword arguments for the function.</span>
+
+<span class="sd">    signals : WorkerSignals</span>
+<span class="sd">        An instance of WorkerSignals used to emit signals.</span>
+
+<span class="sd">    Methods</span>
+<span class="sd">    -------</span>
+<span class="sd">    run() -&gt; None</span>
+<span class="sd">        The main entry point for running the worker. Executes the provided function and</span>
+<span class="sd">        emits signals accordingly.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Worker.__init__">
+<a class="viewcode-back" href="../../api/iblqt.core.Worker.html#iblqt.core.Worker.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fn</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the Worker instance.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fn : Callable</span>
+<span class="sd">            The function to be executed concurrently.</span>
+
+<span class="sd">        *args : tuple</span>
+<span class="sd">            Positional arguments for the function.</span>
+
+<span class="sd">        **kwargs : dict</span>
+<span class="sd">            Keyword arguments for the function.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fn</span> <span class="o">=</span> <span class="n">fn</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="n">args</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span> <span class="o">=</span> <span class="n">kwargs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">signals</span><span class="p">:</span> <span class="n">WorkerSignals</span> <span class="o">=</span> <span class="n">WorkerSignals</span><span class="p">()</span>
+        <span class="k">if</span> <span class="s1">&#39;progress_callback&#39;</span> <span class="ow">in</span> <span class="n">signature</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span><span class="o">.</span><span class="n">parameters</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;progress_callback&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">signals</span><span class="o">.</span><span class="n">progress</span></div>
+
+
+<div class="viewcode-block" id="Worker.run">
+<a class="viewcode-back" href="../../api/iblqt.core.Worker.html#iblqt.core.Worker.run">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Execute the provided function and emit signals accordingly.</span>
+
+<span class="sd">        This method is the main entry point for running the worker. It executes the provided</span>
+<span class="sd">        function and emits signals to communicate the results or errors back to the main thread.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fn</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>  <span class="c1"># noqa: E722</span>
+            <span class="c1"># Handle exceptions and emit error signal with exception details</span>
+            <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span>
+            <span class="n">exctype</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()[:</span><span class="mi">2</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">signals</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">emit</span><span class="p">((</span><span class="n">exctype</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">()))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Emit result signal with the result of the task</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">signals</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="c1"># Emit the finished signal to indicate completion</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">signals</span><span class="o">.</span><span class="n">finished</span><span class="o">.</span><span class="n">emit</span><span class="p">()</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="RestrictedWebEnginePage">
+<a class="viewcode-back" href="../../api/iblqt.core.RestrictedWebEnginePage.html#iblqt.core.RestrictedWebEnginePage">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">RestrictedWebEnginePage</span><span class="p">(</span><span class="n">QWebEnginePage</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A :class:`QWebEnginePage` subclass that filters navigation requests based on a URL prefix.</span>
+
+<span class="sd">    Links that start with the specified `trusted_url_prefix` are allowed to load inside</span>
+<span class="sd">    the application. All other links are opened externally in the default web browser.</span>
+
+<span class="sd">    Adapted from: https://www.pythonguis.com/faq/qwebengineview-open-links-new-window/</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="RestrictedWebEnginePage.__init__">
+<a class="viewcode-back" href="../../api/iblqt.core.RestrictedWebEnginePage.html#iblqt.core.RestrictedWebEnginePage.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">QObject</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">trusted_url_prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the UrlFilteredWebEnginePage.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        parent : QObject, optional</span>
+<span class="sd">            The parent of this web engine page.</span>
+<span class="sd">        trusted_url_prefix : str</span>
+<span class="sd">            A URL prefix that identifies trusted links. Only links starting</span>
+<span class="sd">            with this prefix will be loaded within the web view.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_trusted_url_prefix</span> <span class="o">=</span> <span class="n">trusted_url_prefix</span></div>
+
+
+<div class="viewcode-block" id="RestrictedWebEnginePage.acceptNavigationRequest">
+<a class="viewcode-back" href="../../api/iblqt.core.RestrictedWebEnginePage.html#iblqt.core.RestrictedWebEnginePage.acceptNavigationRequest">[docs]</a>
+    <span class="nd">@override</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">acceptNavigationRequest</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">url</span><span class="p">:</span> <span class="n">QUrl</span><span class="p">,</span>
+        <span class="n">navigationType</span><span class="p">:</span> <span class="n">QWebEnginePage</span><span class="o">.</span><span class="n">NavigationType</span><span class="p">,</span>
+        <span class="n">is_main_frame</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Handle and filter navigation requests.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        url : QUrl</span>
+<span class="sd">            The target URL of the navigation request.</span>
+<span class="sd">        navigationType : QWebEnginePage.NavigationType</span>
+<span class="sd">            The type of navigation event</span>
+<span class="sd">        is_main_frame : bool</span>
+<span class="sd">            Whether the navigation occurs in the main frame.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True if the navigation should proceed in the web view;</span>
+<span class="sd">            False if the link is handled externally.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">url</span><span class="o">.</span><span class="n">toString</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_trusted_url_prefix</span><span class="p">):</span>
+            <span class="n">webbrowser</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">url</span><span class="o">.</span><span class="n">toString</span><span class="p">())</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">acceptNavigationRequest</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">navigationType</span><span class="p">,</span> <span class="n">is_main_frame</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="RestrictedWebEnginePage.setTrustedUrlPrefix">
+<a class="viewcode-back" href="../../api/iblqt.core.RestrictedWebEnginePage.html#iblqt.core.RestrictedWebEnginePage.setTrustedUrlPrefix">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setTrustedUrlPrefix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trusted_url_prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the URL prefix that identifies trusted links.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        trusted_url_prefix : str</span>
+<span class="sd">            The URL prefix that identifies trusted links.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_trusted_url_prefix</span> <span class="o">=</span> <span class="n">trusted_url_prefix</span></div>
+
+
+<div class="viewcode-block" id="RestrictedWebEnginePage.trustedUrlPrefix">
+<a class="viewcode-back" href="../../api/iblqt.core.RestrictedWebEnginePage.html#iblqt.core.RestrictedWebEnginePage.trustedUrlPrefix">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">trustedUrlPrefix</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieve the URL prefix that identifies trusted links.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            The URL prefix that identifies trusted links.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_trusted_url_prefix</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, International Brain Laboratory.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

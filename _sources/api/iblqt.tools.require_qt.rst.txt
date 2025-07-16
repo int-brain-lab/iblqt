@@ -1,0 +1,6 @@
+iblqt.tools.require\_qt
+=======================
+
+.. currentmodule:: iblqt.tools
+
+.. autofunction:: require_qt

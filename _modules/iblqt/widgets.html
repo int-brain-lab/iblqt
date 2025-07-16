@@ -1,0 +1,1176 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>iblqt.widgets &mdash; iblqt 0.7.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5a057da9"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=35a8b989"></script>
+      <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            iblqt
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../dev_guide.html">Developer Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Links</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/int-brain-lab/iblqt">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pypi.org/project/iblqt">PyPI</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">iblqt</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">iblqt.widgets</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for iblqt.widgets</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Graphical user interface components.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">webbrowser</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">IntEnum</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shutil</span><span class="w"> </span><span class="kn">import</span> <span class="n">_ntuple_diskusage</span><span class="p">,</span> <span class="n">disk_usage</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">qtpy.QtCore</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Property</span><span class="p">,</span>
+    <span class="n">QAbstractItemModel</span><span class="p">,</span>
+    <span class="n">QEvent</span><span class="p">,</span>
+    <span class="n">QModelIndex</span><span class="p">,</span>
+    <span class="n">QPointF</span><span class="p">,</span>
+    <span class="n">QPropertyAnimation</span><span class="p">,</span>
+    <span class="n">QRect</span><span class="p">,</span>
+    <span class="n">QRectF</span><span class="p">,</span>
+    <span class="n">QSize</span><span class="p">,</span>
+    <span class="n">QSizeF</span><span class="p">,</span>
+    <span class="n">Qt</span><span class="p">,</span>
+    <span class="n">QThreadPool</span><span class="p">,</span>
+    <span class="n">QUrl</span><span class="p">,</span>
+    <span class="n">Signal</span><span class="p">,</span>
+    <span class="n">Slot</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qtpy.QtGui</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">QColor</span><span class="p">,</span>
+    <span class="n">QIcon</span><span class="p">,</span>
+    <span class="n">QMouseEvent</span><span class="p">,</span>
+    <span class="n">QPainter</span><span class="p">,</span>
+    <span class="n">QPaintEvent</span><span class="p">,</span>
+    <span class="n">QPalette</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qtpy.QtWebEngineWidgets</span><span class="w"> </span><span class="kn">import</span> <span class="n">QWebEngineView</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qtpy.QtWidgets</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">QAbstractButton</span><span class="p">,</span>
+    <span class="n">QApplication</span><span class="p">,</span>
+    <span class="n">QCheckBox</span><span class="p">,</span>
+    <span class="n">QDialog</span><span class="p">,</span>
+    <span class="n">QDialogButtonBox</span><span class="p">,</span>
+    <span class="n">QFormLayout</span><span class="p">,</span>
+    <span class="n">QFrame</span><span class="p">,</span>
+    <span class="n">QHBoxLayout</span><span class="p">,</span>
+    <span class="n">QLabel</span><span class="p">,</span>
+    <span class="n">QLayout</span><span class="p">,</span>
+    <span class="n">QLineEdit</span><span class="p">,</span>
+    <span class="n">QMessageBox</span><span class="p">,</span>
+    <span class="n">QProgressBar</span><span class="p">,</span>
+    <span class="n">QPushButton</span><span class="p">,</span>
+    <span class="n">QSizePolicy</span><span class="p">,</span>
+    <span class="n">QSpacerItem</span><span class="p">,</span>
+    <span class="n">QStyle</span><span class="p">,</span>
+    <span class="n">QStyledItemDelegate</span><span class="p">,</span>
+    <span class="n">QStyleOptionButton</span><span class="p">,</span>
+    <span class="n">QStyleOptionViewItem</span><span class="p">,</span>
+    <span class="n">QVBoxLayout</span><span class="p">,</span>
+    <span class="n">QWidget</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">iblqt</span><span class="w"> </span><span class="kn">import</span> <span class="n">resources</span>  <span class="c1"># noqa: F401</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">iblqt.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">QAlyx</span><span class="p">,</span> <span class="n">RestrictedWebEnginePage</span><span class="p">,</span> <span class="n">Worker</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">iblutil.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">format_bytes</span>
+
+
+<div class="viewcode-block" id="CheckBoxDelegate">
+<a class="viewcode-back" href="../../api/iblqt.widgets.CheckBoxDelegate.html#iblqt.widgets.CheckBoxDelegate">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CheckBoxDelegate</span><span class="p">(</span><span class="n">QStyledItemDelegate</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A custom delegate for rendering checkboxes in a QTableView or similar widget.</span>
+
+<span class="sd">    This delegate allows for the display and interaction with boolean data as checkboxes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="CheckBoxDelegate.paint">
+<a class="viewcode-back" href="../../api/iblqt.widgets.CheckBoxDelegate.html#iblqt.widgets.CheckBoxDelegate.paint">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">paint</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">painter</span><span class="p">:</span> <span class="n">QPainter</span><span class="p">,</span> <span class="n">option</span><span class="p">:</span> <span class="n">QStyleOptionViewItem</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="n">QModelIndex</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Paints the checkbox in the view.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        painter : QPainter</span>
+<span class="sd">            The painter used to draw the checkbox.</span>
+<span class="sd">        option : QStyleOptionButton</span>
+<span class="sd">            The style option containing the information needed for painting.</span>
+<span class="sd">        index : QModelIndex</span>
+<span class="sd">            The index of the item in the model.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">paint</span><span class="p">(</span><span class="n">painter</span><span class="p">,</span> <span class="n">option</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span>
+        <span class="n">control</span> <span class="o">=</span> <span class="n">QStyleOptionButton</span><span class="p">()</span>
+        <span class="n">control</span><span class="o">.</span><span class="n">rect</span> <span class="o">=</span> <span class="n">QRect</span><span class="p">(</span><span class="n">option</span><span class="o">.</span><span class="n">rect</span><span class="o">.</span><span class="n">topLeft</span><span class="p">(),</span> <span class="n">QCheckBox</span><span class="p">()</span><span class="o">.</span><span class="n">sizeHint</span><span class="p">())</span>
+        <span class="n">control</span><span class="o">.</span><span class="n">rect</span><span class="o">.</span><span class="n">moveCenter</span><span class="p">(</span><span class="n">option</span><span class="o">.</span><span class="n">rect</span><span class="o">.</span><span class="n">center</span><span class="p">())</span>
+        <span class="n">control</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">QStyle</span><span class="o">.</span><span class="n">State_On</span> <span class="k">if</span> <span class="n">index</span><span class="o">.</span><span class="n">data</span><span class="p">()</span> <span class="ow">is</span> <span class="kc">True</span> <span class="k">else</span> <span class="n">QStyle</span><span class="o">.</span><span class="n">State_Off</span>
+        <span class="n">QApplication</span><span class="o">.</span><span class="n">style</span><span class="p">()</span><span class="o">.</span><span class="n">drawControl</span><span class="p">(</span>
+            <span class="n">QStyle</span><span class="o">.</span><span class="n">ControlElement</span><span class="o">.</span><span class="n">CE_CheckBox</span><span class="p">,</span> <span class="n">control</span><span class="p">,</span> <span class="n">painter</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CheckBoxDelegate.displayText">
+<a class="viewcode-back" href="../../api/iblqt.widgets.CheckBoxDelegate.html#iblqt.widgets.CheckBoxDelegate.displayText">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">displayText</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">locale</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return an empty string to hide the text representation of the data.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        value : Any</span>
+<span class="sd">            The value to be displayed (not used).</span>
+<span class="sd">        locale : Any</span>
+<span class="sd">            The locale to be used (not used).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            An empty string.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s1">&#39;&#39;</span></div>
+
+
+<div class="viewcode-block" id="CheckBoxDelegate.editorEvent">
+<a class="viewcode-back" href="../../api/iblqt.widgets.CheckBoxDelegate.html#iblqt.widgets.CheckBoxDelegate.editorEvent">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">editorEvent</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">event</span><span class="p">:</span> <span class="n">QEvent</span><span class="p">,</span>
+        <span class="n">model</span><span class="p">:</span> <span class="n">QAbstractItemModel</span><span class="p">,</span>
+        <span class="n">option</span><span class="p">:</span> <span class="n">QStyleOptionViewItem</span><span class="p">,</span>
+        <span class="n">index</span><span class="p">:</span> <span class="n">QModelIndex</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Handle user interaction with the checkbox.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        event : QEvent</span>
+<span class="sd">            The event that occurred (e.g., mouse click).</span>
+<span class="sd">        model : QAbstractItemModel</span>
+<span class="sd">            The model associated with the view.</span>
+<span class="sd">        option : QStyleOptionViewItem</span>
+<span class="sd">            The style option containing the information needed for handling the event.</span>
+<span class="sd">        index : QModelIndex</span>
+<span class="sd">            The index of the item in the model.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True if the event was handled, False otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">QMouseEvent</span><span class="p">)</span> <span class="ow">and</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span><span class="p">()</span> <span class="o">==</span> <span class="n">QEvent</span><span class="o">.</span><span class="n">MouseButtonRelease</span><span class="p">:</span>
+            <span class="n">checkbox_rect</span> <span class="o">=</span> <span class="n">QRect</span><span class="p">(</span><span class="n">option</span><span class="o">.</span><span class="n">rect</span><span class="o">.</span><span class="n">topLeft</span><span class="p">(),</span> <span class="n">QCheckBox</span><span class="p">()</span><span class="o">.</span><span class="n">sizeHint</span><span class="p">())</span>
+            <span class="n">checkbox_rect</span><span class="o">.</span><span class="n">moveCenter</span><span class="p">(</span><span class="n">option</span><span class="o">.</span><span class="n">rect</span><span class="o">.</span><span class="n">center</span><span class="p">())</span>
+            <span class="k">if</span> <span class="n">checkbox_rect</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">pos</span><span class="p">()):</span>
+                <span class="n">model</span><span class="o">.</span><span class="n">setData</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="ow">not</span> <span class="n">model</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="n">index</span><span class="p">))</span>
+                <span class="n">event</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span>
+                <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">editorEvent</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">option</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="StatefulButton">
+<a class="viewcode-back" href="../../api/iblqt.widgets.StatefulButton.html#iblqt.widgets.StatefulButton">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">StatefulButton</span><span class="p">(</span><span class="n">QPushButton</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A QPushButton that maintains an active/inactive state.&quot;&quot;&quot;</span>
+
+    <span class="n">clickedWhileActive</span> <span class="o">=</span> <span class="n">Signal</span><span class="p">()</span>  <span class="c1"># type: Signal</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Emitted when the button is clicked while it is in the active state.&quot;&quot;&quot;</span>
+
+    <span class="n">clickedWhileInactive</span> <span class="o">=</span> <span class="n">Signal</span><span class="p">()</span>  <span class="c1"># type: Signal</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Emitted when the button is clicked while it is in the inactive state.&quot;&quot;&quot;</span>
+
+    <span class="n">stateChanged</span> <span class="o">=</span> <span class="n">Signal</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>  <span class="c1"># type: Signal</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Emitted when the button&#39;s state has changed. The signal carries the new state</span>
+<span class="sd">    (True for active, False for inactive).&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="StatefulButton.__init__">
+<a class="viewcode-back" href="../../api/iblqt.widgets.StatefulButton.html#iblqt.widgets.StatefulButton.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">textActive</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">textInactive</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">active</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">parent</span><span class="p">:</span> <span class="n">QWidget</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the StatefulButton with the specified active state.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        textActive : str, optional</span>
+<span class="sd">            The text shown on the button when in active state.</span>
+<span class="sd">        textInactive : str, optional</span>
+<span class="sd">            The text shown on the button when in inactive state.</span>
+<span class="sd">        active : bool, optional</span>
+<span class="sd">            Initial state of the button (default is False).</span>
+<span class="sd">        parent : QWidget</span>
+<span class="sd">            The parent widget.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_isActive</span> <span class="o">=</span> <span class="n">active</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_textActive</span> <span class="o">=</span> <span class="n">textActive</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_textInactive</span> <span class="o">=</span> <span class="n">textInactive</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_textActive</span> <span class="k">if</span> <span class="n">active</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_textInactive</span><span class="p">,</span> <span class="n">parent</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_onClick</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stateChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_onStateChange</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="StatefulButton.getActive">
+<a class="viewcode-back" href="../../api/iblqt.widgets.StatefulButton.html#iblqt.widgets.StatefulButton.getActive">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">getActive</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the active state of the button.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True if the button is active, False otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_isActive</span></div>
+
+
+<div class="viewcode-block" id="StatefulButton.setActive">
+<a class="viewcode-back" href="../../api/iblqt.widgets.StatefulButton.html#iblqt.widgets.StatefulButton.setActive">[docs]</a>
+    <span class="nd">@Slot</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setActive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the active state of the button.</span>
+
+<span class="sd">        Emits `stateChanged` if the state has changed.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        value : bool</span>
+<span class="sd">            The new active state of the button.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_isActive</span> <span class="o">!=</span> <span class="n">value</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_isActive</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stateChanged</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_isActive</span><span class="p">)</span></div>
+
+
+    <span class="n">active</span> <span class="o">=</span> <span class="n">Property</span><span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="n">fget</span><span class="o">=</span><span class="n">getActive</span><span class="p">,</span> <span class="n">fset</span><span class="o">=</span><span class="n">setActive</span><span class="p">,</span> <span class="n">notify</span><span class="o">=</span><span class="n">stateChanged</span><span class="p">)</span>  <span class="c1"># type: Property</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The active state of the button.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="StatefulButton.getTextActive">
+<a class="viewcode-back" href="../../api/iblqt.widgets.StatefulButton.html#iblqt.widgets.StatefulButton.getTextActive">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">getTextActive</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the text shown on the button when in active state.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            The text shown during active state.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_textActive</span></div>
+
+
+<div class="viewcode-block" id="StatefulButton.setTextActive">
+<a class="viewcode-back" href="../../api/iblqt.widgets.StatefulButton.html#iblqt.widgets.StatefulButton.setTextActive">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setTextActive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the text shown on the button when in active state.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        text : str</span>
+<span class="sd">            The text to be shown during active state.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_textActive</span> <span class="o">=</span> <span class="n">text</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">active</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_textActive</span><span class="p">)</span></div>
+
+
+    <span class="n">textActive</span> <span class="o">=</span> <span class="n">Property</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">fget</span><span class="o">=</span><span class="n">getTextActive</span><span class="p">,</span> <span class="n">fset</span><span class="o">=</span><span class="n">setTextActive</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The text shown on the button during active state.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="StatefulButton.getTextInactive">
+<a class="viewcode-back" href="../../api/iblqt.widgets.StatefulButton.html#iblqt.widgets.StatefulButton.getTextInactive">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">getTextInactive</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the text shown on the button during inactive state.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            The text shown during inactive state.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_textInactive</span></div>
+
+
+<div class="viewcode-block" id="StatefulButton.setTextInactive">
+<a class="viewcode-back" href="../../api/iblqt.widgets.StatefulButton.html#iblqt.widgets.StatefulButton.setTextInactive">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setTextInactive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the text shown on the button during inactive state.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        text : str</span>
+<span class="sd">            The text to be shown during inactive state.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_textInactive</span> <span class="o">=</span> <span class="n">text</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">active</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_textInactive</span><span class="p">)</span></div>
+
+
+    <span class="n">textInactive</span> <span class="o">=</span> <span class="n">Property</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">fget</span><span class="o">=</span><span class="n">getTextInactive</span><span class="p">,</span> <span class="n">fset</span><span class="o">=</span><span class="n">setTextInactive</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The text shown on the button during inactive state.&quot;&quot;&quot;</span>
+
+    <span class="nd">@Slot</span><span class="p">()</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_onClick</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Handle the button click event.</span>
+
+<span class="sd">        Emits `clickedWhileActive` if the button is active,</span>
+<span class="sd">        otherwise emits `clickedWhileInactive`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_isActive</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">clickedWhileActive</span><span class="o">.</span><span class="n">emit</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">clickedWhileInactive</span><span class="o">.</span><span class="n">emit</span><span class="p">()</span>
+
+    <span class="nd">@Slot</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_onStateChange</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Handle the state change event.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_textActive</span> <span class="k">if</span> <span class="n">state</span> <span class="ow">is</span> <span class="kc">True</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_textInactive</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="UseTokenCache">
+<a class="viewcode-back" href="../../api/iblqt.widgets.UseTokenCache.html#iblqt.widgets.UseTokenCache">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">UseTokenCache</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Enumeration that defines the strategy for caching the login token.&quot;&quot;&quot;</span>
+
+    <span class="n">NEVER</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Indicates that the login token should never be stored.&quot;&quot;&quot;</span>
+
+    <span class="n">ASK</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Indicates that the user should be prompted whether to store the login token.&quot;&quot;&quot;</span>
+
+    <span class="n">ALWAYS</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Indicates that the login token should always be stored.&quot;&quot;&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="AlyxUserEdit">
+<a class="viewcode-back" href="../../api/iblqt.widgets.AlyxUserEdit.html#iblqt.widgets.AlyxUserEdit">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">AlyxUserEdit</span><span class="p">(</span><span class="n">QLineEdit</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A specialized :class:`QLineEdit` for logging in to Alyx.</span>
+
+<span class="sd">    A one-line text editor for entering a username. The widget handles login</span>
+<span class="sd">    actions, including displaying the login status. A :class:`AlyxLoginDialog`</span>
+<span class="sd">    is triggered when no authentication token is available.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="AlyxUserEdit.__init__">
+<a class="viewcode-back" href="../../api/iblqt.widgets.AlyxUserEdit.html#iblqt.widgets.AlyxUserEdit.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">alyx</span><span class="p">:</span> <span class="n">QAlyx</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">QWidget</span><span class="p">,</span> <span class="n">cache</span><span class="p">:</span> <span class="n">UseTokenCache</span> <span class="o">=</span> <span class="n">UseTokenCache</span><span class="o">.</span><span class="n">ASK</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the widget.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        alyx : QAlyx</span>
+<span class="sd">            The alyx instance.</span>
+<span class="sd">        parent : QWidget</span>
+<span class="sd">            The parent widget.</span>
+<span class="sd">        cache : UseTokenCache</span>
+<span class="sd">            Strategy for handling the token cache. Defaults to UseTokenCache.ASK.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alyx</span> <span class="o">=</span> <span class="n">alyx</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span> <span class="o">=</span> <span class="n">cache</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_checkIcon</span> <span class="o">=</span> <span class="n">QIcon</span><span class="p">(</span><span class="s1">&#39;:/icon/check&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">setPlaceholderText</span><span class="p">(</span><span class="s1">&#39;Username&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">returnPressed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">login</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">loggedIn</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_onLoggedIn</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">loggedOut</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_onLoggedOut</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">tokenMissing</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_onTokenMissing</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="AlyxUserEdit.login">
+<a class="viewcode-back" href="../../api/iblqt.widgets.AlyxUserEdit.html#iblqt.widgets.AlyxUserEdit.login">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">login</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Attempt to log in to Alyx with the entered username.</span>
+
+<span class="sd">        If the username field is empty, the login attempt is ignored.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">())</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">login</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">())</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_onLoggedIn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Handle successful login by updating the UI.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        username : str</span>
+<span class="sd">            The username of the logged-in user.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_checkIcon</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ActionPosition</span><span class="o">.</span><span class="n">TrailingPosition</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">username</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setReadOnly</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="s1">&#39;background-color: rgb(246, 245, 244);&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_onLoggedOut</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Handle logout by resetting the UI elements.&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">action</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">actions</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">removeAction</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setReadOnly</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_onTokenMissing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Prompt the user for password when the authentication token is missing.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        username : str</span>
+<span class="sd">            The username for which the token is missing.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">AlyxLoginDialog</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">)</span><span class="o">.</span><span class="n">exec_</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="AlyxLoginWidget">
+<a class="viewcode-back" href="../../api/iblqt.widgets.AlyxLoginWidget.html#iblqt.widgets.AlyxLoginWidget">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">AlyxLoginWidget</span><span class="p">(</span><span class="n">QWidget</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A widget used for managing the connection to Alyx.</span>
+
+<span class="sd">    This widget contains an :class:`AlyxUserEdit` for entering a username and a</span>
+<span class="sd">    :class:`StatefulButton` for logging in and out.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="AlyxLoginWidget.__init__">
+<a class="viewcode-back" href="../../api/iblqt.widgets.AlyxLoginWidget.html#iblqt.widgets.AlyxLoginWidget.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">alyx</span><span class="p">:</span> <span class="n">QAlyx</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">parent</span><span class="p">:</span> <span class="n">QWidget</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">cache</span><span class="p">:</span> <span class="n">UseTokenCache</span> <span class="o">=</span> <span class="n">UseTokenCache</span><span class="o">.</span><span class="n">ASK</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the widget.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        alyx : QAlyx | str</span>
+<span class="sd">            The Alyx instance or the base URL for the Alyx API.</span>
+<span class="sd">        parent : QWidget</span>
+<span class="sd">            The parent widget.</span>
+<span class="sd">        cache : UseTokenCache</span>
+<span class="sd">            Strategy for handling the token cache. Defaults to UseTokenCache.ASK.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">alyx</span><span class="p">,</span> <span class="n">QAlyx</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">alyx</span> <span class="o">=</span> <span class="n">alyx</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">alyx</span> <span class="o">=</span> <span class="n">QAlyx</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="n">alyx</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="c1"># edit field for username</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">userEdit</span> <span class="o">=</span> <span class="n">AlyxUserEdit</span><span class="p">(</span><span class="n">alyx</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="n">cache</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">userEdit</span><span class="o">.</span><span class="n">textChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_onTextChanged</span><span class="p">)</span>
+
+        <span class="c1"># stateful button that is used for, both, logging in and logging out</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">button</span> <span class="o">=</span> <span class="n">StatefulButton</span><span class="p">(</span>
+            <span class="n">textActive</span><span class="o">=</span><span class="s1">&#39;Logout&#39;</span><span class="p">,</span> <span class="n">textInactive</span><span class="o">=</span><span class="s1">&#39;Login&#39;</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="bp">self</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">button</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">button</span><span class="o">.</span><span class="n">clickedWhileInactive</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">userEdit</span><span class="o">.</span><span class="n">login</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">button</span><span class="o">.</span><span class="n">clickedWhileActive</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">logout</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alyx</span><span class="o">.</span><span class="n">statusChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">button</span><span class="o">.</span><span class="n">setActive</span><span class="p">)</span>
+
+        <span class="n">QHBoxLayout</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layout</span><span class="p">()</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">userEdit</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layout</span><span class="p">()</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">button</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_onTextChanged</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Only enable the login button when a username has been entered.&quot;&quot;&quot;</span>
+        <span class="n">text_entered</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">username</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">button</span><span class="o">.</span><span class="n">isEnabled</span><span class="p">()</span> <span class="o">^</span> <span class="n">text_entered</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">button</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="n">text_entered</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="AlyxLoginDialog">
+<a class="viewcode-back" href="../../api/iblqt.widgets.AlyxLoginDialog.html#iblqt.widgets.AlyxLoginDialog">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">AlyxLoginDialog</span><span class="p">(</span><span class="n">QDialog</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A password dialog window used for authenticating with Alyx.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="AlyxLoginDialog.__init__">
+<a class="viewcode-back" href="../../api/iblqt.widgets.AlyxLoginDialog.html#iblqt.widgets.AlyxLoginDialog.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">alyx</span><span class="p">:</span> <span class="n">QAlyx</span><span class="p">,</span>
+        <span class="n">username</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">parent</span><span class="p">:</span> <span class="n">QWidget</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">cache</span><span class="p">:</span> <span class="n">UseTokenCache</span> <span class="o">=</span> <span class="n">UseTokenCache</span><span class="o">.</span><span class="n">ASK</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the widget.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        alyx : QAlyx</span>
+<span class="sd">            The alyx instance.</span>
+<span class="sd">        username : str</span>
+<span class="sd">            The username.</span>
+<span class="sd">        parent : QWidget</span>
+<span class="sd">            The parent widget.</span>
+<span class="sd">        cache : UseTokenCache</span>
+<span class="sd">            Strategy for handling the token cache. Defaults to ASK.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="s1">&#39;Login&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_alyx</span> <span class="o">=</span> <span class="n">alyx</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_alyx</span><span class="o">.</span><span class="n">authenticationFailed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_onAuthentificationFailed</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_alyx</span><span class="o">.</span><span class="n">loggedIn</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_onAuthentificationSucceeded</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">cache</span> <span class="o">==</span> <span class="n">UseTokenCache</span><span class="o">.</span><span class="n">ALWAYS</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="n">form_widget</span> <span class="o">=</span> <span class="n">QWidget</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">userEdit</span> <span class="o">=</span> <span class="n">QLineEdit</span><span class="p">(</span><span class="n">username</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">form_widget</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">passEdit</span> <span class="o">=</span> <span class="n">QLineEdit</span><span class="p">(</span><span class="n">form_widget</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">userEdit</span><span class="o">.</span><span class="n">textChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_onTextChanged</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">passEdit</span><span class="o">.</span><span class="n">setFocus</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">passEdit</span><span class="o">.</span><span class="n">setEchoMode</span><span class="p">(</span><span class="n">QLineEdit</span><span class="o">.</span><span class="n">Password</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">passEdit</span><span class="o">.</span><span class="n">textChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_onTextChanged</span><span class="p">)</span>
+        <span class="n">form_layout</span> <span class="o">=</span> <span class="n">QFormLayout</span><span class="p">(</span><span class="n">form_widget</span><span class="p">)</span>
+        <span class="n">form_layout</span><span class="o">.</span><span class="n">addRow</span><span class="p">(</span><span class="s1">&#39;Server&#39;</span><span class="p">,</span> <span class="n">QLabel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_alyx</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">base_url</span><span class="p">,</span> <span class="n">form_widget</span><span class="p">))</span>
+        <span class="n">form_layout</span><span class="o">.</span><span class="n">addRow</span><span class="p">(</span><span class="s1">&#39;Username&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">userEdit</span><span class="p">)</span>
+        <span class="n">form_layout</span><span class="o">.</span><span class="n">addRow</span><span class="p">(</span><span class="s1">&#39;Password&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">passEdit</span><span class="p">)</span>
+        <span class="n">form_layout</span><span class="o">.</span><span class="n">setContentsMargins</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">form_widget</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="n">form_layout</span><span class="p">)</span>
+
+        <span class="n">control_widget</span> <span class="o">=</span> <span class="n">QWidget</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">buttonBox</span> <span class="o">=</span> <span class="n">QDialogButtonBox</span><span class="p">(</span>
+            <span class="n">QDialogButtonBox</span><span class="o">.</span><span class="n">Ok</span> <span class="o">|</span> <span class="n">QDialogButtonBox</span><span class="o">.</span><span class="n">Cancel</span><span class="p">,</span> <span class="n">Qt</span><span class="o">.</span><span class="n">Horizontal</span><span class="p">,</span> <span class="n">control_widget</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">buttonBox</span><span class="o">.</span><span class="n">button</span><span class="p">(</span><span class="n">QDialogButtonBox</span><span class="o">.</span><span class="n">Ok</span><span class="p">)</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">buttonBox</span><span class="o">.</span><span class="n">button</span><span class="p">(</span><span class="n">QDialogButtonBox</span><span class="o">.</span><span class="n">Ok</span><span class="p">)</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">accept</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">buttonBox</span><span class="o">.</span><span class="n">button</span><span class="p">(</span><span class="n">QDialogButtonBox</span><span class="o">.</span><span class="n">Cancel</span><span class="p">)</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reject</span><span class="p">)</span>
+        <span class="n">control_layout</span> <span class="o">=</span> <span class="n">QHBoxLayout</span><span class="p">(</span><span class="n">control_widget</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">cache</span> <span class="o">==</span> <span class="n">UseTokenCache</span><span class="o">.</span><span class="n">ASK</span><span class="p">:</span>
+            <span class="n">check_cache</span> <span class="o">=</span> <span class="n">QCheckBox</span><span class="p">(</span><span class="s1">&#39;Remember me&#39;</span><span class="p">,</span> <span class="n">control_widget</span><span class="p">)</span>
+            <span class="n">check_cache</span><span class="o">.</span><span class="n">stateChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_setCache</span><span class="p">)</span>
+            <span class="n">control_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">check_cache</span><span class="p">)</span>
+        <span class="n">control_layout</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span>
+            <span class="n">QSpacerItem</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">QSizePolicy</span><span class="o">.</span><span class="n">MinimumExpanding</span><span class="p">,</span> <span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Minimum</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">control_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">buttonBox</span><span class="p">)</span>
+        <span class="n">control_layout</span><span class="o">.</span><span class="n">setContentsMargins</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">control_widget</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="n">control_layout</span><span class="p">)</span>
+
+        <span class="n">QVBoxLayout</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layout</span><span class="p">()</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">form_widget</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layout</span><span class="p">()</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span>
+            <span class="n">QSpacerItem</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Minimum</span><span class="p">,</span> <span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Minimum</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layout</span><span class="p">()</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">control_widget</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layout</span><span class="p">()</span><span class="o">.</span><span class="n">setSizeConstraint</span><span class="p">(</span><span class="n">QLayout</span><span class="o">.</span><span class="n">SetFixedSize</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_setCache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">do_cache</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span> <span class="o">=</span> <span class="n">do_cache</span> <span class="o">==</span> <span class="n">Qt</span><span class="o">.</span><span class="n">CheckState</span><span class="o">.</span><span class="n">Checked</span>
+
+<div class="viewcode-block" id="AlyxLoginDialog.accept">
+<a class="viewcode-back" href="../../api/iblqt.widgets.AlyxLoginDialog.html#iblqt.widgets.AlyxLoginDialog.accept">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">accept</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Hide the dialog and set the result code to Accepted.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_alyx</span><span class="o">.</span><span class="n">login</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">userEdit</span><span class="o">.</span><span class="n">text</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">passEdit</span><span class="o">.</span><span class="n">text</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_onAuthentificationSucceeded</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_onAuthentificationFailed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Show :class:`QMessageBox` on authentication failure.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">passEdit</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="n">QMessageBox</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="s1">&#39;Login Failed&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;Authentication has failed.</span><span class="se">\n</span><span class="s1">Please try again.&#39;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_onTextChanged</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Only enable the OK button when text has been entered in both fields.&quot;&quot;&quot;</span>
+        <span class="n">ok_button</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">buttonBox</span><span class="o">.</span><span class="n">button</span><span class="p">(</span><span class="n">QDialogButtonBox</span><span class="o">.</span><span class="n">Ok</span><span class="p">)</span>
+        <span class="n">text_entered</span> <span class="o">=</span> <span class="nb">all</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">text</span><span class="p">())</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">userEdit</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">passEdit</span><span class="p">)])</span>
+        <span class="k">if</span> <span class="n">ok_button</span><span class="o">.</span><span class="n">isEnabled</span><span class="p">()</span> <span class="o">^</span> <span class="n">text_entered</span><span class="p">:</span>
+            <span class="n">ok_button</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="n">text_entered</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="ThresholdProgressBar">
+<a class="viewcode-back" href="../../api/iblqt.widgets.ThresholdProgressBar.html#iblqt.widgets.ThresholdProgressBar">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ThresholdProgressBar</span><span class="p">(</span><span class="n">QProgressBar</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A progress bar that changes color based on a threshold value.&quot;&quot;&quot;</span>
+
+    <span class="n">thresholdChanged</span> <span class="o">=</span> <span class="n">Signal</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">thresholdCrossed</span> <span class="o">=</span> <span class="n">Signal</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ThresholdProgressBar.__init__">
+<a class="viewcode-back" href="../../api/iblqt.widgets.ThresholdProgressBar.html#iblqt.widgets.ThresholdProgressBar.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">threshold</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">color_critical</span><span class="p">:</span> <span class="n">QColor</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">color_default</span><span class="p">:</span> <span class="n">QColor</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize ThresholdProgressBar.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        threshold : int</span>
+<span class="sd">            The threshold at which the progress bar changes color.</span>
+<span class="sd">        color_critical : QColor, optional</span>
+<span class="sd">            The color to use when the threshold is crossed. Defaults to red.</span>
+<span class="sd">        color_default : QColor, optional</span>
+<span class="sd">            The default color of the progress bar when below the threshold.</span>
+<span class="sd">        **kwargs : dict</span>
+<span class="sd">            Arbitrary keyword arguments (passed to QProgressBar).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_color_critical</span> <span class="o">=</span> <span class="n">color_critical</span> <span class="ow">or</span> <span class="n">QColor</span><span class="p">(</span><span class="s1">&#39;red&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_color_default</span> <span class="o">=</span> <span class="n">color_default</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">palette</span><span class="p">()</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="n">QPalette</span><span class="o">.</span><span class="n">Highlight</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_above_threshold</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">valueChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_check_value</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">thresholdChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_check_threshold</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">thresholdCrossed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_set_color</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_threshold</span> <span class="o">=</span> <span class="n">threshold</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_color</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">aboveThreshold</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="ThresholdProgressBar.aboveThreshold">
+<a class="viewcode-back" href="../../api/iblqt.widgets.ThresholdProgressBar.html#iblqt.widgets.ThresholdProgressBar.aboveThreshold">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">aboveThreshold</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check if the current value is above the threshold.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True if the current value is above the threshold, False otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">()</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_threshold</span></div>
+
+
+<div class="viewcode-block" id="ThresholdProgressBar.threshold">
+<a class="viewcode-back" href="../../api/iblqt.widgets.ThresholdProgressBar.html#iblqt.widgets.ThresholdProgressBar.threshold">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">threshold</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the current threshold value.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_threshold</span></div>
+
+
+<div class="viewcode-block" id="ThresholdProgressBar.setThreshold">
+<a class="viewcode-back" href="../../api/iblqt.widgets.ThresholdProgressBar.html#iblqt.widgets.ThresholdProgressBar.setThreshold">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setThreshold</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set a new threshold value.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_threshold</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">thresholdChanged</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
+
+
+    <span class="nd">@Slot</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_check_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_threshold</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@Slot</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_check_threshold</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">threshold</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check</span><span class="p">(</span><span class="n">threshold</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">())</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">threshold</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">above_threshold</span> <span class="o">=</span> <span class="n">value</span> <span class="o">&gt;</span> <span class="n">threshold</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_above_threshold</span> <span class="o">^</span> <span class="n">above_threshold</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">thresholdCrossed</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">above_threshold</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_above_threshold</span> <span class="o">=</span> <span class="n">above_threshold</span>
+
+    <span class="nd">@Slot</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_set_color</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">above_threshold</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">palette</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">palette</span><span class="p">()</span>
+        <span class="n">palette</span><span class="o">.</span><span class="n">setColor</span><span class="p">(</span>
+            <span class="n">QPalette</span><span class="o">.</span><span class="n">Highlight</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_color_critical</span> <span class="k">if</span> <span class="n">above_threshold</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_color_default</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setPalette</span><span class="p">(</span><span class="n">palette</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="DiskSpaceIndicator">
+<a class="viewcode-back" href="../../api/iblqt.widgets.DiskSpaceIndicator.html#iblqt.widgets.DiskSpaceIndicator">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DiskSpaceIndicator</span><span class="p">(</span><span class="n">ThresholdProgressBar</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A progress bar widget that indicates the disk space usage of a directory.&quot;&quot;&quot;</span>
+
+    <span class="n">_directory</span><span class="p">:</span> <span class="n">Path</span>
+
+<div class="viewcode-block" id="DiskSpaceIndicator.__init__">
+<a class="viewcode-back" href="../../api/iblqt.widgets.DiskSpaceIndicator.html#iblqt.widgets.DiskSpaceIndicator.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">directory</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">percent_threshold</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">90</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize DiskSpaceIndicator.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        directory : Path, str, optional</span>
+<span class="sd">            The directory to monitor for disk space usage.</span>
+<span class="sd">            Default is the root of the current working directory.</span>
+<span class="sd">        percent_threshold : int, optional</span>
+<span class="sd">            The threshold percentage at which the progress bar changes color to red.</span>
+<span class="sd">            Default is 90.</span>
+<span class="sd">        **kwargs : dict</span>
+<span class="sd">            Arbitrary keyword arguments (passed to QProgressBar).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="n">percent_threshold</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setRange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setDirectory</span><span class="p">(</span><span class="n">directory</span> <span class="ow">or</span> <span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span><span class="o">.</span><span class="n">anchor</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DiskSpaceIndicator.directory">
+<a class="viewcode-back" href="../../api/iblqt.widgets.DiskSpaceIndicator.html#iblqt.widgets.DiskSpaceIndicator.directory">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">directory</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the directory being monitored for disk space usage.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            The path of the directory being monitored.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_directory</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DiskSpaceIndicator.setDirectory">
+<a class="viewcode-back" href="../../api/iblqt.widgets.DiskSpaceIndicator.html#iblqt.widgets.DiskSpaceIndicator.setDirectory">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setDirectory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">directory</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the directory to monitor for disk space usage.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        directory : Path, str</span>
+<span class="sd">            The directory path to monitor.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_directory</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">updateData</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="DiskSpaceIndicator.updateData">
+<a class="viewcode-back" href="../../api/iblqt.widgets.DiskSpaceIndicator.html#iblqt.widgets.DiskSpaceIndicator.updateData">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">updateData</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Update the disk space information.&quot;&quot;&quot;</span>
+        <span class="n">worker</span> <span class="o">=</span> <span class="n">Worker</span><span class="p">(</span><span class="n">disk_usage</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_directory</span><span class="o">.</span><span class="n">anchor</span><span class="p">)</span>
+        <span class="n">worker</span><span class="o">.</span><span class="n">signals</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_on_result</span><span class="p">)</span>
+        <span class="n">QThreadPool</span><span class="o">.</span><span class="n">globalInstance</span><span class="p">()</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="n">worker</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_on_result</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">result</span><span class="p">:</span> <span class="n">_ntuple_diskusage</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">percent</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">used</span> <span class="o">/</span> <span class="n">result</span><span class="o">.</span><span class="n">total</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="n">percent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">format_bytes</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">free</span><span class="p">)</span><span class="si">}</span><span class="s1"> available&#39;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="RestrictedWebView">
+<a class="viewcode-back" href="../../api/iblqt.widgets.RestrictedWebView.html#iblqt.widgets.RestrictedWebView">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">RestrictedWebView</span><span class="p">(</span><span class="n">QWidget</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A browser widget that restricts navigation to a trusted URL prefix.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="RestrictedWebView.__init__">
+<a class="viewcode-back" href="../../api/iblqt.widgets.RestrictedWebView.html#iblqt.widgets.RestrictedWebView.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">url</span><span class="p">:</span> <span class="n">QUrl</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">trusted_url_prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">use_tool_tips</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">use_status_tips</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">parent</span><span class="p">:</span> <span class="n">QWidget</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the RestrictedWebView.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        url : QUrl or str</span>
+<span class="sd">            The initial URL to load in the browser.</span>
+<span class="sd">        trusted_url_prefix : str, optional</span>
+<span class="sd">            Prefix of trusted URLs. Clicking on links to matching URLs will open</span>
+<span class="sd">            in the widget&#39;s web engine view, while other links will open in the default</span>
+<span class="sd">            web browser. Defaults to the value of `url`.</span>
+<span class="sd">        use_tool_tips : bool, optional</span>
+<span class="sd">            Whether to set default tool tips for the buttons. Default is True.</span>
+<span class="sd">        use_status_tips : bool, optional</span>
+<span class="sd">            Whether to set default status tips for the buttons. Default is False.</span>
+<span class="sd">        parent : QWidget or None, optional</span>
+<span class="sd">            The parent widget.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">url</span> <span class="o">=</span> <span class="n">QUrl</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">trusted_url_prefix</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">trusted_url_prefix</span> <span class="o">=</span> <span class="n">url</span><span class="o">.</span><span class="n">toString</span><span class="p">()</span>
+
+        <span class="c1"># Create a QWebEngineView to display the web content</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">webEngineView</span> <span class="o">=</span> <span class="n">QWebEngineView</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">webEngineView</span><span class="o">.</span><span class="n">setContextMenuPolicy</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">NoContextMenu</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">webEngineView</span><span class="o">.</span><span class="n">setAcceptDrops</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">webEnginePage</span> <span class="o">=</span> <span class="n">RestrictedWebEnginePage</span><span class="p">(</span>
+            <span class="n">parent</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">webEngineView</span><span class="p">,</span> <span class="n">trusted_url_prefix</span><span class="o">=</span><span class="n">trusted_url_prefix</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">webEngineView</span><span class="o">.</span><span class="n">setPage</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">webEnginePage</span><span class="p">)</span>
+
+        <span class="c1"># Create a horizontal line to separate the web view from the navigation buttons</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">QFrame</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">line</span><span class="o">.</span><span class="n">setFrameShadow</span><span class="p">(</span><span class="n">QFrame</span><span class="o">.</span><span class="n">Sunken</span><span class="p">)</span>
+        <span class="n">line</span><span class="o">.</span><span class="n">setFrameShape</span><span class="p">(</span><span class="n">QFrame</span><span class="o">.</span><span class="n">HLine</span><span class="p">)</span>
+
+        <span class="c1"># Create a frame to hold the navigation buttons</span>
+        <span class="n">frame</span> <span class="o">=</span> <span class="n">QFrame</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">frame</span><span class="o">.</span><span class="n">setFrameShape</span><span class="p">(</span><span class="n">QFrame</span><span class="o">.</span><span class="n">NoFrame</span><span class="p">)</span>
+
+        <span class="c1"># Create navigation buttons, set initial state</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">uiPushBack</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="n">QIcon</span><span class="p">(</span><span class="s1">&#39;:/icon/previous&#39;</span><span class="p">),</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">frame</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">uiPushForward</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="n">QIcon</span><span class="p">(</span><span class="s1">&#39;:/icon/next&#39;</span><span class="p">),</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">frame</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">uiPushHome</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="n">QIcon</span><span class="p">(</span><span class="s1">&#39;:/icon/home&#39;</span><span class="p">),</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">frame</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">uiPushBrowser</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="n">QIcon</span><span class="p">(</span><span class="s1">&#39;:/icon/globe&#39;</span><span class="p">),</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">frame</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">uiPushBack</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">uiPushForward</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="c1"># Assemble the layout</span>
+        <span class="n">horizontalLayout</span> <span class="o">=</span> <span class="n">QHBoxLayout</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
+        <span class="n">horizontalLayout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">uiPushBack</span><span class="p">)</span>
+        <span class="n">horizontalLayout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">uiPushForward</span><span class="p">)</span>
+        <span class="n">horizontalLayout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">uiPushHome</span><span class="p">)</span>
+        <span class="n">horizontalLayout</span><span class="o">.</span><span class="n">addStretch</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">horizontalLayout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">uiPushBrowser</span><span class="p">)</span>
+        <span class="n">verticalLayout</span> <span class="o">=</span> <span class="n">QVBoxLayout</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">verticalLayout</span><span class="o">.</span><span class="n">setContentsMargins</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">verticalLayout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">webEngineView</span><span class="p">)</span>
+        <span class="n">verticalLayout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="n">verticalLayout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
+        <span class="n">verticalLayout</span><span class="o">.</span><span class="n">setStretch</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">verticalLayout</span><span class="o">.</span><span class="n">setSpacing</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c1"># connect signals to slots</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">uiPushHome</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">webEngineView</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">QUrl</span><span class="p">(</span><span class="n">url</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">uiPushBack</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">webEngineView</span><span class="o">.</span><span class="n">back</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">uiPushForward</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">webEngineView</span><span class="o">.</span><span class="n">forward</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">uiPushBrowser</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+            <span class="k">lambda</span><span class="p">:</span> <span class="n">webbrowser</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">webEngineView</span><span class="o">.</span><span class="n">url</span><span class="p">()</span><span class="o">.</span><span class="n">url</span><span class="p">())</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">webEngineView</span><span class="o">.</span><span class="n">urlChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_on_url_changed</span><span class="p">)</span>
+
+        <span class="c1"># set tool tips / status tips</span>
+        <span class="k">if</span> <span class="n">use_tool_tips</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">uiPushHome</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span><span class="s1">&#39;Go to home page&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">uiPushBack</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span><span class="s1">&#39;Go back one page&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">uiPushForward</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span><span class="s1">&#39;Go forward one page&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">uiPushBrowser</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span><span class="s1">&#39;Open page in default browser&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">use_status_tips</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">uiPushHome</span><span class="o">.</span><span class="n">setStatusTip</span><span class="p">(</span><span class="s1">&#39;Go to home page&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">uiPushBack</span><span class="o">.</span><span class="n">setStatusTip</span><span class="p">(</span><span class="s1">&#39;Go back one page&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">uiPushForward</span><span class="o">.</span><span class="n">setStatusTip</span><span class="p">(</span><span class="s1">&#39;Go forward one page&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">uiPushBrowser</span><span class="o">.</span><span class="n">setStatusTip</span><span class="p">(</span><span class="s1">&#39;Open page in default browser&#39;</span><span class="p">)</span>
+
+        <span class="c1"># set prefix and initial URL</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setUrl</span><span class="p">(</span><span class="n">url</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_on_url_changed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="n">QUrl</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">uiPushBack</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">webEngineView</span><span class="o">.</span><span class="n">history</span><span class="p">()</span><span class="o">.</span><span class="n">canGoBack</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">uiPushForward</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">webEngineView</span><span class="o">.</span><span class="n">history</span><span class="p">()</span><span class="o">.</span><span class="n">canGoForward</span><span class="p">())</span>
+
+<div class="viewcode-block" id="RestrictedWebView.setUrl">
+<a class="viewcode-back" href="../../api/iblqt.widgets.RestrictedWebView.html#iblqt.widgets.RestrictedWebView.setUrl">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setUrl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="n">QUrl</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the URL to be displayed in the web engine view.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        url : QUrl or str</span>
+<span class="sd">            The URL to load in the web engine view.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True if the navigation request is accepted, False otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">url</span> <span class="o">=</span> <span class="n">QUrl</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">url</span><span class="o">.</span><span class="n">toString</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">trustedUrlPrefix</span><span class="p">()):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">webEngineView</span><span class="o">.</span><span class="n">setUrl</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="RestrictedWebView.url">
+<a class="viewcode-back" href="../../api/iblqt.widgets.RestrictedWebView.html#iblqt.widgets.RestrictedWebView.url">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">url</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QUrl</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the current URL displayed in the web engine view.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        QUrl</span>
+<span class="sd">            The current URL.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">webEngineView</span><span class="o">.</span><span class="n">url</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="RestrictedWebView.setTrustedUrlPrefix">
+<a class="viewcode-back" href="../../api/iblqt.widgets.RestrictedWebView.html#iblqt.widgets.RestrictedWebView.setTrustedUrlPrefix">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setTrustedUrlPrefix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trusted_url_prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the trusted URL prefix.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        trusted_url_prefix : str</span>
+<span class="sd">            The prefix of trusted URLs. Clicking on links to matching URLs will open</span>
+<span class="sd">            in the widget&#39;s web engine view, while other links will open in the default</span>
+<span class="sd">            web browser.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">webEnginePage</span><span class="o">.</span><span class="n">setTrustedUrlPrefix</span><span class="p">(</span><span class="n">trusted_url_prefix</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="RestrictedWebView.trustedUrlPrefix">
+<a class="viewcode-back" href="../../api/iblqt.widgets.RestrictedWebView.html#iblqt.widgets.RestrictedWebView.trustedUrlPrefix">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">trustedUrlPrefix</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the trusted URL prefix.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            The prefix of trusted URLs. Clicking on links to matching URLs will open</span>
+<span class="sd">            in the widget&#39;s web engine view, while other links will open in the default</span>
+<span class="sd">            web browser.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">webEnginePage</span><span class="o">.</span><span class="n">trustedUrlPrefix</span><span class="p">()</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="SlideToggle">
+<a class="viewcode-back" href="../../api/iblqt.widgets.SlideToggle.html#iblqt.widgets.SlideToggle">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SlideToggle</span><span class="p">(</span><span class="n">QAbstractButton</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A sliding toggle switch.</span>
+
+<span class="sd">    Adapted from :class:`Switch` class by Stefan Scherfke</span>
+<span class="sd">    https://stackoverflow.com/a/51825815</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="SlideToggle.__init__">
+<a class="viewcode-back" href="../../api/iblqt.widgets.SlideToggle.html#iblqt.widgets.SlideToggle.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">QWidget</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">height</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the toggle switch.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        parent : QWidget or None, optional</span>
+<span class="sd">            The parent widget of the switch. Defaults to None.</span>
+
+<span class="sd">        height : int, optional</span>
+<span class="sd">            The height of the switch in pixels. The overall size and</span>
+<span class="sd">            internal geometry are derived from this value. Defaults to 20.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setCheckable</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setSizePolicy</span><span class="p">(</span><span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Fixed</span><span class="p">,</span> <span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Fixed</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_radius</span> <span class="o">=</span> <span class="n">height</span> <span class="o">/</span> <span class="mf">2.0</span>
+        <span class="n">thumb_radius</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_radius</span> <span class="o">*</span> <span class="mf">0.8</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_margin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_radius</span> <span class="o">-</span> <span class="n">thumb_radius</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_thumb_size</span> <span class="o">=</span> <span class="n">QSizeF</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">thumb_radius</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">thumb_radius</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_relative_position_value</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">font</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">font</span><span class="p">()</span>
+        <span class="n">font</span><span class="o">.</span><span class="n">setPixelSize</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="mf">1.5</span> <span class="o">*</span> <span class="n">thumb_radius</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setFont</span><span class="p">(</span><span class="n">font</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_animation</span> <span class="o">=</span> <span class="n">QPropertyAnimation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">b</span><span class="s1">&#39;_relative_position&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_animation</span><span class="o">.</span><span class="n">setDuration</span><span class="p">(</span><span class="mi">120</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">toggled</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_setup_animation</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_setup_animation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">checked</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_animation</span><span class="o">.</span><span class="n">setEndValue</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">checked</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_animation</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+    <span class="nd">@Property</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_relative_position</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_relative_position_value</span>
+
+    <span class="nd">@_relative_position</span><span class="o">.</span><span class="n">setter</span>  <span class="c1"># type: ignore</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_relative_position</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_relative_position_value</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+
+<div class="viewcode-block" id="SlideToggle.sizeHint">
+<a class="viewcode-back" href="../../api/iblqt.widgets.SlideToggle.html#iblqt.widgets.SlideToggle.sizeHint">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sizeHint</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QSize</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the recommended size for the widget.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        QSize</span>
+<span class="sd">            The recommended size of the widget as a QSize object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">QSize</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_radius</span><span class="p">),</span> <span class="nb">round</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_radius</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="SlideToggle.paintEvent">
+<a class="viewcode-back" href="../../api/iblqt.widgets.SlideToggle.html#iblqt.widgets.SlideToggle.paintEvent">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">paintEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">QPaintEvent</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Handle the painting of the custom toggle switch.</span>
+
+<span class="sd">        The appearance adapts to the widget&#39;s enabled/disabled state and palette.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        event : QPaintEvent</span>
+<span class="sd">            The paint event that triggered this repaint.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">painter</span> <span class="o">=</span> <span class="n">QPainter</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">painter</span><span class="o">.</span><span class="n">setRenderHint</span><span class="p">(</span><span class="n">QPainter</span><span class="o">.</span><span class="n">Antialiasing</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Determine colors based on state</span>
+        <span class="n">palette</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">palette</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">isEnabled</span><span class="p">():</span>
+            <span class="n">color_background</span> <span class="o">=</span> <span class="n">palette</span><span class="o">.</span><span class="n">shadow</span><span class="p">()</span><span class="o">.</span><span class="n">color</span><span class="p">()</span>
+            <span class="n">color_foreground</span> <span class="o">=</span> <span class="n">palette</span><span class="o">.</span><span class="n">midlight</span><span class="p">()</span><span class="o">.</span><span class="n">color</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">isChecked</span><span class="p">():</span>
+            <span class="n">color_background</span> <span class="o">=</span> <span class="n">palette</span><span class="o">.</span><span class="n">highlight</span><span class="p">()</span><span class="o">.</span><span class="n">color</span><span class="p">()</span>
+            <span class="n">color_foreground</span> <span class="o">=</span> <span class="n">palette</span><span class="o">.</span><span class="n">highlightedText</span><span class="p">()</span><span class="o">.</span><span class="n">color</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">color_background</span> <span class="o">=</span> <span class="n">palette</span><span class="o">.</span><span class="n">dark</span><span class="p">()</span><span class="o">.</span><span class="n">color</span><span class="p">()</span>
+            <span class="n">color_foreground</span> <span class="o">=</span> <span class="n">palette</span><span class="o">.</span><span class="n">light</span><span class="p">()</span><span class="o">.</span><span class="n">color</span><span class="p">()</span>
+
+        <span class="c1"># Draw track</span>
+        <span class="n">painter</span><span class="o">.</span><span class="n">setPen</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">NoPen</span><span class="p">)</span>
+        <span class="n">painter</span><span class="o">.</span><span class="n">setBrush</span><span class="p">(</span><span class="n">color_background</span><span class="p">)</span>
+        <span class="n">painter</span><span class="o">.</span><span class="n">drawRoundedRect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rect</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_radius</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_radius</span><span class="p">)</span>
+
+        <span class="c1"># Draw thumb</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">()</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_radius</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_relative_position</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_margin</span>
+        <span class="n">thumb_rect</span> <span class="o">=</span> <span class="n">QRectF</span><span class="p">(</span><span class="n">QPointF</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_margin</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_thumb_size</span><span class="p">)</span>
+        <span class="n">painter</span><span class="o">.</span><span class="n">setBrush</span><span class="p">(</span><span class="n">color_foreground</span><span class="p">)</span>
+        <span class="n">painter</span><span class="o">.</span><span class="n">drawEllipse</span><span class="p">(</span><span class="n">thumb_rect</span><span class="p">)</span>
+
+        <span class="c1"># Draw symbol</span>
+        <span class="n">painter</span><span class="o">.</span><span class="n">setPen</span><span class="p">(</span><span class="n">color_background</span><span class="p">)</span>
+        <span class="n">painter</span><span class="o">.</span><span class="n">setFont</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">font</span><span class="p">())</span>
+        <span class="n">symbol</span> <span class="o">=</span> <span class="s1">&#39;✔&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isChecked</span><span class="p">()</span> <span class="k">else</span> <span class="s1">&#39;✘&#39;</span>
+        <span class="n">painter</span><span class="o">.</span><span class="n">drawText</span><span class="p">(</span><span class="n">thumb_rect</span><span class="p">,</span> <span class="n">Qt</span><span class="o">.</span><span class="n">AlignCenter</span><span class="p">,</span> <span class="n">symbol</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, International Brain Laboratory.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

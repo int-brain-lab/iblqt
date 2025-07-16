@@ -1,0 +1,23 @@
+iblqt.widgets
+=============
+
+.. automodule:: iblqt.widgets
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :nosignatures:
+      :toctree:
+      :template: custom-class-template.rst
+   
+      AlyxLoginDialog
+      AlyxLoginWidget
+      AlyxUserEdit
+      CheckBoxDelegate
+      DiskSpaceIndicator
+      RestrictedWebView
+      SlideToggle
+      StatefulButton
+      ThresholdProgressBar
+      UseTokenCache
+   

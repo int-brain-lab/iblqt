@@ -1,0 +1,9 @@
+iblqt.core.DataFrameTableModel
+==============================
+
+.. currentmodule:: iblqt.core
+
+.. autoclass:: DataFrameTableModel
+   :members:
+   :undoc-members:
+   :show-inheritance:

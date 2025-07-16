@@ -1,0 +1,17 @@
+﻿iblqt
+=====
+
+.. automodule:: iblqt
+   
+.. rubric:: Modules
+
+.. autosummary::
+   :nosignatures:
+   :toctree:
+   :template: custom-module-template.rst
+   :recursive:
+
+   core
+   resources
+   tools
+   widgets

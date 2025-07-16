@@ -1,0 +1,9 @@
+iblqt.widgets.UseTokenCache
+===========================
+
+.. currentmodule:: iblqt.widgets
+
+.. autoclass:: UseTokenCache
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,9 @@
+iblqt.widgets.CheckBoxDelegate
+==============================
+
+.. currentmodule:: iblqt.widgets
+
+.. autoclass:: CheckBoxDelegate
+   :members:
+   :undoc-members:
+   :show-inheritance:

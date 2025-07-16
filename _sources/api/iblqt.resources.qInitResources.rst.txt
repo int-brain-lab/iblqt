@@ -1,0 +1,6 @@
+iblqt.resources.qInitResources
+==============================
+
+.. currentmodule:: iblqt.resources
+
+.. autofunction:: qInitResources

@@ -1,0 +1,6 @@
+iblqt.tools.get\_app
+====================
+
+.. currentmodule:: iblqt.tools
+
+.. autofunction:: get_app

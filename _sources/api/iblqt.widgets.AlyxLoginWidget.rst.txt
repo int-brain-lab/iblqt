@@ -1,0 +1,9 @@
+iblqt.widgets.AlyxLoginWidget
+=============================
+
+.. currentmodule:: iblqt.widgets
+
+.. autoclass:: AlyxLoginWidget
+   :members:
+   :undoc-members:
+   :show-inheritance:
