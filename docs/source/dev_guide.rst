@@ -69,11 +69,11 @@ unit tests, execute the following command:
 
 .. code-block:: console
 
-   $ uv run tox -p auto
+   $ uv run tox -p
 
-Tox which will create isolated environments for each specified version of Qt
-and run the tests in those environments. You can find the results of the tests
-in the terminal output, which will indicate whether the tests passed or failed.
+Tox will create isolated environments for each specified version of Qt and run
+the tests in those environments. You can find the results of the tests in the
+terminal output, which will indicate whether the tests passed or failed.
 
 Alternatively, if you want to run unit-tests for your current environment, run
 
