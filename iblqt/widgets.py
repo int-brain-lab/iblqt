@@ -59,7 +59,7 @@ from qtpy.QtWidgets import (
 
 from iblqt import resources  # noqa: F401
 from iblqt.core import QAlyx, RestrictedWebEnginePage, Worker
-
+from iblutil.util import format_bytes
 
 class CheckBoxDelegate(QStyledItemDelegate):
     """
@@ -666,6 +666,7 @@ class DiskSpaceIndicator(ThresholdProgressBar):
     def _on_result(self, result: _ntuple_diskusage) -> None:
         percent = round(result.used / result.total * 100)
         self.setValue(percent)
+        self.setToolTip(f'{format_bytes(result.free)} available')
 
 
 class RestrictedWebView(QWidget):
