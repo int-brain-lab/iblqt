@@ -118,6 +118,10 @@ known-first-party = [ "ibl*", "one*" ]
 [tool.mypy]
 packages = ["iblqt"]
 
+[[tool.mypy.overrides]]
+module = ["iblutil.*"]
+ignore_missing_imports = true
+
 [tool.pytest.ini_options]
 addopts    = "--cov=iblqt"
 minversion = "6.0"
