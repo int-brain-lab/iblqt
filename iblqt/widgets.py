@@ -61,6 +61,7 @@ from iblqt import resources  # noqa: F401
 from iblqt.core import QAlyx, RestrictedWebEnginePage, Worker
 from iblutil.util import format_bytes
 
+
 class CheckBoxDelegate(QStyledItemDelegate):
     """
     A custom delegate for rendering checkboxes in a QTableView or similar widget.
