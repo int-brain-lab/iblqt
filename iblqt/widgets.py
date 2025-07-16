@@ -903,8 +903,7 @@ class SlideToggle(QAbstractButton):
         Parameters
         ----------
         event : QPaintEvent
-            The paint event that triggered this repaint. Not directly used
-            but required to match the overridden method signature.
+            The paint event that triggered this repaint.
         """
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing, True)
@@ -922,10 +921,9 @@ class SlideToggle(QAbstractButton):
             color_foreground = palette.light().color()
 
         # Draw track
-        track_rect = self.rect()
         painter.setPen(Qt.NoPen)
         painter.setBrush(color_background)
-        painter.drawRoundedRect(track_rect, self._radius, self._radius)
+        painter.drawRoundedRect(self.rect(), self._radius, self._radius)
 
         # Draw thumb
         x = (self.width() - 2 * self._radius) * self._relative_position + self._margin

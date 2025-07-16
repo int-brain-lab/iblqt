@@ -496,44 +496,31 @@ class TestSlideToggle:
     def slider(self, qtbot):
         widget = widgets.SlideToggle()
         qtbot.addWidget(widget)
+        widget.show()
+        qtbot.waitExposed(widget)
         return widget
 
-    def test_initial_state(self, slider):
+    def test_initial_state(self, qtbot, slider):
         assert not slider.isChecked()
-        assert slider.isEnabled()
+        assert slider.isEnabled() is True
+        assert slider.isChecked() is False
         assert slider._relative_position == 0.0
 
     def test_toggle_changes_state(self, qtbot, slider):
         qtbot.mouseClick(slider, Qt.LeftButton)
-        assert slider.isChecked()
+        assert slider.isChecked() is True
         slider._animation.setCurrentTime(slider._animation.duration())
         assert slider._relative_position == 1.0
 
     def test_disabled_does_not_toggle(self, qtbot, slider):
         slider.setEnabled(False)
         qtbot.mouseClick(slider, Qt.LeftButton)
-        assert not slider.isChecked()
+        assert slider.isChecked() is False
 
     def test_emits_toggled_signal(self, qtbot, slider):
         with qtbot.waitSignal(slider.toggled, timeout=500) as blocker:
             qtbot.mouseClick(slider, Qt.LeftButton)
         assert blocker.args == [True]
-
-    def test_paint_event_unchecked(self, qtbot, slider):
-        slider.show()
-        qtbot.waitExposed(slider)
-        assert slider.isEnabled() is True
-        assert slider.isChecked() is False
-
-    def test_paint_event_checked(self, qtbot, slider):
-        slider.setChecked(True)
-        slider.show()
-        qtbot.waitExposed(slider)
-        assert slider.isEnabled() is True
-        assert slider.isChecked() is True
-
-    def test_paint_event_disabled(self, qtbot, slider):
-        slider.setEnabled(False)
-        slider.show()
-        qtbot.waitExposed(slider)
-        assert slider.isEnabled() is False
+        with qtbot.waitSignal(slider.toggled, timeout=500) as blocker:
+            qtbot.mouseClick(slider, Qt.LeftButton)
+        assert blocker.args == [False]
