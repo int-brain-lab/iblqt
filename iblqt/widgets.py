@@ -189,6 +189,8 @@ class ColoredButton(QPushButton):
         palette = self.palette()
         palette.setColor(QPalette.Button, color or self._original_color)
         self.setPalette(palette)
+        self.setAutoFillBackground(True)
+        self.update()
 
     def color(self) -> QColor:
         """
