@@ -147,7 +147,62 @@ class CheckBoxDelegate(QStyledItemDelegate):
         return super().editorEvent(event, model, option, index)
 
 
-class StatefulButton(QPushButton):
+class ColoredButton(QPushButton):
+    """A QPushButton that can change color."""
+
+    def __init__(
+        self,
+        text: str,
+        color: QColor | None = None,
+        parent: QWidget | None = None,
+        **kwargs,
+    ):
+        """
+        Initialize the ColoredButton.
+
+        Parameters
+        ----------
+        text : str
+            The text to be displayed.
+        color : QColor, optional
+            The color to use for the button.
+        parent : QWidget
+            The parent widget.
+        **kwargs : dict
+            Arbitrary keyword arguments (passed to QPushButton).
+        """
+        super().__init__(text, parent, **kwargs)
+        self._original_color = self.palette().color(QPalette.Button)
+        if color is not None:
+            self.setColor(color)
+
+    def setColor(self, color: QColor | None) -> None:
+        """
+        Set the color of the button.
+
+        Parameters
+        ----------
+        color : QColor, optional
+            The new color of the button. If None, the color will be reset to it's
+            default color.
+        """
+        palette = self.palette()
+        palette.setColor(QPalette.Button, color or self._original_color)
+        self.setPalette(palette)
+
+    def color(self) -> QColor:
+        """
+        Return the color of the button.
+
+        Returns
+        -------
+        QColor
+            The color of the button.
+        """
+        return self.palette().color(QPalette.Button)
+
+
+class StatefulButton(ColoredButton):
     """A QPushButton that maintains an active/inactive state."""
 
     clickedWhileActive = Signal()  # type: Signal
@@ -166,8 +221,10 @@ class StatefulButton(QPushButton):
         textInactive: str | None = None,
         active: bool = False,
         parent: QWidget | None = None,
+        **kwargs: dict[str, Any],
     ):
-        """Initialize the StatefulButton with the specified active state.
+        """
+        Initialize the StatefulButton with the specified active state.
 
         Parameters
         ----------
@@ -179,11 +236,18 @@ class StatefulButton(QPushButton):
             Initial state of the button (default is False).
         parent : QWidget
             The parent widget.
+        **kwargs : dict
+            Arbitrary keyword arguments (passed to ColoredButton).
         """
         self._isActive = active
         self._textActive = textActive or ''
         self._textInactive = textInactive or ''
-        super().__init__(self._textActive if active else self._textInactive, parent)
+        super().__init__(
+            text=self._textActive if active else self._textInactive,
+            color=None,
+            parent=parent,
+            **kwargs,
+        )
 
         self.clicked.connect(self._onClick)
         self.stateChanged.connect(self._onStateChange)
@@ -281,7 +345,10 @@ class StatefulButton(QPushButton):
     @Slot(bool)
     def _onStateChange(self, state: bool):
         """Handle the state change event."""
-        self.setText(self._textActive if state is True else self._textInactive)
+        if state is True:
+            self.setText(self._textActive)
+        if state is False:
+            self.setText(self._textInactive)
 
 
 class UseTokenCache(IntEnum):
