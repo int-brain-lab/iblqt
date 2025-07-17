@@ -83,7 +83,6 @@ class TestColoredButton:
 
     def test_initial_color(self, button_factory):
         button = button_factory(color=QColor('red'))
-        default_color = button._original_color
         assert button.color() == QColor('red')
 
     def test_set_color(self, button_factory):
