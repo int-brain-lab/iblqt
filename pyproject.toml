@@ -1,6 +1,6 @@
 [build-system]
-requires = ["pdm-backend"]
-build-backend = "pdm.backend"
+requires = ["uv_build"]
+build-backend = "uv_build"
 
 [project]
 name = "iblqt"
@@ -85,12 +85,11 @@ required-environments = [
     "sys_platform == 'darwin'",
 ]
 
-[tool.pdm]
-distribution = true
-
-[tool.pdm.build]
-excludes = [ "docs/source/api" ]
-source-includes = [ "tests/*.py", "resources/", "docs/source/" ]
+[tool.uv.build-backend]
+module-name = "iblqt"
+module-root = ""
+source-include = [ "tests/*.py", "resources/**/*", "docs/source/**/*" ]
+source-exclude = [ "docs/source/api" ]
 
 [tool.ruff]
 include = ["pyproject.toml", "iblqt/**/*.py", "tests/**/*.py"]
