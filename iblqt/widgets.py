@@ -986,10 +986,10 @@ class SlideToggle(QAbstractButton):
             color_foreground = palette.window().color()
         elif self.isChecked():
             color_background = palette.highlight().color()
-            color_foreground = palette.window().color()
+            color_foreground = palette.light().color()
         else:
-            color_background = palette.shadow().color()
-            color_foreground = palette.window().color()
+            color_background = palette.dark().color()
+            color_foreground = palette.light().color()
 
         # Draw track
         painter.setPen(Qt.NoPen)
