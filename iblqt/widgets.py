@@ -983,7 +983,7 @@ class SlideToggle(QAbstractButton):
         palette = self.palette()
         if not self.isEnabled():
             color_background = palette.dark().color()
-            color_background.setAlphaF(0.5)
+            color_background.setAlphaF(0.6)
             color_foreground = palette.window().color()
         elif self.isChecked():
             color_background = palette.highlight().color()
