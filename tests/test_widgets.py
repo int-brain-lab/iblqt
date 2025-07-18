@@ -66,6 +66,39 @@ class TestCheckBoxDelegate:
         self.delegate.paint(painter, option, index)
 
 
+class TestColoredButton:
+    @pytest.fixture
+    def button_factory(self, qtbot):
+        def _create_button(text='Click Me', color=None, parent=None):
+            button = widgets.ColoredButton(text, color=color, parent=parent)
+            qtbot.addWidget(button)
+            return button
+
+        return _create_button
+
+    def test_default_color(self, button_factory):
+        button = button_factory()
+        default_color = button._original_color
+        assert button.color() == default_color
+
+    def test_initial_color(self, button_factory):
+        button = button_factory(color=QColor('red'))
+        assert button.color() == QColor('red')
+
+    def test_set_color(self, button_factory):
+        button = button_factory()
+        new_color = QColor('red')
+        button.setColor(new_color)
+        assert button.color() == new_color
+
+    def test_resets_color(self, button_factory):
+        button = button_factory()
+        original = button._original_color
+        button.setColor(QColor('blue'))
+        button.setColor(None)
+        assert button.color() == original
+
+
 class TestStatefulButton:
     def test_initial_state(self, qtbot):
         """Test the initial state of the StatefulButton."""

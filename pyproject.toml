@@ -1,9 +1,10 @@
 [build-system]
-requires = ["pdm-backend"]
-build-backend = "pdm.backend"
+requires = ["uv_build"]
+build-backend = "uv_build"
 
 [project]
 name = "iblqt"
+version = "0.8.0"
 description = "A collection of extensions to the Qt framework."
 dependencies = [
   "qtpy>=2.4.1",
@@ -20,7 +21,6 @@ license = {text = "MIT"}
 authors = [
   {name = "Florian Rau", email = "bimac@users.noreply.github.com"},
 ]
-dynamic = ["version"]
 
 [project.optional-dependencies]
 pyqt5 = [
@@ -85,16 +85,11 @@ required-environments = [
     "sys_platform == 'darwin'",
 ]
 
-[tool.pdm]
-distribution = true
-
-[tool.pdm.build]
-excludes = [ "docs/source/api" ]
-source-includes = [ "tests/*.py", "resources/", "docs/source/" ]
-
-[tool.pdm.version]
-source = "file"
-path = "iblqt/__init__.py"
+[tool.uv.build-backend]
+module-name = "iblqt"
+module-root = ""
+source-include = [ "tests/*.py", "resources/**/*", "docs/source/**/*" ]
+source-exclude = [ "docs/source/api" ]
 
 [tool.ruff]
 include = ["pyproject.toml", "iblqt/**/*.py", "tests/**/*.py"]
