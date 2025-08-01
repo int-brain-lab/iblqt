@@ -36,10 +36,10 @@ jobs:
         with:
           packages: libegl1
           version: 1.0
-      - name: Run Tests
+      - name: run tox
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: uv run tox --parallel-no-spinner
+        run: uv run tox --parallel-no-spinner -- -ci
   finish:
     needs: tox
     if: ${{ always() }}
