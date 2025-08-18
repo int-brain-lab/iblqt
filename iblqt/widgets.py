@@ -31,7 +31,6 @@ from qtpy.QtGui import (
     QPaintEvent,
     QPalette,
 )
-from qtpy.QtWebEngineWidgets import QWebEngineView
 from qtpy.QtWidgets import (
     QAbstractButton,
     QApplication,
@@ -773,6 +772,10 @@ class RestrictedWebView(QWidget):
             url = QUrl(url)
         if trusted_url_prefix is None:
             trusted_url_prefix = url.toString()
+
+        # The import of QWebEngineView is handled locally as QtWebEngineWidgets is a
+        # separate package in case of PyQt5 and may not be available in all environments
+        from qtpy.QtWebEngineWidgets import QWebEngineView
 
         # Create a QWebEngineView to display the web content
         self.webEngineView = QWebEngineView(self)
