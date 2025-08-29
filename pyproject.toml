@@ -4,7 +4,7 @@ build-backend = "uv_build"
 
 [project]
 name = "iblqt"
-version = "0.8.1"
+version = "0.8.2"
 description = "A collection of extensions to the Qt framework."
 dependencies = [
   "qtpy>=2.4.1",
