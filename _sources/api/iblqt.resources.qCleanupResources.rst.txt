@@ -1,0 +1,6 @@
+iblqt.resources.qCleanupResources
+=================================
+
+.. currentmodule:: iblqt.resources
+
+.. autofunction:: qCleanupResources

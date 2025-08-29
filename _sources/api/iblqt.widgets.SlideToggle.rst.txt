@@ -1,0 +1,9 @@
+iblqt.widgets.SlideToggle
+=========================
+
+.. currentmodule:: iblqt.widgets
+
+.. autoclass:: SlideToggle
+   :members:
+   :undoc-members:
+   :show-inheritance:

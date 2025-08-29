@@ -1,0 +1,9 @@
+iblqt.widgets.DiskSpaceIndicator
+================================
+
+.. currentmodule:: iblqt.widgets
+
+.. autoclass:: DiskSpaceIndicator
+   :members:
+   :undoc-members:
+   :show-inheritance:

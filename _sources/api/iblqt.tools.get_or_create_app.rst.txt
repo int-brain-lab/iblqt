@@ -1,0 +1,6 @@
+iblqt.tools.get\_or\_create\_app
+================================
+
+.. currentmodule:: iblqt.tools
+
+.. autofunction:: get_or_create_app

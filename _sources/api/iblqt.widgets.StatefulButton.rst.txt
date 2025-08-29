@@ -1,0 +1,9 @@
+iblqt.widgets.StatefulButton
+============================
+
+.. currentmodule:: iblqt.widgets
+
+.. autoclass:: StatefulButton
+   :members:
+   :undoc-members:
+   :show-inheritance:

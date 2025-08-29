@@ -1,0 +1,9 @@
+iblqt.widgets.ColoredButton
+===========================
+
+.. currentmodule:: iblqt.widgets
+
+.. autoclass:: ColoredButton
+   :members:
+   :undoc-members:
+   :show-inheritance:

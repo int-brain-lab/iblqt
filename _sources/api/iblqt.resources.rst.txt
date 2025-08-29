@@ -1,0 +1,14 @@
+iblqt.resources
+===============
+
+.. automodule:: iblqt.resources
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :nosignatures:
+      :toctree:
+   
+      qCleanupResources
+      qInitResources
+   

@@ -1,0 +1,9 @@
+iblqt.core.RestrictedWebEnginePage
+==================================
+
+.. currentmodule:: iblqt.core
+
+.. autoclass:: RestrictedWebEnginePage
+   :members:
+   :undoc-members:
+   :show-inheritance:
