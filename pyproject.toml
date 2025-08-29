@@ -4,7 +4,7 @@ build-backend = "uv_build"
 
 [project]
 name = "iblqt"
-version = "0.8.1"
+version = "0.8.2"
 description = "A collection of extensions to the Qt framework."
 dependencies = [
   "qtpy>=2.4.1",
@@ -64,6 +64,7 @@ test = [
   {include-group = "lint"},
   "pytest>=8.3.4",
   "pytest-cov>=6.0.0",
+  "pytest-mock>=3.14.1",
   "pytest-qt>=4.4.0",
   "pytest-xvfb>=3.1.1",
   "tox>=4.23.2",
