@@ -213,20 +213,18 @@ class TestAlyxLoginWidget:
         self.login_widget = widgets.AlyxLoginWidget(alyx=self.alyx_mock, parent=None)
         qtbot.addWidget(self.login_widget)
 
-    def test_instantiation(self, qtbot):
+    def test_instantiation(self, mocker, qtbot):
         """Test instantiation."""
         alyx_mock = MagicMock(spec=QAlyx)
         login_widget = widgets.AlyxLoginWidget(alyx=alyx_mock, parent=None)
         qtbot.addWidget(login_widget)
         assert login_widget.alyx is alyx_mock
 
-        with patch('iblqt.core.AlyxClient') as client_mock:
-            login_widget = widgets.AlyxLoginWidget(
-                alyx='https://example.com', parent=None
-            )
-            qtbot.addWidget(login_widget)
-            client_mock.assert_called_once()
-            assert 'https://example.com' in client_mock.call_args[1].values()
+        client_mock = mocker.patch('iblqt.core.AlyxClient', autospec=True)
+        login_widget = widgets.AlyxLoginWidget(alyx='https://example.com', parent=None)
+        qtbot.addWidget(login_widget)
+        client_mock.assert_called_once()
+        assert 'https://example.com' in client_mock.call_args[1].values()
 
     def test_enable_login_button(self, qtbot, setup_method):
         """Test that the login button is enabled when a username is entered."""

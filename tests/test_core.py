@@ -1,6 +1,8 @@
+import importlib
 import os
 import sys
 import time
+import typing
 from pathlib import Path
 from unittest.mock import PropertyMock, patch
 
@@ -435,3 +437,17 @@ class TestRestrictedWebEnginePage:
         )
         mock_open.assert_called_once_with('http://localhost/external/page')
         assert result is False
+
+    def test_raises_without_qwebengine(self, mocker, monkeypatch, missing_module):
+        missing_module('qtpy.QtWebEngineWidgets')
+        mocker.patch('qtpy.QT_API', 'pyqt5')
+        monkeypatch.setattr(typing, 'TYPE_CHECKING', True)
+        importlib.reload(core)
+        core.RestrictedWebEnginePage()
+
+        monkeypatch.setattr(typing, 'TYPE_CHECKING', False)
+        importlib.reload(core)
+        with pytest.raises(RuntimeError) as exc:
+            core.RestrictedWebEnginePage()
+        assert 'RestrictedWebEnginePage requires QWebEnginePage' in str(exc.value)
+        assert 'PyQtWebEngine' in str(exc.value)

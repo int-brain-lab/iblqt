@@ -7,13 +7,14 @@ import warnings
 import webbrowser
 from inspect import signature
 from pathlib import Path
-from typing import Any, Callable, cast
+from typing import TYPE_CHECKING, Any, Callable, cast
 
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
 from pandas import DataFrame
 from pyqtgraph import ColorMap, colormap  # type: ignore
+from qtpy import QT_API, QtModuleNotInstalledError
 from qtpy.QtCore import (
     Property,
     QAbstractTableModel,
@@ -27,7 +28,6 @@ from qtpy.QtCore import (
     Slot,
 )
 from qtpy.QtGui import QColor
-from qtpy.QtWebEngineWidgets import QWebEnginePage
 from qtpy.QtWidgets import QMessageBox, QWidget
 from requests import HTTPError
 from typing_extensions import override
@@ -880,79 +880,98 @@ class Worker(QRunnable):
             self.signals.finished.emit()
 
 
-class RestrictedWebEnginePage(QWebEnginePage):
-    """
-    A :class:`QWebEnginePage` subclass that filters navigation requests based on a URL prefix.
+try:
+    from qtpy.QtWebEngineWidgets import QWebEnginePage
 
-    Links that start with the specified `trusted_url_prefix` are allowed to load inside
-    the application. All other links are opened externally in the default web browser.
+except (ImportError, QtModuleNotInstalledError):
+    if TYPE_CHECKING:
+        pass
+    else:
+        package_name = 'PyQtWebEngine' if QT_API == 'pyqt5' else 'PyQt6-WebEngine'
 
-    Adapted from: https://www.pythonguis.com/faq/qwebengineview-open-links-new-window/
-    """
+        class RestrictedWebEnginePage:  # noqa: D101
+            def __init__(self, *args, **kwargs):
+                raise RuntimeError(
+                    'RestrictedWebEnginePage requires QWebEnginePage, which is not '
+                    f'available. Please install the {package_name} package.'
+                )
+else:
 
-    def __init__(self, parent: QObject | None = None, trusted_url_prefix: str = ''):
+    class RestrictedWebEnginePage(QWebEnginePage):
         """
-        Initialize the UrlFilteredWebEnginePage.
+        A :class:`QWebEnginePage` subclass that filters navigation requests.
 
-        Parameters
-        ----------
-        parent : QObject, optional
-            The parent of this web engine page.
-        trusted_url_prefix : str
-            A URL prefix that identifies trusted links. Only links starting
-            with this prefix will be loaded within the web view.
+        Links that start with the specified `trusted_url_prefix` are allowed to load
+        inside the application. All other links are opened externally in the default web
+        browser.
+
+        Adapted from:
+            https://www.pythonguis.com/faq/qwebengineview-open-links-new-window/
         """
-        super().__init__(parent)
-        self._trusted_url_prefix = trusted_url_prefix
 
-    @override
-    def acceptNavigationRequest(
-        self,
-        url: QUrl,
-        navigationType: QWebEnginePage.NavigationType,
-        is_main_frame: bool,
-    ) -> bool:
-        """
-        Handle and filter navigation requests.
+        def __init__(self, parent: QObject | None = None, trusted_url_prefix: str = ''):
+            """
+            Initialize the UrlFilteredWebEnginePage.
 
-        Parameters
-        ----------
-        url : QUrl
-            The target URL of the navigation request.
-        navigationType : QWebEnginePage.NavigationType
-            The type of navigation event
-        is_main_frame : bool
-            Whether the navigation occurs in the main frame.
+            Parameters
+            ----------
+            parent : QObject, optional
+                The parent of this web engine page.
+            trusted_url_prefix : str
+                A URL prefix that identifies trusted links. Only links starting with
+                this prefix will be loaded within the web view.
+            """
+            super().__init__(parent)
+            self._trusted_url_prefix = trusted_url_prefix
 
-        Returns
-        -------
-        bool
-            True if the navigation should proceed in the web view;
-            False if the link is handled externally.
-        """
-        if not url.toString().startswith(self._trusted_url_prefix):
-            webbrowser.open(url.toString())
-            return False
-        return super().acceptNavigationRequest(url, navigationType, is_main_frame)
+        @override
+        def acceptNavigationRequest(
+            self,
+            url: QUrl,
+            navigationType: QWebEnginePage.NavigationType,
+            is_main_frame: bool,
+        ) -> bool:
+            """
+            Handle and filter navigation requests.
 
-    def setTrustedUrlPrefix(self, trusted_url_prefix: str) -> None:
-        """
-        Set the URL prefix that identifies trusted links.
+            Parameters
+            ----------
+            url : QUrl
+                The target URL of the navigation request.
+            navigationType : QWebEnginePage.NavigationType
+                The type of navigation event
+            is_main_frame : bool
+                Whether the navigation occurs in the main frame.
 
-        Parameters
-        ----------
-        trusted_url_prefix : str
-            The URL prefix that identifies trusted links.
-        """
-        self._trusted_url_prefix = trusted_url_prefix
+            Returns
+            -------
+            bool
+                True if the navigation should proceed in the web view;
+                False if the link is handled externally.
+            """
+            if not url.toString().startswith(self._trusted_url_prefix):
+                webbrowser.open(url.toString())
+                return False
+            return super().acceptNavigationRequest(url, navigationType, is_main_frame)
 
-    def trustedUrlPrefix(self) -> str:
-        """
-        Retrieve the URL prefix that identifies trusted links.
+        def setTrustedUrlPrefix(self, trusted_url_prefix: str) -> None:
+            """
+            Set the URL prefix that identifies trusted links.
 
-        Returns
-        -------
-        str
-            The URL prefix that identifies trusted links.
-        """
-        return self._trusted_url_prefix
+            Parameters
+            ----------
+            trusted_url_prefix : str
+                The URL prefix that identifies trusted links.
+            """
+            self._trusted_url_prefix = trusted_url_prefix
+
+        def trustedUrlPrefix(self) -> str:
+            """
+            Retrieve the URL prefix that identifies trusted links.
+
+            Returns
+            -------
+            str
+                The URL prefix that identifies trusted links.
+            """
+            return self._trusted_url_prefix
