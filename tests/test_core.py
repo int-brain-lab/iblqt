@@ -1,3 +1,4 @@
+import importlib
 import os
 import sys
 import time
@@ -435,3 +436,18 @@ class TestRestrictedWebEnginePage:
         )
         mock_open.assert_called_once_with('http://localhost/external/page')
         assert result is False
+
+    def test_raises_without_qwebengine(self, mocker, monkeypatch):
+        # Simulate ImportError for qtwebengine
+        monkeypatch.setitem(sys.modules, 'qtpy.QtWebEngineWidgets', None)
+        # Reload core to hit the fallback path
+        # Remove iblqt.core if already imported to ensure import runs again
+        sys.modules.pop('iblqt.core', None)
+
+        mocker.patch('qtpy.QT_API', 'pyqt5')
+        with pytest.raises(RuntimeError) as exc:
+            core = importlib.import_module('iblqt.core')
+            # instantiate fallback class
+            core.RestrictedWebEnginePage()
+        assert 'RestrictedWebEnginePage requires QWebEnginePage' in str(exc.value)
+        assert 'PyQtWebEngine' in str(exc.value)
